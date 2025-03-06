@@ -9,8 +9,8 @@ namespace Eternal {
 
 		m_Window = Eternal::Window::Builder()
 			.title(m_ApplicationName)
-			.height(600)
-			.width(800)
+			.height(800)
+			.width(1200)
 			.build();
 
 		m_GraphicsPlatform = new VulkanPlatform(m_ApplicationName, m_Window);

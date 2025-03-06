@@ -1,28 +1,38 @@
 #pragma once
 
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include <eternal/core/graphics/GraphicsPlatform.h>
 #include <eternal/utils/Base.h>
 #include <eternal/core/Window.h>
+#include <eternal/core/graphics/Timer.h>
+#include <eternal/core/graphics/vulkan/VulkanSwapChain.h>
 
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
 #include <fstream>
 #include <filesystem>
 
 namespace Eternal {
 
-	constexpr uint32_t const INVALID_VK_INDEX = 0xFFFFFFFF;
-
 	constexpr uint32_t const MAX_FRAMES_IN_FLIGHT = 2;
+
+	using VkStringArray = std::vector<const char*>;
+	using VkString = const char*;
+	using VkStringArrayPtr = const char**;
 
 	class VulkanPlatform : public GraphicsPlatform
 	{
 
 	public:
 
-		using VkStringArray = std::vector<const char*>;
-		using VkString = const char*;
-		using VkStringArrayPtr = const char**;
+
+		struct PushConstants
+		{
+			glm::mat4 ViewProjection;
+			glm::mat4 Transform;
+		};
 
 		struct Buffer
 		{
@@ -30,21 +40,6 @@ namespace Eternal {
 			vk::DeviceMemory memory = nullptr;
 			vk::DeviceSize size = 0;
 			vk::BufferUsageFlagBits usage = vk::BufferUsageFlagBits::eIndexBuffer;
-		};
-
-		struct SwapChainDetails
-		{
-			vk::SurfaceCapabilitiesKHR capabilities;
-			std::vector<vk::SurfaceFormatKHR> formats;
-			std::vector<vk::PresentModeKHR> presentModes;
-		};
-
-		struct SwapChainCreateDetails
-		{
-			vk::SurfaceCapabilitiesKHR capabilities;
-			vk::SurfaceFormatKHR surfaceFormat;
-			vk::PresentModeKHR presentMode;
-			vk::Extent2D extent;
 		};
 
 		VulkanPlatform(std::string& applicationName, Eternal::Window* window);
@@ -67,24 +62,6 @@ namespace Eternal {
 
 		vk::Device createLogicalDevice(vk::PhysicalDevice& device, uint32_t graphicsQueueFamilyIndex, uint32_t presentQueueFamilyIndex);
 
-		SwapChainDetails querySwapChainDetails(vk::PhysicalDevice& device, vk::SurfaceKHR& surface);
-
-		vk::SwapchainKHR createSwapChain(
-			const vk::Device& logicalDevice,
-			const SwapChainCreateDetails& swapChainCreateDetails,
-			vk::SurfaceKHR& surface,
-			uint32_t graphicsQueueFamilyIndex,
-			uint32_t presentQueueFamilyIndex
-		);
-
-		SwapChainCreateDetails getSwapChainCreateDetails(const SwapChainDetails& swapChainDetails);
-
-		vk::SurfaceFormatKHR chooseSwapChainSurfaceFormat(const std::vector<vk::SurfaceFormatKHR>& availableFormats);
-
-		vk::PresentModeKHR chooseSwapChainPresentMode(const std::vector<vk::PresentModeKHR>& availablePresentModes);
-
-		vk::Extent2D chooseSwapChainExtent(const vk::SurfaceCapabilitiesKHR& capabilities);
-
 		vk::RenderPass createRenderPass(const vk::Device& logicalDevice);
 
 		vk::ShaderModule loadShader(const vk::Device& logicalDevice, const std::filesystem::path& path);
@@ -103,8 +80,6 @@ namespace Eternal {
 
 	private:
 
-		void initializeSwapChain();
-
 		void initializePipeline();
 
 		void initializeRenderPass();
@@ -117,29 +92,31 @@ namespace Eternal {
 
 		void initializeSyncObjects();
 
-		void cleanupSwapChain();
+		void initializeBuffers();
 
-		void recreateSwapChain();
+		void createOrResizeBuffer(Buffer& buffer, uint32_t newSize);
+
+		uint32_t getMemoryType(vk::MemoryPropertyFlags properties, uint32_t type_bits);
 
 		std::string m_ApplicationName;
 
 		Eternal::Window* m_Window = nullptr;
 
 		vk::Instance m_VkInstance = nullptr;
-		vk::PhysicalDevice m_VkPhysicalDevice = nullptr;
+		vk::PhysicalDevice m_PhysicalDevice = nullptr;
 		vk::Device m_LogicalDevice = nullptr;
 		vk::SurfaceKHR m_Surface = nullptr;
 
-		vk::SwapchainKHR m_SwapChain = nullptr;
-		SwapChainCreateDetails m_SwapChainCreateDetails = { };
-		std::vector<vk::Image> m_SwapChainImages;
-		std::vector<vk::ImageView> m_SwapChainImageViews;
+		Buffer m_VertexBuffer;
+		Buffer m_IndexBuffer;
+		PushConstants m_PushConstants;
 
 		vk::PipelineLayout m_PipelineLayout = nullptr;
 		vk::Pipeline m_GraphicsPipeline = nullptr;
 		vk::RenderPass m_RenderPass = nullptr;
 
 		std::vector<vk::Framebuffer> m_SwapChainFrameBuffers;
+		VulkanSwapChain* m_VulkanSwapChain = nullptr;
 
 		vk::CommandPool m_CommandPool = nullptr;
 		std::vector<vk::CommandBuffer> m_CommandBuffers;
@@ -157,5 +134,15 @@ namespace Eternal {
 		std::vector<vk::Fence> m_InFlightFences;
 
 		uint32_t m_CurrentFrame = 0;
+
+		glm::vec3 m_CubePosition = glm::vec3(0);
+		glm::vec3 m_CubeRotation = glm::vec3(0);
+
+		glm::vec3 m_CameraPosition = glm::vec3(0, 0, 3);
+		glm::vec3 m_CameraRotation = glm::vec3(0);
+
+		float m_CubeScale = 0.4f;
+
+		Timer timer;
 	};
 }

@@ -4,7 +4,6 @@
 #include <iostream>
 
 int main() {
-
 	Eternal::Logger::Init();
 	Eternal::Engine* mEngine = Eternal::Engine::Builder()
 		.applicationName("Eternal Application")
@@ -12,7 +11,7 @@ int main() {
 
 	mEngine->run();
 
-	delete mEngine;
+	delete mEngine; 
 
 	return 0;
 }

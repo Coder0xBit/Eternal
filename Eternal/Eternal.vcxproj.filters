@@ -36,6 +36,9 @@
     <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanPlatform.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanSwapChain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\eternal\core\Logger.h">
@@ -68,6 +71,15 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\eternal\core\graphics\Timer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanConstants.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanSwapChain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\eternal\core\graphics\shader\Compile.bat">
@@ -77,6 +89,7 @@
     <None Include="src\eternal\core\graphics\shader\shader.vert" />
     <None Include="src\eternal\core\graphics\shader\bin\frag.spv" />
     <None Include="src\eternal\core\graphics\shader\bin\vert.spv" />
+    <None Include="Eternal.aps" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Eternal.rc">
