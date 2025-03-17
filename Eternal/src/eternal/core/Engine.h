@@ -10,7 +10,6 @@
 
 namespace Eternal {
 
-
 	class Engine
 	{
 
