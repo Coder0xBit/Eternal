@@ -18,7 +18,7 @@ namespace Eternal {
 		m_IsRunning = true;
 	}
 
-	void Engine::run()
+	void Engine::onUpdate()
 	{
 		while (m_IsRunning)
 		{
@@ -26,6 +26,11 @@ namespace Eternal {
 			m_GraphicsPlatform->render();
 			m_IsRunning = !m_Window->shouldClose();
 		}
+	}
+
+	vk::CommandBuffer Engine::getCommandBuffer()
+	{
+		return static_cast<VulkanPlatform*>(m_GraphicsPlatform)->getCommandBuffer();
 	}
 
 	Engine::~Engine()

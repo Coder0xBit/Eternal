@@ -82,6 +82,12 @@ namespace Eternal {
 		initializeCommandBuffer();
 
 		initializeSyncObjects();
+
+		m_VulkanGraphicsContext = new VulkanGraphicsContext(
+			m_VkInstance, m_PhysicalDevice,
+			m_LogicalDevice, m_GraphicsQueue,
+			m_GraphicsQueueFamilyIndex
+		);
 	}
 
 	vk::Instance VulkanPlatform::createInstance(const std::string& applicationName)
@@ -526,6 +532,8 @@ namespace Eternal {
 
 		m_VkInstance.destroySurfaceKHR(m_Surface);
 		m_VkInstance.destroy();
+
+		delete m_VulkanGraphicsContext;
 	}
 
 	void VulkanPlatform::render()

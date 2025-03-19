@@ -7,6 +7,7 @@
 #include <eternal/core/Window.h>
 #include <eternal/core/graphics/GraphicsPlatform.h>
 #include <GLFW/glfw3.h>
+#include <vulkan/vulkan.hpp>
 
 namespace Eternal {
 
@@ -45,8 +46,11 @@ namespace Eternal {
 
 		bool isRunning() const { return m_IsRunning; }
 
-		void run();
+		void onUpdate();
 
+		vk::CommandBuffer getCommandBuffer();
+
+		Eternal::GraphicsPlatform* getPlatform() { return m_GraphicsPlatform; }
 	private:
 		std::string m_ApplicationName;
 		Eternal::Window* m_Window = nullptr;

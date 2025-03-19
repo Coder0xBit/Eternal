@@ -7,6 +7,7 @@
 #include <eternal/core/Window.h>
 #include <eternal/core/graphics/Timer.h>
 #include <eternal/core/graphics/vulkan/VulkanSwapChain.h>
+#include <eternal/core/graphics/vulkan/VulkanGraphicsContext.h>
 
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
@@ -26,7 +27,6 @@ namespace Eternal {
 	{
 
 	public:
-
 
 		struct PushConstants
 		{
@@ -77,6 +77,10 @@ namespace Eternal {
 		void logDeviceProps(const vk::PhysicalDevice& device);
 
 		void recordCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
+
+		vk::CommandBuffer getCommandBuffer() { return m_CommandBuffers[m_CurrentFrame]; }
+
+		VulkanGraphicsContext* getContext() { return m_VulkanGraphicsContext; }
 
 	private:
 
@@ -142,6 +146,8 @@ namespace Eternal {
 		glm::vec3 m_CameraRotation = glm::vec3(0);
 
 		float m_CubeScale = 0.4f;
+
+		Eternal::VulkanGraphicsContext* m_VulkanGraphicsContext = nullptr;
 
 		Timer timer;
 	};
