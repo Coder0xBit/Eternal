@@ -1,8 +1,7 @@
 #include "VulkanSwapChain.h"
 
 namespace Eternal {
-	VulkanSwapChain::VulkanSwapChain
-	(
+	VulkanSwapChain::VulkanSwapChain(
 		vk::Device logicalDevice,
 		vk::PhysicalDevice physicalDevice,
 		vk::Queue queue,

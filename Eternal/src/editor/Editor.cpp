@@ -16,8 +16,7 @@ namespace Eternal {
 			.build();
 
 		Eternal::VulkanPlatform* platform = static_cast<Eternal::VulkanPlatform*>(m_Engine->getPlatform());
-		Eternal::VulkanGraphicsContext* context = platform->getContext();
-		m_ImGuiLayer = new VulkanImGuiLayer(context);
+		m_ImGuiLayer = new VulkanImGuiLayer(platform);
 
 		m_IsRunning = true;
 	}
@@ -31,9 +30,8 @@ namespace Eternal {
 	{
 		while (m_IsRunning)
 		{
-			m_ImGuiLayer->beginFrame();
-			onImGuiRender();
-			m_ImGuiLayer->endFrame();
+			m_Engine->onUpdate();
+			m_IsRunning = m_Engine->isRunning();
 		}
 	}
 
@@ -44,12 +42,13 @@ namespace Eternal {
 
 	void Editor::onImGuiRender()
 	{
-		static bool show_demo_window = true;
-		ImGui::ShowDemoWindow(&show_demo_window);
+		static bool showDemoWindow = true;
+		ImGui::ShowDemoWindow(&showDemoWindow);
 	}
 
 	void Editor::shutdown()
 	{
+		delete m_ImGuiLayer;
 		delete m_Engine;
 	}
 }

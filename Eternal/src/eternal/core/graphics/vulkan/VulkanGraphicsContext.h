@@ -2,21 +2,19 @@
 
 #include <eternal/core/graphics/GraphicsContext.h>
 #include <eternal/core/graphics/vulkan/VulkanSwapChain.h>
+#include <eternal/core/Window.h>
+
 #include <vulkan/vulkan.hpp>
 
 namespace Eternal {
 	class VulkanGraphicsContext : public GraphicsContext
 	{
 	public:
-		VulkanGraphicsContext(
-			vk::Instance instance,
-			vk::PhysicalDevice physicalDevice,
-			vk::Device logicalDevice,
-			vk::Queue graphicsQueue,
-			uint32_t graphicsQueueFamilyIndex
-		);
+		VulkanGraphicsContext();
 
 		~VulkanGraphicsContext();
+
+		virtual vk::CommandBuffer getCommandBuffer() = 0;
 
 		vk::Instance getVkInstance() { return m_VkInstance; }
 
@@ -28,13 +26,37 @@ namespace Eternal {
 
 		uint32_t getGraphicsQueueFamilyIndex() { return m_GraphicsQueueFamilyIndex; }
 
-	private:
+		vk::RenderPass getRenderPass() { return m_RenderPass; }
+
+		Eternal::Window* getWindow() { return m_Window; }
+
+	protected:
 
 		VulkanSwapChain* m_VulkanSwapChain = nullptr;
+
 		vk::Instance m_VkInstance = nullptr;
+
+		Eternal::Window* m_Window = nullptr;
+
 		vk::PhysicalDevice m_PhysicalDevice = nullptr;
 		vk::Device m_LogicalDevice = nullptr;
-		uint32_t m_GraphicsQueueFamilyIndex = INVALID_VK_INDEX;
+
+		vk::PipelineLayout m_PipelineLayout = nullptr;
+		vk::Pipeline m_GraphicsPipeline = nullptr;
+		vk::RenderPass m_RenderPass = nullptr;
+
+		std::vector<vk::Framebuffer> m_SwapChainFrameBuffers;
+
+		vk::CommandPool m_CommandPool = nullptr;
+		std::vector<vk::CommandBuffer> m_CommandBuffers;
+
 		vk::Queue m_GraphicsQueue = nullptr;
+		uint32_t m_GraphicsQueueFamilyIndex = INVALID_VK_INDEX;
+		uint32_t m_GraphicsQueueIndex = 0;
+
+		vk::Queue m_PresentQueue = nullptr;
+		uint32_t m_PresentQueueFamilyIndex = INVALID_VK_INDEX;
+		uint32_t m_PresentQueueIndex = 0;
+
 	};
 }

@@ -14,7 +14,7 @@ namespace Eternal {
 			.build();
 
 		m_GraphicsPlatform = new VulkanPlatform(m_ApplicationName, m_Window);
-
+	
 		m_IsRunning = true;
 	}
 

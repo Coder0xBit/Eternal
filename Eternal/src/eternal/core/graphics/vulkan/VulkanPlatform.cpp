@@ -9,8 +9,9 @@
 #include <fstream>
 
 namespace Eternal {
-	VulkanPlatform::VulkanPlatform(std::string& applicationName, Eternal::Window* window) : m_ApplicationName(applicationName), m_Window(window)
+	VulkanPlatform::VulkanPlatform(std::string& applicationName, Eternal::Window* window) : m_ApplicationName(applicationName)
 	{
+		m_Window = window;
 		initialize();
 	}
 
@@ -82,12 +83,6 @@ namespace Eternal {
 		initializeCommandBuffer();
 
 		initializeSyncObjects();
-
-		m_VulkanGraphicsContext = new VulkanGraphicsContext(
-			m_VkInstance, m_PhysicalDevice,
-			m_LogicalDevice, m_GraphicsQueue,
-			m_GraphicsQueueFamilyIndex
-		);
 	}
 
 	vk::Instance VulkanPlatform::createInstance(const std::string& applicationName)
@@ -211,18 +206,9 @@ namespace Eternal {
 
 	void VulkanPlatform::initializePipeline()
 	{
-		std::vector<vk::PushConstantRange> pushConstantRanges;
-
-		vk::PushConstantRange pushConstantRange = vk::PushConstantRange()
-			.setOffset(0)
-			.setSize(sizeof(glm::mat4) * 2)
-			.setStageFlags(vk::ShaderStageFlagBits::eVertex);
-
-		pushConstantRanges.push_back(pushConstantRange);
-
 		vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo()
 			.setSetLayoutCount(0)
-			.setPushConstantRanges(pushConstantRanges);
+			.setPushConstantRangeCount(0);
 
 		m_PipelineLayout = m_LogicalDevice.createPipelineLayout(pipelineLayoutCreateInfo);
 
@@ -532,8 +518,6 @@ namespace Eternal {
 
 		m_VkInstance.destroySurfaceKHR(m_Surface);
 		m_VkInstance.destroy();
-
-		delete m_VulkanGraphicsContext;
 	}
 
 	void VulkanPlatform::render()
@@ -705,7 +689,7 @@ namespace Eternal {
 			.setOffset({ 0,0 })
 			.setExtent(swapChainDetails.extent);
 
-		vk::ClearColorValue clearColor = vk::ClearColorValue(std::array<float, 4>{1.0f, 0.0f, 0.0f, 1.0f});
+		vk::ClearColorValue clearColor = vk::ClearColorValue(std::array<float, 4>{1.0f, 1.0f, 1.0f, 1.0f});
 		vk::ClearValue clearValue = vk::ClearValue(clearColor);
 
 		vk::RenderPassBeginInfo renderPassBeginInfo = vk::RenderPassBeginInfo()
@@ -718,19 +702,7 @@ namespace Eternal {
 		commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 
 		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_GraphicsPipeline);
-
-		glm::mat4 cameraTransform = glm::translate(glm::mat4(1.0f), m_CameraPosition)
-			* glm::eulerAngleXYZ(glm::radians(m_CameraRotation.x), glm::radians(m_CameraRotation.y), glm::radians(m_CameraRotation.z));
-
-		float aspectRatio = (float)m_Window->getWidth() / (float)m_Window->getHeight();
-		m_PushConstants.ViewProjection = glm::perspective(glm::radians(45.0f), aspectRatio, 0.1f, 1000.0f)
-			* glm::inverse(cameraTransform);
-
-		m_PushConstants.Transform = glm::translate(glm::mat4(1.0f), translation)
-			* glm::eulerAngleXYZ(glm::radians(m_CubeRotation.x), glm::radians(m_CubeRotation.y), glm::radians(m_CubeRotation.z));
-
-		commandBuffer.pushConstants(m_PipelineLayout, vk::ShaderStageFlagBits::eVertex, 0, sizeof(PushConstants), &m_PushConstants);
-
+	
 		vk::DeviceSize offset = vk::DeviceSize(0);
 
 		commandBuffer.bindVertexBuffers(0, 1, &m_VertexBuffer.handle, &offset);

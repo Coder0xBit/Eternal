@@ -23,7 +23,7 @@ namespace Eternal {
 	using VkString = const char*;
 	using VkStringArrayPtr = const char**;
 
-	class VulkanPlatform : public GraphicsPlatform
+	class VulkanPlatform : public GraphicsPlatform , public VulkanGraphicsContext
 	{
 
 	public:
@@ -78,9 +78,7 @@ namespace Eternal {
 
 		void recordCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
 
-		vk::CommandBuffer getCommandBuffer() { return m_CommandBuffers[m_CurrentFrame]; }
-
-		VulkanGraphicsContext* getContext() { return m_VulkanGraphicsContext; }
+		vk::CommandBuffer getCommandBuffer() override { return m_CommandBuffers[m_CurrentFrame]; }
 
 	private:
 
@@ -104,34 +102,11 @@ namespace Eternal {
 
 		std::string m_ApplicationName;
 
-		Eternal::Window* m_Window = nullptr;
-
-		vk::Instance m_VkInstance = nullptr;
-		vk::PhysicalDevice m_PhysicalDevice = nullptr;
-		vk::Device m_LogicalDevice = nullptr;
 		vk::SurfaceKHR m_Surface = nullptr;
 
 		Buffer m_VertexBuffer;
 		Buffer m_IndexBuffer;
 		PushConstants m_PushConstants;
-
-		vk::PipelineLayout m_PipelineLayout = nullptr;
-		vk::Pipeline m_GraphicsPipeline = nullptr;
-		vk::RenderPass m_RenderPass = nullptr;
-
-		std::vector<vk::Framebuffer> m_SwapChainFrameBuffers;
-		VulkanSwapChain* m_VulkanSwapChain = nullptr;
-
-		vk::CommandPool m_CommandPool = nullptr;
-		std::vector<vk::CommandBuffer> m_CommandBuffers;
-
-		vk::Queue m_GraphicsQueue = nullptr;
-		uint32_t m_GraphicsQueueFamilyIndex = INVALID_VK_INDEX;
-		uint32_t m_GraphicsQueueIndex = 0;
-
-		vk::Queue m_PresentQueue = nullptr;
-		uint32_t m_PresentQueueFamilyIndex = INVALID_VK_INDEX;
-		uint32_t m_PresentQueueIndex = 0;
 
 		std::vector<vk::Semaphore> m_ImageAvailableSemaphores;
 		std::vector<vk::Semaphore> m_RenderFinishedSemaphores;
@@ -146,8 +121,6 @@ namespace Eternal {
 		glm::vec3 m_CameraRotation = glm::vec3(0);
 
 		float m_CubeScale = 0.4f;
-
-		Eternal::VulkanGraphicsContext* m_VulkanGraphicsContext = nullptr;
 
 		Timer timer;
 	};

@@ -11,6 +11,7 @@ namespace Eternal {
 		virtual void onUpdate() = 0;
 
 		virtual uint32_t getHeight() const = 0;
+
 		virtual uint32_t getWidth() const = 0;
 
 		virtual void* getNativeWindow() const = 0;
@@ -30,15 +31,23 @@ namespace Eternal {
 			friend class WindowsWindow;
 		public:
 			Builder() noexcept;
+
 			Builder(Builder const& rhs) noexcept;
+
 			Builder(Builder&& rhs) noexcept;
+
 			~Builder() noexcept;
+
 			Builder& operator=(Builder const& rhs) noexcept;
+
 			Builder& operator=(Builder&& rhs) noexcept;
 
 			Builder& title(const std::string& title) noexcept;
+
 			Builder& width(uint32_t witdth) noexcept;
+
 			Builder& height(uint32_t height) noexcept;
+
 			Window* build() noexcept;
 		};
 

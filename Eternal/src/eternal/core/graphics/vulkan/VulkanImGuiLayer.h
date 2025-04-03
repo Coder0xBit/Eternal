@@ -1,20 +1,25 @@
 #pragma once
 #include <eternal/core/ImGuiLayer.h>
 #include <eternal/core/graphics/vulkan/VulkanGraphicsContext.h>
+#include <eternal/core/Window.h>
 
 namespace Eternal {
 	class VulkanImGuiLayer : public ImGuiLayer
 	{
-	public :
+	public:
 		VulkanImGuiLayer(VulkanGraphicsContext* vulkanGraphicsContext);
 
 		~VulkanImGuiLayer();
 
 		void beginFrame() override;
 
-		void endFrame() override;	
+		void endFrame() override;
 
-	private :
+	private:
 		VulkanGraphicsContext* m_VulkanGraphicsContext = nullptr;
+
+		vk::DescriptorPool m_DescriptorPool = nullptr;
+
+		void init();
 	};
 }

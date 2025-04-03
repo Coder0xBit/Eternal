@@ -1,3 +1,4 @@
+#pragma once
 #include <eternal/utils/Base.h>
 #include <vulkan/vulkan.hpp>
 
