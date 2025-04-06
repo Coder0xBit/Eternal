@@ -195,8 +195,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Eternal.aps" />
-    <None Include="src\eternal\core\graphics\shader\bin\frag.spv" />
-    <None Include="src\eternal\core\graphics\shader\bin\vert.spv" />
     <None Include="src\eternal\core\graphics\shader\Compile.bat" />
     <None Include="src\eternal\core\graphics\shader\shader.frag" />
     <None Include="src\eternal\core\graphics\shader\shader.vert" />

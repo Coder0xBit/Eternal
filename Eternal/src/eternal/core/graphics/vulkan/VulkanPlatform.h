@@ -8,6 +8,7 @@
 #include <eternal/core/graphics/Timer.h>
 #include <eternal/core/graphics/vulkan/VulkanSwapChain.h>
 #include <eternal/core/graphics/vulkan/VulkanGraphicsContext.h>
+#include <eternal/core/graphics/Vertex.h>
 
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
@@ -23,17 +24,10 @@ namespace Eternal {
 	using VkString = const char*;
 	using VkStringArrayPtr = const char**;
 
-	class VulkanPlatform : public GraphicsPlatform , public VulkanGraphicsContext
+	class VulkanPlatform : public GraphicsPlatform, public VulkanGraphicsContext
 	{
 
 	public:
-
-		struct PushConstants
-		{
-			glm::mat4 ViewProjection;
-			glm::mat4 Transform;
-		};
-
 		struct Buffer
 		{
 			vk::Buffer handle = nullptr;
@@ -42,7 +36,7 @@ namespace Eternal {
 			vk::BufferUsageFlagBits usage = vk::BufferUsageFlagBits::eIndexBuffer;
 		};
 
-		VulkanPlatform(std::string& applicationName, Eternal::Window* window);
+		VulkanPlatform(const Builder& builder);
 
 		~VulkanPlatform();
 
@@ -106,21 +100,17 @@ namespace Eternal {
 
 		Buffer m_VertexBuffer;
 		Buffer m_IndexBuffer;
-		PushConstants m_PushConstants;
 
 		std::vector<vk::Semaphore> m_ImageAvailableSemaphores;
 		std::vector<vk::Semaphore> m_RenderFinishedSemaphores;
 		std::vector<vk::Fence> m_InFlightFences;
 
+		std::vector<Eternal::Vertex> m_Vertices;
+		std::vector<uint32_t> m_Indices;
+		std::string m_VertexShaderPath;
+		std::string m_FragmentShaderPath;
+
 		uint32_t m_CurrentFrame = 0;
-
-		glm::vec3 m_CubePosition = glm::vec3(0);
-		glm::vec3 m_CubeRotation = glm::vec3(0);
-
-		glm::vec3 m_CameraPosition = glm::vec3(0, 0, 3);
-		glm::vec3 m_CameraRotation = glm::vec3(0);
-
-		float m_CubeScale = 0.4f;
 
 		Timer timer;
 	};

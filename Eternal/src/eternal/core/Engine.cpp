@@ -1,5 +1,6 @@
 #include <eternal/core/Engine.h>
 #include <eternal/core/graphics/vulkan/VulkanPlatform.h>
+#include <eternal/core/graphics/Vertex.h>
 #include <set>
 
 namespace Eternal {
@@ -13,19 +14,31 @@ namespace Eternal {
 			.width(1200)
 			.build();
 
-		m_GraphicsPlatform = new VulkanPlatform(m_ApplicationName, m_Window);
-	
+		std::vector<Eternal::Vertex> vertices = {
+			{ 0.0f  , 0.5f  , 0.0f },
+			{ -0.5f , -0.5f , 0.0f },
+			{ 0.5f  , -0.5f , 0.0f }
+		};
+
+		std::vector<uint32_t> indices = { 1, 0, 2 };
+
+		m_GraphicsPlatform = Eternal::GraphicsPlatform::Builder()
+			.applicationName(m_ApplicationName)
+			.window(m_Window)
+			.vertices(vertices)
+			.indices(indices)
+			.vertexShader("src/eternal/core/graphics/shader/bin/vert.spv")
+			.fragmentShader("src/eternal/core/graphics/shader/bin/frag.spv")
+			.build();
+
 		m_IsRunning = true;
 	}
 
 	void Engine::onUpdate()
 	{
-		while (m_IsRunning)
-		{
-			m_Window->onUpdate();
-			m_GraphicsPlatform->render();
-			m_IsRunning = !m_Window->shouldClose();
-		}
+		m_Window->onUpdate();
+		m_GraphicsPlatform->render();
+		m_IsRunning = !m_Window->shouldClose();
 	}
 
 	vk::CommandBuffer Engine::getCommandBuffer()

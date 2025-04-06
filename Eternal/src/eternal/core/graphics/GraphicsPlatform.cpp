@@ -1,7 +1,12 @@
 #include "GraphicsPlatform.h"
+#include <eternal/core/graphics/vulkan/VulkanPlatform.h>
 
+namespace Eternal {
 
-namespace Eternal{
+	GraphicsPlatform* GraphicsPlatform::create(const Builder& builder) 
+	{
+		return new VulkanPlatform(builder);
+	}
 
 	GraphicsPlatform::Builder::Builder() noexcept = default;
 
@@ -34,6 +39,19 @@ namespace Eternal{
 		mImpl->fragmentShaderPath = fragmentShaderPath;
 		return *this;
 	}
-	
+
+	GraphicsPlatform::Builder& GraphicsPlatform::Builder::applicationName(const std::string& applicationName) noexcept {
+		mImpl->applicationName = applicationName;
+		return *this;
+	}
+
+	GraphicsPlatform::Builder& GraphicsPlatform::Builder::window(Eternal::Window* window) noexcept {
+		mImpl->window = window;
+		return *this;
+	}
+
+	GraphicsPlatform* GraphicsPlatform::Builder::build() noexcept {
+		return GraphicsPlatform::create(*this);
+	}
 }
 

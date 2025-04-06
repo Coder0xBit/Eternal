@@ -9,9 +9,26 @@
 #include <fstream>
 
 namespace Eternal {
-	VulkanPlatform::VulkanPlatform(std::string& applicationName, Eternal::Window* window) : m_ApplicationName(applicationName)
+
+	VulkanPlatform::VulkanPlatform(const Builder& builder)
 	{
-		m_Window = window;
+		m_ApplicationName = builder->applicationName;
+
+		m_Vertices = builder->vertices;
+		ETERNAL_ASSERT(!m_Vertices.empty(), "Vertices are empty");
+
+		m_Indices = builder->indices;
+		ETERNAL_ASSERT(!m_Indices.empty(), "Indices are empty");
+
+		m_Window = builder->window;
+		ETERNAL_ASSERT(m_Window != nullptr, "Window is null");
+
+		m_VertexShaderPath = builder->vertexShaderPath;
+		ETERNAL_ASSERT(!m_VertexShaderPath.empty(), "Vertex Shader Path is empty");
+
+		m_FragmentShaderPath = builder->fragmentShaderPath;
+		ETERNAL_ASSERT(!m_FragmentShaderPath.empty(), "Fragment Shader Path is empty");
+
 		initialize();
 	}
 
@@ -27,11 +44,7 @@ namespace Eternal {
 		m_PhysicalDevice = choosePhysicalDevice(m_VkInstance);
 
 		m_GraphicsQueueFamilyIndex = identifyGraphicsQueueFamilyIndex(m_PhysicalDevice, vk::QueueFlagBits::eGraphics);
-		if (m_GraphicsQueueFamilyIndex == INVALID_VK_INDEX)
-		{
-			Eternal::Logger::Error("Graphics Queue Family Index is Invalid");
-			return;
-		}
+		ETERNAL_ASSERT(m_GraphicsQueueFamilyIndex != INVALID_VK_INDEX, "Graphics Queue Family Index is Invalid");
 
 		GLFWwindow* window = static_cast<GLFWwindow*>(m_Window->getNativeWindow());
 
@@ -40,11 +53,7 @@ namespace Eternal {
 		m_Surface = surface;
 
 		m_PresentQueueFamilyIndex = identifyPresentQueueFamilyIndex(m_PhysicalDevice, m_Surface);
-		if (m_PresentQueueFamilyIndex == INVALID_VK_INDEX)
-		{
-			Eternal::Logger::Error("Present Queue Family Index is Invalid");
-			return;
-		}
+		ETERNAL_ASSERT(m_PresentQueueFamilyIndex != INVALID_VK_INDEX, "Present Queue Family Index is Invalid");
 
 		m_LogicalDevice = createLogicalDevice(m_PhysicalDevice, m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex);
 
@@ -59,6 +68,8 @@ namespace Eternal {
 			static_cast<uint32_t>(width),
 			static_cast<uint32_t>(height)
 		};
+
+		Eternal::Logger::Info("Fallback Extent: {}x{}", fallbackExtent.width, fallbackExtent.height);
 
 		m_VulkanSwapChain = new VulkanSwapChain(
 			m_LogicalDevice,
@@ -212,8 +223,8 @@ namespace Eternal {
 
 		m_PipelineLayout = m_LogicalDevice.createPipelineLayout(pipelineLayoutCreateInfo);
 
-		vk::ShaderModule vertexShaderModule = loadShader(m_LogicalDevice, "src/eternal/core/graphics/shader/bin/vert.spv");
-		vk::ShaderModule fragmentShaderModule = loadShader(m_LogicalDevice, "src/eternal/core/graphics/shader/bin/frag.spv");
+		vk::ShaderModule vertexShaderModule = loadShader(m_LogicalDevice, m_VertexShaderPath);
+		vk::ShaderModule fragmentShaderModule = loadShader(m_LogicalDevice, m_FragmentShaderPath);
 
 		vk::PipelineShaderStageCreateInfo vertexShaderStageCreateInfo = vk::PipelineShaderStageCreateInfo()
 			.setStage(vk::ShaderStageFlagBits::eVertex)
@@ -244,7 +255,7 @@ namespace Eternal {
 			.setPolygonMode(vk::PolygonMode::eFill)
 			.setLineWidth(1.0f)
 			.setCullMode(vk::CullModeFlagBits::eBack)
-			.setFrontFace(vk::FrontFace::eCounterClockwise)
+			.setFrontFace(vk::FrontFace::eClockwise)
 			.setDepthBiasEnable(VK_FALSE);
 
 		vk::PipelineMultisampleStateCreateInfo multiSampleStateCreateInfo = vk::PipelineMultisampleStateCreateInfo()
@@ -270,20 +281,8 @@ namespace Eternal {
 		vk::PipelineDynamicStateCreateInfo dynamicStateCreateInfo = vk::PipelineDynamicStateCreateInfo()
 			.setDynamicStates(dynamicState);
 
-		std::vector<vk::VertexInputBindingDescription> bindingDescs;
-		vk::VertexInputBindingDescription bindingDesc = vk::VertexInputBindingDescription()
-			.setBinding(0)
-			.setStride(sizeof(glm::vec3))
-			.setInputRate(vk::VertexInputRate::eVertex);
-		bindingDescs.push_back(bindingDesc);
-
-		std::vector<vk::VertexInputAttributeDescription> attributeDescs;
-		vk::VertexInputAttributeDescription attributeDesc = vk::VertexInputAttributeDescription()
-			.setLocation(0)
-			.setBinding(bindingDescs[0].binding)
-			.setFormat(vk::Format::eR32G32B32Sfloat)
-			.setOffset(0);
-		attributeDescs.push_back(attributeDesc);
+		std::vector<vk::VertexInputBindingDescription> bindingDescs = Eternal::Vertex::getBindingDescription();
+		std::vector<vk::VertexInputAttributeDescription> attributeDescs = Eternal::Vertex::getAttributeDescription();
 
 		vk::PipelineVertexInputStateCreateInfo vertexInputInfo = vk::PipelineVertexInputStateCreateInfo()
 			.setVertexBindingDescriptions(bindingDescs)
@@ -380,47 +379,21 @@ namespace Eternal {
 
 	void VulkanPlatform::initializeBuffers()
 	{
-		glm::vec3 vertexes[8] = {
-			glm::vec3(-0.5f, -0.5f,  0.5f),
-			glm::vec3(-0.5f,  0.5f,  0.5f),
-			glm::vec3(0.5f,  0.5f,  0.5f),
-			glm::vec3(0.5f, -0.5f,  0.5f),
-
-			glm::vec3(0.5f, -0.5f, -0.5f),
-			glm::vec3(0.5f,  0.5f, -0.5f),
-			glm::vec3(-0.5f,  0.5f, -0.5f),
-			glm::vec3(-0.5f, -0.5f, -0.5f)
-		};
-
-		uint32_t indices[36] = {
-			0, 1, 2, 2, 3, 0, // Front
-			3, 2, 5, 5, 4, 3, // Right
-			4, 5, 6, 6, 7, 4, // Back
-			7, 6, 1, 1, 0, 7, // Side
-			1, 6, 5, 5, 2, 1, // Top
-			7, 0, 3, 3, 4, 7, // Bottom
-		};
+		uint32_t vertexBufferSize = m_Vertices.size() * sizeof(m_Vertices[0]);
+		uint32_t indexBufferSize = m_Indices.size() * sizeof(m_Indices[0]);
 
 		m_VertexBuffer.usage = vk::BufferUsageFlagBits::eVertexBuffer;
-		createOrResizeBuffer(m_VertexBuffer, sizeof(vertexes));
+		createOrResizeBuffer(m_VertexBuffer, vertexBufferSize);
 
 		m_IndexBuffer.usage = vk::BufferUsageFlagBits::eIndexBuffer;
-		createOrResizeBuffer(m_IndexBuffer, sizeof(indices));
+		createOrResizeBuffer(m_IndexBuffer, indexBufferSize);
 
-		glm::vec3* vertexBufferMemory = static_cast<glm::vec3*>(m_LogicalDevice.mapMemory(m_VertexBuffer.memory, 0, sizeof(vertexes)));
-		memcpy(vertexBufferMemory, vertexes, sizeof(vertexes));
+		Eternal::Vertex* vertexBufferMemory = static_cast<Eternal::Vertex*>(m_LogicalDevice.mapMemory(m_VertexBuffer.memory, 0, vertexBufferSize));
+		memcpy(vertexBufferMemory, m_Vertices.data(), vertexBufferSize);
 
-		uint32_t* indexBufferMemory = static_cast<uint32_t*>(m_LogicalDevice.mapMemory(m_IndexBuffer.memory, 0, sizeof(indices)));
-		memcpy(indexBufferMemory, indices, sizeof(indices));
+		uint32_t* indexBufferMemory = static_cast<uint32_t*>(m_LogicalDevice.mapMemory(m_IndexBuffer.memory, 0, indexBufferSize));
+		memcpy(indexBufferMemory, m_Indices.data(), indexBufferSize);
 
-		vk::MappedMemoryRange range[2] = {};
-
-		range[0].setMemory(m_VertexBuffer.memory)
-			.setSize(VK_WHOLE_SIZE);
-		range[1].setMemory(m_IndexBuffer.memory)
-			.setSize(VK_WHOLE_SIZE);
-
-		m_LogicalDevice.flushMappedMemoryRanges(range);
 		m_LogicalDevice.unmapMemory(m_VertexBuffer.memory);
 		m_LogicalDevice.unmapMemory(m_IndexBuffer.memory);
 	}
@@ -444,7 +417,7 @@ namespace Eternal {
 
 		vk::MemoryAllocateInfo memoryAllocateInfo = vk::MemoryAllocateInfo()
 			.setAllocationSize(memoryRequirements.size)
-			.setMemoryTypeIndex(getMemoryType(vk::MemoryPropertyFlagBits::eHostVisible, memoryRequirements.memoryTypeBits));
+			.setMemoryTypeIndex(getMemoryType(vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent, memoryRequirements.memoryTypeBits));
 
 		buffer.memory = m_LogicalDevice.allocateMemory(memoryAllocateInfo);
 
@@ -642,7 +615,6 @@ namespace Eternal {
 
 	vk::RenderPass VulkanPlatform::createRenderPass(const vk::Device& logicalDevice)
 	{
-
 		VulkanSwapChain::SwapChainDetails swapChainDetails = m_VulkanSwapChain->getSwapChainDetails();
 
 		vk::AttachmentDescription colorAttachment = vk::AttachmentDescription()
@@ -669,18 +641,12 @@ namespace Eternal {
 			.setSubpassCount(1)
 			.setPSubpasses(&subPass);
 
-		return  logicalDevice.createRenderPass(renderPassCreateInfo);
+		return logicalDevice.createRenderPass(renderPassCreateInfo);
 	}
 
 	void VulkanPlatform::recordCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 	{
 		VulkanSwapChain::SwapChainDetails swapChainDetails = m_VulkanSwapChain->getSwapChainDetails();
-
-		glm::vec3 translation = glm::vec3(0.0f, 0.0f, -2.0f);
-
-		float deltaTime = timer.getDeltaTime();
-		float rotationSpeed = 45.0f;
-		m_CubeRotation.y += rotationSpeed * deltaTime;
 
 		vk::CommandBufferBeginInfo commandBufferBeginInfo = vk::CommandBufferBeginInfo();
 		commandBuffer.begin(commandBufferBeginInfo);
@@ -689,7 +655,7 @@ namespace Eternal {
 			.setOffset({ 0,0 })
 			.setExtent(swapChainDetails.extent);
 
-		vk::ClearColorValue clearColor = vk::ClearColorValue(std::array<float, 4>{1.0f, 1.0f, 1.0f, 1.0f});
+		vk::ClearColorValue clearColor = vk::ClearColorValue(std::array<float, 4>{1.0f, 0.0f, 1.0f, 1.0f});
 		vk::ClearValue clearValue = vk::ClearValue(clearColor);
 
 		vk::RenderPassBeginInfo renderPassBeginInfo = vk::RenderPassBeginInfo()
@@ -702,7 +668,7 @@ namespace Eternal {
 		commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 
 		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_GraphicsPipeline);
-	
+
 		vk::DeviceSize offset = vk::DeviceSize(0);
 
 		commandBuffer.bindVertexBuffers(0, 1, &m_VertexBuffer.handle, &offset);
@@ -711,9 +677,9 @@ namespace Eternal {
 
 		vk::Viewport viewport = vk::Viewport()
 			.setX(0.0f)
-			.setY(0.0f)
+			.setY((float)swapChainDetails.extent.height)
 			.setWidth((float)swapChainDetails.extent.width)
-			.setHeight((float)swapChainDetails.extent.height)
+			.setHeight(-(float)swapChainDetails.extent.height)
 			.setMinDepth(0.0f)
 			.setMaxDepth(1.0f);
 
@@ -725,7 +691,7 @@ namespace Eternal {
 
 		commandBuffer.setScissor(0, 1, &scissor);
 
-		commandBuffer.drawIndexed(36, 1, 0, 0, 0);
+		commandBuffer.drawIndexed(m_Indices.size(), 1, 0, 0, 0);
 
 		commandBuffer.endRenderPass();
 

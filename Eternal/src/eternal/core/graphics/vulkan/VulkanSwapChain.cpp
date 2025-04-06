@@ -57,6 +57,7 @@ namespace Eternal {
 		vk::PresentModeKHR presentMode = selectSwapChainPresentMode();
 
 		vk::Extent2D extent = selectSwapChainExtent(capabilities);
+		Eternal::Logger::Info("Selected Extent: {}x{}", extent.width, extent.height);
 
 		m_SwapChainDetails.capabilities = capabilities;
 		m_SwapChainDetails.surfaceFormat = format;

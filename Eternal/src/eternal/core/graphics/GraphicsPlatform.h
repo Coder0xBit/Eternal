@@ -1,6 +1,8 @@
 #pragma once
 #include <eternal/utils/Base.h>	
 #include <eternal/core/graphics/Vertex.h>
+#include <eternal/core/Window.h>
+#include <eternal/core/graphics/Vertex.h>
 
 namespace Eternal {
 	class GraphicsPlatform
@@ -19,10 +21,16 @@ namespace Eternal {
 			std::vector<uint32_t> indices;
 			std::string vertexShaderPath;
 			std::string fragmentShaderPath;
+			std::string applicationName;
+			Eternal::Window* window;
 		};
 
 		class Builder : public utils::PrivateImplementation<BuilderDetails>
 		{
+			friend class GraphicsPlatform;
+			friend class VulkanPlatform;
+
+		public:
 			Builder() noexcept;
 
 			Builder(Builder const& rhs) noexcept;
@@ -43,7 +51,13 @@ namespace Eternal {
 
 			Builder& fragmentShader(const std::string& fragmentShaderPath) noexcept;
 
+			Builder& applicationName(const std::string& applicationName) noexcept;
+
+			Builder& window(Eternal::Window* window) noexcept;
+
 			GraphicsPlatform* build() noexcept;
 		};
+
+		static GraphicsPlatform* create(const Builder& builder);
 	};
 }
