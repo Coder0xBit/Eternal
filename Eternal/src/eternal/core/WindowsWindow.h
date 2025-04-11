@@ -1,7 +1,8 @@
 #pragma once
 
+#include <eternal/core/graphics/vulkan/VulkanWindow.h>
 
-#include "Window.h"
+#include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 
 #include <filesystem>
@@ -10,7 +11,7 @@ namespace Eternal {
 
 	constexpr const char* WINDOW_ICON_PATH = "res/PNGs/eternal_logo.png";
 
-	class WindowsWindow : public Window
+	class WindowsWindow : public VulkanWindow
 	{
 	public:
 		WindowsWindow(const Builder& builder);
@@ -28,6 +29,10 @@ namespace Eternal {
 		virtual bool shouldClose() const override;
 
 		virtual void shutDown() const override;
+
+		virtual vk::SurfaceKHR createWindowSurface(vk::Instance instance) const override;
+
+		virtual vk::Extent2D getExtent() const override;
 
 		void setWindowIcon(const std::filesystem::path& path, GLFWwindow* window);
 

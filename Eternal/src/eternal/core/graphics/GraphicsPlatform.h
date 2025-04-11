@@ -2,7 +2,7 @@
 #include <eternal/utils/Base.h>	
 #include <eternal/core/graphics/Vertex.h>
 #include <eternal/core/Window.h>
-#include <eternal/core/graphics/Vertex.h>
+#include <eternal/core/ecs/EntityManager.h>
 
 namespace Eternal {
 	class GraphicsPlatform
@@ -18,11 +18,9 @@ namespace Eternal {
 
 		struct BuilderDetails {
 			std::vector<Eternal::Vertex> vertices;
-			std::vector<uint32_t> indices;
-			std::string vertexShaderPath;
-			std::string fragmentShaderPath;
+			Eternal::EntityManager* entityManager;
 			std::string applicationName;
-			Eternal::Window* window;
+			Eternal::Window* window = nullptr;
 		};
 
 		class Builder : public utils::PrivateImplementation<BuilderDetails>
@@ -43,13 +41,7 @@ namespace Eternal {
 
 			Builder& operator=(Builder&& rhs) noexcept;
 
-			Builder& vertices(const std::vector<Eternal::Vertex>& vertices) noexcept;
-
-			Builder& indices(const std::vector<uint32_t>& indices) noexcept;
-
-			Builder& vertexShader(const std::string& vertexShaderPath) noexcept;
-
-			Builder& fragmentShader(const std::string& fragmentShaderPath) noexcept;
+			Builder& entityManager(Eternal::EntityManager* entityManager) noexcept;
 
 			Builder& applicationName(const std::string& applicationName) noexcept;
 

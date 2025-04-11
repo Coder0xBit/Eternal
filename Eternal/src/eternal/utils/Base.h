@@ -10,6 +10,7 @@
 #include <array>
 #include <string_view>
 #include <cassert>
+#include <typeindex>
 
 #include <eternal/core/Logger.h>
 #include <eternal/utils/PrivateImplementationImpl.h>
@@ -26,6 +27,12 @@
 
 namespace Eternal {
 	constexpr uint32_t const INVALID_VK_INDEX = 0xFFFFFFFF;
+
+	template <typename T, typename... Rest>
+	void hashCombine(std::size_t& seed, const T& v, const Rest&... rest) {
+		seed ^= std::hash<T>{}(v)+0x9e3779b9 + (seed << 6) + (seed >> 2);
+		(hashCombine(seed, rest), ...);
+	};
 }
 
 

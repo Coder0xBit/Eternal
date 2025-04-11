@@ -2,7 +2,7 @@
 
 #include <eternal/core/graphics/GraphicsContext.h>
 #include <eternal/core/graphics/vulkan/VulkanSwapChain.h>
-#include <eternal/core/Window.h>
+#include <eternal/core/graphics/vulkan/VulkanWindow.h>
 
 #include <vulkan/vulkan.hpp>
 
@@ -28,7 +28,7 @@ namespace Eternal {
 
 		vk::RenderPass getRenderPass() { return m_RenderPass; }
 
-		Eternal::Window* getWindow() { return m_Window; }
+		Eternal::VulkanWindow* getWindow() { return m_Window; }
 
 	protected:
 
@@ -36,7 +36,7 @@ namespace Eternal {
 
 		vk::Instance m_VkInstance = nullptr;
 
-		Eternal::Window* m_Window = nullptr;
+		Eternal::VulkanWindow* m_Window = nullptr;
 
 		vk::PhysicalDevice m_PhysicalDevice = nullptr;
 		vk::Device m_LogicalDevice = nullptr;

@@ -20,23 +20,9 @@ namespace Eternal {
 
 	GraphicsPlatform::Builder& GraphicsPlatform::Builder::operator=(Builder&& rhs) noexcept = default;
 
-	GraphicsPlatform::Builder& GraphicsPlatform::Builder::vertices(const std::vector<Eternal::Vertex>& vertices) noexcept {
-		mImpl->vertices = vertices;
-		return *this;
-	}
-
-	GraphicsPlatform::Builder& GraphicsPlatform::Builder::indices(const std::vector<uint32_t>& indices) noexcept {
-		mImpl->indices = indices;
-		return *this;
-	}
-
-	GraphicsPlatform::Builder& GraphicsPlatform::Builder::vertexShader(const std::string& vertexShaderPath) noexcept {
-		mImpl->vertexShaderPath = vertexShaderPath;
-		return *this;
-	}
-
-	GraphicsPlatform::Builder& GraphicsPlatform::Builder::fragmentShader(const std::string& fragmentShaderPath) noexcept {
-		mImpl->fragmentShaderPath = fragmentShaderPath;
+	GraphicsPlatform::Builder& GraphicsPlatform::Builder::entityManager(Eternal::EntityManager* entityManager) noexcept
+	{
+		mImpl->entityManager = entityManager;
 		return *this;
 	}
 

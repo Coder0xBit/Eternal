@@ -33,17 +33,17 @@ namespace Eternal {
 	Window::Builder& Window::Builder::operator=(Builder&& rhs) noexcept = default;
 
 	Window::Builder& Window::Builder::title(const std::string& title) noexcept {
-		mImpl->mTitle = title;
+		mImpl->title = title;
 		return *this;
 	}
 
 	Window::Builder& Window::Builder::height(uint32_t height) noexcept {
-		mImpl->mHeight = height;
+		mImpl->height = height;
 		return *this;
 	}
 
 	Window::Builder& Window::Builder::width(uint32_t width) noexcept {
-		mImpl->mWidth = width;
+		mImpl->width = width;
 		return *this;
 	}
 

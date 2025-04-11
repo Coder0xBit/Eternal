@@ -7,9 +7,9 @@
 namespace Eternal {
 
 	WindowsWindow::WindowsWindow(const Builder& builder) :
-		m_Title(builder->mTitle),
-		m_Height(builder->mHeight),
-		m_Width(builder->mWidth)
+		m_Title(builder->title),
+		m_Height(builder->height),
+		m_Width(builder->width)
 	{
 		glfwInit();
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -41,6 +41,27 @@ namespace Eternal {
 
 		glfwTerminate();
 		Logger::Info("Window Destroyed");
+	}
+
+	vk::SurfaceKHR WindowsWindow::createWindowSurface(vk::Instance instance) const
+	{
+		ETERNAL_ASSERT(m_Window != nullptr, "Window is null");
+
+		vk::SurfaceKHR surface = nullptr;
+		if (glfwCreateWindowSurface(instance, m_Window, nullptr, reinterpret_cast<VkSurfaceKHR*>(&surface)) != VK_SUCCESS)
+		{
+			Logger::Error("Failed to create window surface");
+			return nullptr;
+		}
+		return surface;
+	}
+
+	vk::Extent2D WindowsWindow::getExtent() const
+	{
+		ETERNAL_ASSERT(m_Window != nullptr, "Window is null");
+		int width = 0, height = 0;
+		glfwGetFramebufferSize(m_Window, &width, &height);
+		return { static_cast<uint32_t>(width),static_cast<uint32_t>(height) };
 	}
 
 	void WindowsWindow::setWindowIcon(const std::filesystem::path& path, GLFWwindow* window)

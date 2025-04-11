@@ -6,6 +6,7 @@
 #include <eternal/core/Logger.h>
 #include <eternal/core/Window.h>
 #include <eternal/core/graphics/GraphicsPlatform.h>
+#include <eternal/core/ecs/EntityManager.h>
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
 
@@ -52,9 +53,17 @@ namespace Eternal {
 
 		Eternal::GraphicsPlatform* getPlatform() { return m_GraphicsPlatform; }
 	private:
+
+		void setupEntities();
+
+		void addTriangle();
+
+		void addCube();
+
 		std::string m_ApplicationName;
 		Eternal::Window* m_Window = nullptr;
 		Eternal::GraphicsPlatform* m_GraphicsPlatform = nullptr;
+		Eternal::EntityManager* m_EntityManager = nullptr;
 		bool m_IsRunning = false;
 	};
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include <eternal/utils/Base.h>
+#include <vulkan/vulkan.hpp>
 
 namespace Eternal {
 
@@ -21,9 +22,9 @@ namespace Eternal {
 		virtual void shutDown() const = 0;
 
 		struct BuilderDetails {
-			std::string mTitle = "";
-			uint32_t mHeight = 0;
-			uint32_t mWidth = 0;
+			std::string title = "";
+			uint32_t height = 0;
+			uint32_t width = 0;
 		};
 
 		class Builder : public utils::PrivateImplementation<BuilderDetails> {

@@ -4,11 +4,16 @@
 
 #include <eternal/core/graphics/GraphicsPlatform.h>
 #include <eternal/utils/Base.h>
-#include <eternal/core/Window.h>
+#include <eternal/core/graphics/vulkan/VulkanWindow.h>
 #include <eternal/core/graphics/Timer.h>
 #include <eternal/core/graphics/vulkan/VulkanSwapChain.h>
 #include <eternal/core/graphics/vulkan/VulkanGraphicsContext.h>
 #include <eternal/core/graphics/Vertex.h>
+#include <eternal/core/ecs/EntityManager.h>
+#include <eternal/core/ecs/RenderComponent.h>
+#include <eternal/core/ecs/TransformComponent.h>
+#include <eternal/core/graphics/vulkan/VulkanBufferManager.h>
+#include <eternal/core/graphics/Camera.hpp>
 
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
@@ -26,14 +31,10 @@ namespace Eternal {
 
 	class VulkanPlatform : public GraphicsPlatform, public VulkanGraphicsContext
 	{
-
 	public:
-		struct Buffer
-		{
-			vk::Buffer handle = nullptr;
-			vk::DeviceMemory memory = nullptr;
-			vk::DeviceSize size = 0;
-			vk::BufferUsageFlagBits usage = vk::BufferUsageFlagBits::eIndexBuffer;
+
+		struct PushConstants {
+			glm::mat4 transform{ 1.f };
 		};
 
 		VulkanPlatform(const Builder& builder);
@@ -88,29 +89,28 @@ namespace Eternal {
 
 		void initializeSyncObjects();
 
-		void initializeBuffers();
-
-		void createOrResizeBuffer(Buffer& buffer, uint32_t newSize);
-
-		uint32_t getMemoryType(vk::MemoryPropertyFlags properties, uint32_t type_bits);
-
 		std::string m_ApplicationName;
 
 		vk::SurfaceKHR m_Surface = nullptr;
 
-		Buffer m_VertexBuffer;
-		Buffer m_IndexBuffer;
+		Eternal::EntityManager* m_EntityManager;
 
-		std::vector<vk::Semaphore> m_ImageAvailableSemaphores;
-		std::vector<vk::Semaphore> m_RenderFinishedSemaphores;
-		std::vector<vk::Fence> m_InFlightFences;
+		Eternal::VulkanBufferManager* m_VulkanBufferManager;
 
 		std::vector<Eternal::Vertex> m_Vertices;
 		std::vector<uint32_t> m_Indices;
 		std::string m_VertexShaderPath;
 		std::string m_FragmentShaderPath;
 
+		std::vector<vk::Semaphore> m_ImageAvailableSemaphores;
+		std::vector<vk::Semaphore> m_RenderFinishedSemaphores;
+		std::vector<vk::Fence> m_InFlightFences;
+
 		uint32_t m_CurrentFrame = 0;
+
+		PushConstants m_PushConstants;
+
+		Eternal::Camera* m_Camera;
 
 		Timer timer;
 	};
