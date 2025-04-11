@@ -1,4 +1,3 @@
-# ![Eternal Logo](Eternal/res/PNGs/eternal_full_logo.png)  
 ### **Eternal Renderer** - A Vulkan-based Graphics Engine  
 
 Eternal is a high-performance **Vulkan-based renderer** built from scratch in **C++**. Designed for **efficiency and scalability**, it serves as the foundation for **real-time rendering, ray tracing, and graphical applications**.  
