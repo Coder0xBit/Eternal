@@ -2,7 +2,9 @@
 #include <eternal/utils/Base.h>	
 #include <eternal/core/graphics/Vertex.h>
 #include <eternal/core/Window.h>
+#include <eternal/core/graphics/SwapChain.h>
 #include <eternal/core/ecs/EntityManager.h>
+#include <eternal/core/graphics/Backend.h>
 
 namespace Eternal {
 	class GraphicsPlatform
@@ -14,13 +16,12 @@ namespace Eternal {
 
 		virtual void shutDown() = 0;
 
-		virtual void render() = 0;
+		virtual Memory::Ref<SwapChain> createSwapChain(Memory::Ref<Window> window) = 0;
 
 		struct BuilderDetails {
 			std::vector<Eternal::Vertex> vertices;
-			Eternal::EntityManager* entityManager;
 			std::string applicationName;
-			Eternal::Window* window = nullptr;
+			Backend backend = Backend::Vulkan;
 		};
 
 		class Builder : public utils::PrivateImplementation<BuilderDetails>
@@ -41,15 +42,14 @@ namespace Eternal {
 
 			Builder& operator=(Builder&& rhs) noexcept;
 
-			Builder& entityManager(Eternal::EntityManager* entityManager) noexcept;
-
 			Builder& applicationName(const std::string& applicationName) noexcept;
 
-			Builder& window(Eternal::Window* window) noexcept;
+			Builder& backend(Backend backend) noexcept;
 
-			GraphicsPlatform* build() noexcept;
+
+			Memory::Ref<GraphicsPlatform> build() noexcept;
 		};
 
-		static GraphicsPlatform* create(const Builder& builder);
+		static Memory::Ref<GraphicsPlatform> create(const Builder& builder);
 	};
 }

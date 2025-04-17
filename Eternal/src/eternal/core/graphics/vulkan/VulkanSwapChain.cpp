@@ -22,7 +22,7 @@ namespace Eternal {
 
 	VulkanSwapChain::~VulkanSwapChain()
 	{
-
+		destroy();
 	}
 
 	vk::Result VulkanSwapChain::acquire(vk::Semaphore imageReadySemaphore, uint32_t* imageIndex)
@@ -106,6 +106,10 @@ namespace Eternal {
 		m_SwapChain = m_LogicalDevice.createSwapchainKHR(swapChainCreateInfo);
 
 		createImageViews();
+
+		createRenderPass();
+
+		createFrameBuffers();
 	}
 
 	void VulkanSwapChain::destroy()
@@ -113,6 +117,11 @@ namespace Eternal {
 		for (auto imageView : m_SwapChainImageViews)
 		{
 			m_LogicalDevice.destroyImageView(imageView);
+		}
+
+		for (auto frameBuffer : m_SwapChainFrameBuffers)
+		{
+			m_LogicalDevice.destroyFramebuffer(frameBuffer);
 		}
 
 		if (m_SwapChain)
@@ -185,6 +194,55 @@ namespace Eternal {
 				.setSubresourceRange(imageSubResourceRange);
 
 			m_SwapChainImageViews[i] = m_LogicalDevice.createImageView(imageViewCreateInfo);
+		}
+	}
+
+	void VulkanSwapChain::createRenderPass()
+	{
+		vk::AttachmentDescription colorAttachment = vk::AttachmentDescription()
+			.setFormat(m_SwapChainDetails.surfaceFormat.format)
+			.setSamples(vk::SampleCountFlagBits::e1)
+			.setLoadOp(vk::AttachmentLoadOp::eClear)
+			.setStoreOp(vk::AttachmentStoreOp::eStore)
+			.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
+			.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
+			.setInitialLayout(vk::ImageLayout::eUndefined)
+			.setFinalLayout(vk::ImageLayout::ePresentSrcKHR);
+
+		vk::AttachmentReference colorAttachmentReference = vk::AttachmentReference()
+			.setAttachment(0)
+			.setLayout(vk::ImageLayout::eColorAttachmentOptimal);
+
+		vk::SubpassDescription subPass = vk::SubpassDescription()
+			.setColorAttachmentCount(1)
+			.setPColorAttachments(&colorAttachmentReference);
+
+		vk::RenderPassCreateInfo renderPassCreateInfo = vk::RenderPassCreateInfo()
+			.setAttachmentCount(1)
+			.setPAttachments(&colorAttachment)
+			.setSubpassCount(1)
+			.setPSubpasses(&subPass);
+
+		m_RenderPass = m_LogicalDevice.createRenderPass(renderPassCreateInfo);
+	}
+
+
+	void VulkanSwapChain::createFrameBuffers()
+	{
+		m_SwapChainFrameBuffers.resize(m_SwapChainImageViews.size());
+
+		for (uint32_t i = 0; i < m_SwapChainImageViews.size(); i++)
+		{
+			vk::ImageView attachment[] = { m_SwapChainImageViews[i] };
+
+			vk::FramebufferCreateInfo frameBufferInfo = vk::FramebufferCreateInfo()
+				.setRenderPass(m_RenderPass)
+				.setAttachments(attachment)
+				.setWidth(m_SwapChainDetails.extent.width)
+				.setHeight(m_SwapChainDetails.extent.height)
+				.setLayers(1);
+
+			m_SwapChainFrameBuffers[i] = m_LogicalDevice.createFramebuffer(frameBufferInfo);
 		}
 	}
 }

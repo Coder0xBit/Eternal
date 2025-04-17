@@ -1,9 +1,10 @@
 #pragma once
 #include <eternal/utils/Base.h>
 #include <vulkan/vulkan.hpp>
+#include <eternal/core/graphics/SwapChain.h>
 
 namespace Eternal {
-	class VulkanSwapChain
+	class VulkanSwapChain : public SwapChain
 	{
 	public:
 		struct SwapChainDetails
@@ -36,9 +37,13 @@ namespace Eternal {
 
 		const std::vector<vk::ImageView>& getImageViews() { return m_SwapChainImageViews; }
 
+		const std::vector<vk::Framebuffer>& getFrameBuffers() { return m_SwapChainFrameBuffers; }
+
 		const std::vector<vk::Image>& getImages() { return m_SwapChainImages; }
 
 		vk::SwapchainKHR getSwapChain() { return m_SwapChain; }
+
+		vk::RenderPass getRenderPass() { return m_RenderPass; }
 
 		void destroy();
 
@@ -53,6 +58,10 @@ namespace Eternal {
 
 		void createImageViews();
 
+		void createRenderPass();
+
+		void createFrameBuffers();
+
 		vk::Device m_LogicalDevice = nullptr;
 		vk::PhysicalDevice m_PhysicalDevice = nullptr;
 		vk::Queue m_PresentQueue = nullptr;
@@ -60,6 +69,9 @@ namespace Eternal {
 		uint32_t m_PresentQueueFamilyIndex = INVALID_VK_INDEX;
 		vk::SurfaceKHR m_Surface = nullptr;
 		vk::Extent2D m_FallBackExtent;
+
+		vk::RenderPass m_RenderPass = nullptr;
+		std::vector<vk::Framebuffer> m_SwapChainFrameBuffers;
 
 		std::vector<vk::Image> m_SwapChainImages;
 		std::vector<vk::ImageView> m_SwapChainImageViews;

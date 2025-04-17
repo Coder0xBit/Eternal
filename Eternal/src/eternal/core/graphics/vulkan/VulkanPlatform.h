@@ -45,7 +45,7 @@ namespace Eternal {
 
 		void shutDown() override;
 
-		void render() override;
+		Memory::Ref<SwapChain> createSwapChain(Memory::Ref<Window> window) override;
 
 		vk::Instance createInstance(const std::string& applicationName);
 
@@ -56,8 +56,6 @@ namespace Eternal {
 		uint32_t identifyPresentQueueFamilyIndex(vk::PhysicalDevice& device, vk::SurfaceKHR& surface);
 
 		vk::Device createLogicalDevice(vk::PhysicalDevice& device, uint32_t graphicsQueueFamilyIndex, uint32_t presentQueueFamilyIndex);
-
-		vk::RenderPass createRenderPass(const vk::Device& logicalDevice);
 
 		vk::ShaderModule loadShader(const vk::Device& logicalDevice, const std::filesystem::path& path);
 
@@ -71,46 +69,16 @@ namespace Eternal {
 
 		void logDeviceProps(const vk::PhysicalDevice& device);
 
-		void recordCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
+		vk::PipelineLayout createPipelineLayout(vk::PushConstantRange pushConstantRange);
 
-		vk::CommandBuffer getCommandBuffer() override { return m_CommandBuffers[m_CurrentFrame]; }
+		vk::Pipeline createPipeline(vk::PipelineLayout pipelineLayout, vk::RenderPass renderPass);
 
 	private:
 
-		void initializePipeline();
-
-		void initializeRenderPass();
-
-		void initializeFrameBuffers();
-
-		void initializeCommandPool();
-
-		void initializeCommandBuffer();
-
-		void initializeSyncObjects();
-
 		std::string m_ApplicationName;
 
-		vk::SurfaceKHR m_Surface = nullptr;
-
-		Eternal::EntityManager* m_EntityManager;
-
-		Eternal::VulkanBufferManager* m_VulkanBufferManager;
-
-		std::vector<Eternal::Vertex> m_Vertices;
-		std::vector<uint32_t> m_Indices;
 		std::string m_VertexShaderPath;
 		std::string m_FragmentShaderPath;
-
-		std::vector<vk::Semaphore> m_ImageAvailableSemaphores;
-		std::vector<vk::Semaphore> m_RenderFinishedSemaphores;
-		std::vector<vk::Fence> m_InFlightFences;
-
-		uint32_t m_CurrentFrame = 0;
-
-		PushConstants m_PushConstants;
-
-		Eternal::Camera* m_Camera;
 
 		Timer timer;
 	};

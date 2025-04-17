@@ -49,9 +49,9 @@ namespace Eternal {
 
 			Builder& height(uint32_t height) noexcept;
 
-			Window* build() noexcept;
+			Memory::Ref<Window> build() noexcept;
 		};
 
-		static Window* create(const Builder& builder);
+		static Memory::Ref<Window> create(const Builder& builder);
 	};
 }

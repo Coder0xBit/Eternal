@@ -3,9 +3,9 @@
 
 namespace Eternal {
 
-	GraphicsPlatform* GraphicsPlatform::create(const Builder& builder) 
+	Memory::Ref<GraphicsPlatform> GraphicsPlatform::create(const Builder& builder)
 	{
-		return new VulkanPlatform(builder);
+		return Memory::CreateRef<VulkanPlatform>(builder);
 	}
 
 	GraphicsPlatform::Builder::Builder() noexcept = default;
@@ -20,23 +20,17 @@ namespace Eternal {
 
 	GraphicsPlatform::Builder& GraphicsPlatform::Builder::operator=(Builder&& rhs) noexcept = default;
 
-	GraphicsPlatform::Builder& GraphicsPlatform::Builder::entityManager(Eternal::EntityManager* entityManager) noexcept
-	{
-		mImpl->entityManager = entityManager;
-		return *this;
-	}
-
 	GraphicsPlatform::Builder& GraphicsPlatform::Builder::applicationName(const std::string& applicationName) noexcept {
 		mImpl->applicationName = applicationName;
 		return *this;
 	}
 
-	GraphicsPlatform::Builder& GraphicsPlatform::Builder::window(Eternal::Window* window) noexcept {
-		mImpl->window = window;
+	GraphicsPlatform::Builder& GraphicsPlatform::Builder::backend(Backend backend) noexcept {
+		mImpl->backend = backend;
 		return *this;
 	}
 
-	GraphicsPlatform* GraphicsPlatform::Builder::build() noexcept {
+	Memory::Ref<GraphicsPlatform> GraphicsPlatform::Builder::build() noexcept {
 		return GraphicsPlatform::create(*this);
 	}
 }

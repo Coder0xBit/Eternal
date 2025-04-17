@@ -3,7 +3,7 @@
 
 namespace Eternal {
 
-	VulkanBufferManager::VulkanBufferManager(vk::Device device, vk::PhysicalDevice physicalDevice, Eternal::EntityManager* entityManager)
+	VulkanBufferManager::VulkanBufferManager(vk::Device device, vk::PhysicalDevice physicalDevice, Memory::Ref<Eternal::EntityManager> entityManager)
 	{
 		m_Device = device;
 		m_EntityManager = entityManager;
@@ -14,12 +14,12 @@ namespace Eternal {
 
 	void VulkanBufferManager::bindBuffers(vk::CommandBuffer commandBuffer)
 	{
-		for (auto [entityId, buffer] : m_VertexBuffers)
+		for (auto& [entityId, buffer] : m_VertexBuffers)
 		{
 			vk::DeviceSize offset = vk::DeviceSize(0);
 			commandBuffer.bindVertexBuffers(0, 1, &(buffer->handle), &offset);
 		}
-		for (auto [entityId, buffer] : m_IndexBuffers)
+		for (auto& [entityId, buffer] : m_IndexBuffers)
 		{
 			commandBuffer.bindIndexBuffer(buffer->handle, 0, vk::IndexType::eUint32);
 		}
@@ -27,7 +27,7 @@ namespace Eternal {
 
 	void VulkanBufferManager::draw(vk::CommandBuffer commandBuffer)
 	{
-		for (auto [entityId, buffer] : m_IndexBuffers)
+		for (auto& [entityId, buffer] : m_IndexBuffers)
 		{
 			commandBuffer.drawIndexed(buffer->count, 1, 0, 0, 0);
 		}
@@ -35,7 +35,7 @@ namespace Eternal {
 
 	VulkanBufferManager::~VulkanBufferManager()
 	{
-		for (auto [entityId, buffer] : m_VertexBuffers) {
+		for (auto& [entityId, buffer] : m_VertexBuffers) {
 			if (buffer->handle)
 				m_Device.destroyBuffer(buffer->handle);
 
@@ -43,7 +43,7 @@ namespace Eternal {
 				m_Device.freeMemory(buffer->memory);
 		}
 
-		for (auto [entityId, buffer] : m_IndexBuffers) {
+		for (auto& [entityId, buffer] : m_IndexBuffers) {
 			if (buffer->handle)
 				m_Device.destroyBuffer(buffer->handle);
 
@@ -54,13 +54,13 @@ namespace Eternal {
 
 	void VulkanBufferManager::initializeBuffers()
 	{
-		for (auto [entityId, component] : m_EntityManager->getComponentStorage<Eternal::RenderComponent>())
+		for (auto& [entityId, component] : m_EntityManager->getComponentStorage<Eternal::RenderComponent>())
 		{
 			auto vertexBuffer = std::make_shared<Buffer>();
 
-			uint32_t vertexBufferSize = sizeof(Eternal::Vertex) * component.getVertices().size();
-			vertexBuffer->usage = vk::BufferUsageFlagBits::eVertexBuffer;
 			vertexBuffer->count = component.getVertices().size();
+			uint32_t vertexBufferSize = sizeof(Eternal::Vertex) * vertexBuffer->count;
+			vertexBuffer->usage = vk::BufferUsageFlagBits::eVertexBuffer;
 			createOrResizeBuffer(*vertexBuffer, vertexBufferSize);
 
 			Eternal::Vertex* vertexBufferMemory = static_cast<Eternal::Vertex*>(m_Device.mapMemory(vertexBuffer->memory, 0, vertexBufferSize));
@@ -70,9 +70,9 @@ namespace Eternal {
 
 			auto indexBuffer = std::make_shared<Buffer>();
 
-			uint32_t indexBufferSize = sizeof(uint32_t) * component.getIndices().size();
-			indexBuffer->usage = vk::BufferUsageFlagBits::eIndexBuffer;
 			indexBuffer->count = component.getIndices().size();
+			uint32_t indexBufferSize = sizeof(uint32_t) * indexBuffer->count;
+			indexBuffer->usage = vk::BufferUsageFlagBits::eIndexBuffer;
 			createOrResizeBuffer(*indexBuffer, indexBufferSize);
 
 			uint32_t* indexBufferMemory = static_cast<uint32_t*>(m_Device.mapMemory(indexBuffer->memory, 0, indexBufferSize));

@@ -7,6 +7,9 @@
 #include <eternal/core/Window.h>
 #include <eternal/core/graphics/GraphicsPlatform.h>
 #include <eternal/core/ecs/EntityManager.h>
+#include <eternal/core/graphics/Renderer.h>
+#include <eternal/core/graphics/Backend.h>
+
 #include <GLFW/glfw3.h>
 #include <vulkan/vulkan.hpp>
 
@@ -16,8 +19,10 @@ namespace Eternal {
 	{
 
 	public:
+
 		struct BuilderDetails {
 			std::string applicationName;
+			Backend backend = Backend::Vulkan;
 		};
 
 		class Builder : public utils::PrivateImplementation<BuilderDetails> {
@@ -38,7 +43,9 @@ namespace Eternal {
 
 			Builder& applicationName(const std::string& applicationName) noexcept;
 
-			Engine* build();
+			Builder& backend(Backend backend) noexcept;
+
+			Memory::Ref<Engine> build();
 		};
 
 		Engine(const Builder& builder);
@@ -47,23 +54,26 @@ namespace Eternal {
 
 		bool isRunning() const { return m_IsRunning; }
 
-		void onUpdate();
+		Memory::Ref<Renderer> createRenderer(Memory::Ref<Window> window);
 
-		vk::CommandBuffer getCommandBuffer();
+		Memory::Ref<EntityManager> createEntityManager();
 
-		Eternal::GraphicsPlatform* getPlatform() { return m_GraphicsPlatform; }
+		Eternal::GraphicsPlatform* getPlatform() { return m_GraphicsPlatform.get(); }
+
 	private:
 
-		void setupEntities();
-
-		void addTriangle();
-
-		void addCube();
+		Memory::Ref<Renderer> m_Renderer;
 
 		std::string m_ApplicationName;
+
+		Backend m_Backend = Backend::Vulkan;
+
 		Eternal::Window* m_Window = nullptr;
-		Eternal::GraphicsPlatform* m_GraphicsPlatform = nullptr;
-		Eternal::EntityManager* m_EntityManager = nullptr;
+
+		Memory::Ref<GraphicsPlatform> m_GraphicsPlatform = nullptr;
+
+		Memory::Ref<EntityManager > m_EntityManager = nullptr;
+
 		bool m_IsRunning = false;
 	};
 }

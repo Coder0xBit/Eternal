@@ -151,6 +151,7 @@
     <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanBufferManager.cpp" />
     <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanGraphicsContext.cpp" />
     <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanImGuiLayer.cpp" />
+    <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanRenderer.cpp" />
     <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanSwapChain.cpp" />
     <ClCompile Include="src\eternal\core\Logger.cpp" />
     <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanPlatform.cpp" />
@@ -173,11 +174,15 @@
     <ClInclude Include="src\eternal\core\ecs\EntityManager.h" />
     <ClInclude Include="src\eternal\core\ecs\RenderComponent.h" />
     <ClInclude Include="src\eternal\core\ecs\Entity.h" />
+    <ClInclude Include="src\eternal\core\graphics\Backend.h" />
     <ClInclude Include="src\eternal\core\graphics\Camera.hpp" />
+    <ClInclude Include="src\eternal\core\graphics\Renderer.h" />
+    <ClInclude Include="src\eternal\core\graphics\SwapChain.h" />
     <ClInclude Include="src\eternal\core\graphics\Vertex.h" />
     <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanBufferManager.h" />
     <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanGraphicsContext.h" />
     <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanImGuiLayer.h" />
+    <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanRenderer.h" />
     <ClInclude Include="src\eternal\core\ImGuiLayer.h" />
     <ClInclude Include="src\eternal\core\Engine.h" />
     <ClInclude Include="src\eternal\core\graphics\GraphicsPlatform.h" />

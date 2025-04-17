@@ -16,7 +16,7 @@ namespace Eternal {
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 		m_Window = glfwCreateWindow(m_Width, m_Height, m_Title.c_str(), nullptr, nullptr);
 		setWindowIcon(WINDOW_ICON_PATH, m_Window);
-		Logger::Info("Window Created");
+		Eternal::Logger::Info("Window Created");
 	}
 
 	void WindowsWindow::onUpdate() {
@@ -36,11 +36,11 @@ namespace Eternal {
 		}
 		else
 		{
-			Logger::Error("mWindow Pointer is null");
+			Eternal::Logger::Error("mWindow Pointer is null");
 		}
 
 		glfwTerminate();
-		Logger::Info("Window Destroyed");
+		Eternal::Logger::Info("Window Destroyed");
 	}
 
 	vk::SurfaceKHR WindowsWindow::createWindowSurface(vk::Instance instance) const
@@ -50,7 +50,7 @@ namespace Eternal {
 		vk::SurfaceKHR surface = nullptr;
 		if (glfwCreateWindowSurface(instance, m_Window, nullptr, reinterpret_cast<VkSurfaceKHR*>(&surface)) != VK_SUCCESS)
 		{
-			Logger::Error("Failed to create window surface");
+			Eternal::Logger::Error("Failed to create window surface");
 			return nullptr;
 		}
 		return surface;

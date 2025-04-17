@@ -45,7 +45,7 @@ namespace Eternal {
 		initInfo.PhysicalDevice = m_VulkanGraphicsContext->getPhysicalDevice();
 		initInfo.Device = m_VulkanGraphicsContext->getLogicalDevice();
 		initInfo.Queue = m_VulkanGraphicsContext->getGraphicsQueue();
-		initInfo.RenderPass = m_VulkanGraphicsContext->getRenderPass();
+	/*	initInfo.RenderPass = m_VulkanGraphicsContext->getRenderPass();*/
 		initInfo.DescriptorPool = m_DescriptorPool;
 		initInfo.MinImageCount = 2;
 		initInfo.ImageCount = 2;
@@ -79,8 +79,8 @@ namespace Eternal {
 	void VulkanImGuiLayer::endFrame()
 	{
 		ImGui::Render();
-		auto commandBuffer = m_VulkanGraphicsContext->getCommandBuffer();
-		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+		/*auto commandBuffer = m_VulkanGraphicsContext->getCommandBuffer();
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);*/
 	}
 }
 

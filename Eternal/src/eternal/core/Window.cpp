@@ -5,14 +5,14 @@
 
 namespace Eternal {
 
-	Window* Window::create(const Builder& builder)
+	Memory::Ref<Window> Window::create(const Builder& builder)
 	{
 		System system = Eternal::detectSystem();
 
 		switch (system)
 		{
 		case System::WINDOWS:
-			return new WindowsWindow(builder);
+			return Memory::CreateRef<WindowsWindow>(builder);
 			break;
 		default:
 			return nullptr;
@@ -47,7 +47,7 @@ namespace Eternal {
 		return *this;
 	}
 
-	Window* Window::Builder::build() noexcept {
+	Memory::Ref<Window> Window::Builder::build() noexcept {
 		return Window::create(*this);
 	}
 }
