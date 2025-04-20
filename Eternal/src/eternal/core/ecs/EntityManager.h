@@ -12,6 +12,10 @@ namespace Eternal {
 
 		using EntityId = uint32_t;
 
+		EntityManager() = default;
+
+		~EntityManager() = default;
+
 		Entity createEntity()
 		{
 			EntityId id = m_NextEntityId++;

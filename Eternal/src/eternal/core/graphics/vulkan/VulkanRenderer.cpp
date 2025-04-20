@@ -2,22 +2,25 @@
 
 namespace Eternal {
 
-	VulkanRenderer::VulkanRenderer(Memory::Ref<VulkanPlatform> platform, Memory::Ref<Window> window, Memory::Ref<EntityManager> entityManager) : m_EntityManager(entityManager), m_Platform(platform)
+	VulkanRenderer::VulkanRenderer(VulkanPlatform* platform, Window* window, EntityManager* entityManager) : m_EntityManager(entityManager), m_Platform(platform)
 	{
 		ETERNAL_ASSERT(m_EntityManager != nullptr, "EntityManager is null");
 		ETERNAL_ASSERT(m_Platform != nullptr, "Platform is null");
 
-		m_Camera = Memory::CreateRef<Camera>();
+		m_Camera = Memory::Allocate<Camera>();
 		float aspectRatio = (float)window->getWidth() / (float)window->getHeight();
 		m_Camera->setPerspectiveProjection(glm::radians(50.f), aspectRatio, 0.1f, 10.f);
 
-		m_SwapChain = Memory::DynamicPtrCast<VulkanSwapChain>(m_Platform->createSwapChain(window));
+		auto swapchain = m_Platform->createSwapChain(window);
+		m_SwapChain = dynamic_cast<VulkanSwapChain*>(swapchain);
 
 		if (!m_SwapChain)
 		{
 			Eternal::Logger::Error("Failed to create Vulkan SwapChain");
 			return;
 		}
+
+		m_RenderPass = m_SwapChain->getRenderPass();
 
 		vk::PushConstantRange pushConstantRange = vk::PushConstantRange()
 			.setOffset(0)
@@ -40,7 +43,7 @@ namespace Eternal {
 
 		createFences();
 
-		m_VulkanBufferManager = Memory::CreateRef<VulkanBufferManager>(m_LogicalDevice, m_PhysicalDevice, m_EntityManager);
+		m_VulkanBufferManager = Memory::Allocate<VulkanBufferManager>(m_LogicalDevice, m_PhysicalDevice, m_EntityManager);
 	}
 
 	VulkanRenderer::~VulkanRenderer()
@@ -63,13 +66,24 @@ namespace Eternal {
 		}
 
 		m_LogicalDevice.destroyCommandPool(m_CommandPool);
+
 		m_LogicalDevice.destroyPipeline(m_Pipeline);
+
 		m_LogicalDevice.destroyPipelineLayout(m_PipelineLayout);
-		m_LogicalDevice.destroyRenderPass(m_RenderPass);
+
+		Memory::Deallocate(m_SwapChain);
+
+		Memory::Deallocate(m_VulkanBufferManager);
+
 		m_LogicalDevice.destroy();
 
-		auto vkInstance = m_Platform->getVkInstance();
-		vkInstance.destroy();
+		m_Platform->getVkInstance().destroy();
+
+		Memory::Deallocate(m_Platform);
+
+		Memory::Deallocate(m_Camera);
+
+		Memory::Deallocate(m_EntityManager);
 	}
 
 	void VulkanRenderer::createCommandPool()
@@ -96,12 +110,15 @@ namespace Eternal {
 	void VulkanRenderer::createSemaphores()
 	{
 		m_ImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+
 		m_RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 
 		for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
 		{
 			vk::SemaphoreCreateInfo semaphoreCreateInfo = vk::SemaphoreCreateInfo();
+
 			m_ImageAvailableSemaphores[i] = m_LogicalDevice.createSemaphore(semaphoreCreateInfo);
+
 			m_RenderFinishedSemaphores[i] = m_LogicalDevice.createSemaphore(semaphoreCreateInfo);
 		}
 	}
@@ -118,7 +135,7 @@ namespace Eternal {
 		}
 	}
 
-	Renderer::FrameInfo VulkanRenderer::beginFrame()
+	VulkanRenderer::FrameInfo* VulkanRenderer::beginFrame()
 	{
 		uint32_t imageIndex = 0;
 
@@ -130,18 +147,18 @@ namespace Eternal {
 
 		result = m_LogicalDevice.resetFences(1, &m_InFlightFences[m_CurrentFrame]);
 
-		vk::CommandBuffer& commandBuffer = m_CommandBuffers[m_CurrentFrame];
+		vk::CommandBuffer commandBuffer = m_CommandBuffers[m_CurrentFrame];
 
 		commandBuffer.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
 
-		return VulkanFrameInfo(commandBuffer, imageIndex);
+		return Memory::Allocate<VulkanFrameInfo>(commandBuffer, imageIndex);
 	}
 
-	void VulkanRenderer::render(FrameInfo frameInfo)
+	void VulkanRenderer::render(FrameInfo* frameInfo)
 	{
-		auto& vkFrameInfo = static_cast<VulkanFrameInfo&>(frameInfo);
+		auto* vkFrameInfo = static_cast<VulkanFrameInfo*>(frameInfo);
 
-		recordCommandBuffer(vkFrameInfo);
+		recordCommandBuffer(*vkFrameInfo);
 
 		vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
 
@@ -150,13 +167,15 @@ namespace Eternal {
 			.setPWaitSemaphores(&m_ImageAvailableSemaphores[m_CurrentFrame])
 			.setPWaitDstStageMask(waitStages)
 			.setCommandBufferCount(1)
-			.setPCommandBuffers(&(vkFrameInfo.commandBuffer))
+			.setPCommandBuffers(&(vkFrameInfo->commandBuffer))
 			.setSignalSemaphoreCount(1)
 			.setPSignalSemaphores(&m_RenderFinishedSemaphores[m_CurrentFrame]);
 
 		auto graphicsQueue = m_Platform->getGraphicsQueue();
 
 		vk::Result result = graphicsQueue.submit(1, &submitInfo, m_InFlightFences[m_CurrentFrame]);
+
+		m_SwapChain->present(m_RenderFinishedSemaphores[m_CurrentFrame], vkFrameInfo->imageIndex);
 	}
 
 	void VulkanRenderer::endFrame()
@@ -171,7 +190,6 @@ namespace Eternal {
 
 	void VulkanRenderer::recordCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
 	{
-
 		VulkanSwapChain::SwapChainDetails swapChainDetails = m_SwapChain->getSwapChainDetails();
 
 		vk::CommandBufferBeginInfo commandBufferBeginInfo = vk::CommandBufferBeginInfo();

@@ -18,10 +18,13 @@ namespace Eternal {
 
 		struct VulkanFrameInfo : public Renderer::FrameInfo {
 			VulkanFrameInfo(vk::CommandBuffer commandBuffer, uint32_t imageIndex) :
-				commandBuffer(commandBuffer), imageIndex(imageIndex) {
+				commandBuffer(commandBuffer), imageIndex(imageIndex)
+			{
+
 			}
 
-			bool operator==(const VulkanFrameInfo& other) noexcept {
+			bool operator==(const VulkanFrameInfo& other) noexcept 
+			{
 				return this->commandBuffer == other.commandBuffer && this->imageIndex == other.imageIndex;
 			}
 
@@ -29,13 +32,13 @@ namespace Eternal {
 			uint32_t imageIndex;
 		};
 
-		VulkanRenderer(Memory::Ref<VulkanPlatform> platform, Memory::Ref<Window> window, Memory::Ref<EntityManager> entityManager);
+		VulkanRenderer(VulkanPlatform* platform, Window* window, EntityManager* entityManager);
 
 		~VulkanRenderer();
 
-		FrameInfo beginFrame() override;
+		FrameInfo* beginFrame() override;
 
-		void render(FrameInfo frameInfo) override;
+		void render(FrameInfo* frameInfo) override;
 
 		void endFrame() override;
 
@@ -53,28 +56,38 @@ namespace Eternal {
 
 		void recordCommandBuffer(VulkanFrameInfo& vkFrameInfo);
 
-		Memory::Ref<EntityManager> m_EntityManager;
-		Memory::Ref<VulkanPlatform> m_Platform;
-		Memory::Ref<VulkanSwapChain> m_SwapChain;
-		Memory::Ref<Eternal::VulkanBufferManager> m_VulkanBufferManager;
+		EntityManager* m_EntityManager;
 
-		Memory::Ref<Eternal::Camera> m_Camera;
+		VulkanPlatform* m_Platform;
+
+		VulkanSwapChain* m_SwapChain;
+
+		Eternal::VulkanBufferManager* m_VulkanBufferManager;
+
+		Eternal::Camera* m_Camera;
 
 		std::vector<vk::Semaphore> m_ImageAvailableSemaphores;
+
 		std::vector<vk::Semaphore> m_RenderFinishedSemaphores;
+
 		std::vector<vk::Fence> m_InFlightFences;
 
 		uint32_t m_CurrentFrame = 0;
 
 		vk::CommandPool m_CommandPool = nullptr;
+
 		std::vector<vk::CommandBuffer> m_CommandBuffers;
 
 		vk::Device m_LogicalDevice = nullptr;
+
 		vk::PhysicalDevice m_PhysicalDevice = nullptr;
+
 		PushConstants m_PushConstants;
 
 		vk::PipelineLayout m_PipelineLayout = nullptr;
+
 		vk::Pipeline m_Pipeline = nullptr;
+
 		vk::RenderPass m_RenderPass = nullptr;
 	};
 }

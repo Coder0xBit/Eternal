@@ -31,7 +31,6 @@ namespace Eternal {
 		m_VkInstance = createInstance(m_ApplicationName);
 
 		m_PhysicalDevice = choosePhysicalDevice(m_VkInstance);
-
 	}
 
 	vk::Instance VulkanPlatform::createInstance(const std::string& applicationName)
@@ -153,9 +152,9 @@ namespace Eternal {
 
 	}
 
-	Memory::Ref<SwapChain> VulkanPlatform::createSwapChain(Memory::Ref<Window> window)
+	SwapChain* VulkanPlatform::createSwapChain(Window* window)
 	{
-		Memory::Ref<VulkanWindow> vkWindow = Memory::DynamicPtrCast<VulkanWindow>(window);
+		VulkanWindow* vkWindow = dynamic_cast<VulkanWindow*>(window);
 
 		if (!vkWindow) {
 			Eternal::Logger::Debug("Returning Null SwapChain, expecting VulkanWindow in createSwapChain(..)");
@@ -163,6 +162,7 @@ namespace Eternal {
 		}
 
 		vk::SurfaceKHR surface = vkWindow->createWindowSurface(m_VkInstance);
+
 		vk::Extent2D fallbackExtent = vkWindow->getExtent();
 
 		m_PresentQueueFamilyIndex = identifyPresentQueueFamilyIndex(m_PhysicalDevice, surface);
@@ -177,7 +177,7 @@ namespace Eternal {
 
 		m_GraphicsQueue = m_LogicalDevice.getQueue(m_GraphicsQueueFamilyIndex, m_GraphicsQueueIndex);
 
-		Memory::CreateRef<VulkanSwapChain>(m_LogicalDevice, m_PhysicalDevice, m_PresentQueue, surface, fallbackExtent, m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex);
+		return Memory::Allocate<VulkanSwapChain>(m_VkInstance, m_LogicalDevice, m_PhysicalDevice, m_PresentQueue, surface, fallbackExtent, m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex);
 	}
 
 	vk::ShaderModule VulkanPlatform::loadShader(const vk::Device& logicalDevice, const std::filesystem::path& path)

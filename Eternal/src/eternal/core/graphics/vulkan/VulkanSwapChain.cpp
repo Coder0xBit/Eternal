@@ -2,6 +2,7 @@
 
 namespace Eternal {
 	VulkanSwapChain::VulkanSwapChain(
+		vk::Instance instance,
 		vk::Device logicalDevice,
 		vk::PhysicalDevice physicalDevice,
 		vk::Queue queue,
@@ -9,7 +10,8 @@ namespace Eternal {
 		vk::Extent2D extent,
 		uint32_t graphicsQueueFamilyIndex,
 		uint32_t presentQueueFamilyIndex
-	) : m_LogicalDevice(logicalDevice),
+	) : m_VkInstance(instance),
+		m_LogicalDevice(logicalDevice),
 		m_PhysicalDevice(physicalDevice),
 		m_PresentQueue(queue),
 		m_Surface(surface),
@@ -124,10 +126,14 @@ namespace Eternal {
 			m_LogicalDevice.destroyFramebuffer(frameBuffer);
 		}
 
+		m_LogicalDevice.destroyRenderPass(m_RenderPass);
+
 		if (m_SwapChain)
 		{
 			m_LogicalDevice.destroySwapchainKHR(m_SwapChain);
 		}
+
+		m_VkInstance.destroySurfaceKHR(m_Surface);
 	}
 
 	vk::SurfaceFormatKHR VulkanSwapChain::selectSwapChainSurfaceFormat()

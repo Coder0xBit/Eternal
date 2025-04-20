@@ -37,16 +37,16 @@ namespace Eternal {
 			.applicationName("Eternal Application")
 			.build();
 
-		m_EntityManager = m_Engine->createEntityManager();
+		m_EntityManager = Memory::Allocate<EntityManager>();
 
-		addTriangle();
+		setupEntities();
 
 		m_IsRunning = true;
 	}
 
 	void Editor::setupEntities()
 	{
-		std::string filepath = "res/models/colored_cube.obj";
+		std::string filepath = "res/models/flat_vase.obj";
 
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
@@ -162,20 +162,25 @@ namespace Eternal {
 
 	void Editor::run()
 	{
-		auto renderer = m_Engine->createRenderer(m_Window);
+		auto renderer = m_Engine->createRenderer(m_Window, m_EntityManager);
 
 		while (m_IsRunning)
 		{
-			auto frameInfo = renderer->beginFrame();
-			renderer->render(frameInfo);
-			renderer->endFrame();
-			m_IsRunning = m_Engine->isRunning();
+			m_Window->onUpdate();
+
+			if (Renderer::FrameInfo* frameInfo = renderer->beginFrame()) {
+				renderer->render(frameInfo);
+				renderer->endFrame();
+				Memory::Deallocate(frameInfo);
+			}
+
+			m_IsRunning = !m_Window->shouldClose();
 		}
 	}
 
 	Editor* Editor::create()
 	{
-		return new Editor();
+		return Memory::Allocate<Editor>();
 	}
 
 	void Editor::onImGuiRender()
@@ -186,6 +191,10 @@ namespace Eternal {
 
 	void Editor::shutdown()
 	{
+		Memory::Deallocate(m_Engine);
+
+		Memory::Deallocate(m_Window);
+
 		delete m_ImGuiLayer;
 	}
 }

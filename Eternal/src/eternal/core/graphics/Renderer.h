@@ -9,9 +9,12 @@ namespace Eternal {
 			virtual ~FrameInfo() = default;
 		};
 
-		virtual FrameInfo beginFrame() = 0;
-		virtual void render(FrameInfo frameInfo) = 0;
+		virtual FrameInfo* beginFrame() = 0;
+
+		virtual void render(FrameInfo* frameInfo) = 0;
+
 		virtual void endFrame() = 0;
+
 		virtual ~Renderer() = default;
 	};
 }

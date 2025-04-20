@@ -45,7 +45,7 @@ namespace Eternal {
 
 		void shutDown() override;
 
-		Memory::Ref<SwapChain> createSwapChain(Memory::Ref<Window> window) override;
+		SwapChain* createSwapChain(Window* window) override;
 
 		vk::Instance createInstance(const std::string& applicationName);
 
@@ -78,6 +78,7 @@ namespace Eternal {
 		std::string m_ApplicationName;
 
 		std::string m_VertexShaderPath;
+
 		std::string m_FragmentShaderPath;
 
 		Timer timer;

@@ -16,7 +16,7 @@ namespace Eternal {
 
 		virtual void shutDown() = 0;
 
-		virtual Memory::Ref<SwapChain> createSwapChain(Memory::Ref<Window> window) = 0;
+		virtual SwapChain* createSwapChain(Window* window) = 0;
 
 		struct BuilderDetails {
 			std::vector<Eternal::Vertex> vertices;
@@ -46,10 +46,9 @@ namespace Eternal {
 
 			Builder& backend(Backend backend) noexcept;
 
-
-			Memory::Ref<GraphicsPlatform> build() noexcept;
+			GraphicsPlatform* build() noexcept;
 		};
 
-		static Memory::Ref<GraphicsPlatform> create(const Builder& builder);
+		static GraphicsPlatform* create(const Builder& builder);
 	};
 }

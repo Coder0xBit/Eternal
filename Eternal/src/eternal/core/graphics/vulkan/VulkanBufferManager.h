@@ -20,7 +20,7 @@ namespace Eternal {
 			vk::BufferUsageFlagBits usage = vk::BufferUsageFlagBits::eIndexBuffer;
 		};
 
-		VulkanBufferManager(vk::Device device, vk::PhysicalDevice physicalDevice, Memory::Ref<Eternal::EntityManager> entityManager);
+		VulkanBufferManager(vk::Device device, vk::PhysicalDevice physicalDevice, EntityManager* entityManager);
 
 		void bindBuffers(vk::CommandBuffer commandBuffer);
 
@@ -36,14 +36,14 @@ namespace Eternal {
 
 		uint32_t getMemoryType(vk::MemoryPropertyFlags properties, uint32_t type_bits);
 
-		Memory::Ref<Eternal::EntityManager> m_EntityManager;
+		EntityManager* m_EntityManager;
 
 		vk::Device m_Device;
 
 		vk::PhysicalDevice m_PhysicalDevice;
 
-		std::unordered_map<EntityId, Memory::Ref<Buffer>> m_VertexBuffers;
+		std::unordered_map<EntityId, std::shared_ptr<Buffer>> m_VertexBuffers;
 
-		std::unordered_map<EntityId, Memory::Ref<Buffer>> m_IndexBuffers;
+		std::unordered_map<EntityId, std::shared_ptr<Buffer>> m_IndexBuffers;
 	};
 }

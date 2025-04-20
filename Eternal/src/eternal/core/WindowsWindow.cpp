@@ -12,10 +12,15 @@ namespace Eternal {
 		m_Width(builder->width)
 	{
 		glfwInit();
+
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+
 		m_Window = glfwCreateWindow(m_Width, m_Height, m_Title.c_str(), nullptr, nullptr);
+
 		setWindowIcon(WINDOW_ICON_PATH, m_Window);
+
 		Eternal::Logger::Info("Window Created");
 	}
 
@@ -40,6 +45,7 @@ namespace Eternal {
 		}
 
 		glfwTerminate();
+
 		Eternal::Logger::Info("Window Destroyed");
 	}
 

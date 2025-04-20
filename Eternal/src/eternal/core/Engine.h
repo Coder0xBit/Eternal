@@ -17,7 +17,6 @@ namespace Eternal {
 
 	class Engine
 	{
-
 	public:
 
 		struct BuilderDetails {
@@ -45,35 +44,25 @@ namespace Eternal {
 
 			Builder& backend(Backend backend) noexcept;
 
-			Memory::Ref<Engine> build();
+			Engine* build();
 		};
 
 		Engine(const Builder& builder);
 
 		~Engine();
 
-		bool isRunning() const { return m_IsRunning; }
+		Renderer* createRenderer(Window* window, EntityManager* entityManager);
 
-		Memory::Ref<Renderer> createRenderer(Memory::Ref<Window> window);
-
-		Memory::Ref<EntityManager> createEntityManager();
-
-		Eternal::GraphicsPlatform* getPlatform() { return m_GraphicsPlatform.get(); }
+		Eternal::GraphicsPlatform* getPlatform() { return m_GraphicsPlatform; }
 
 	private:
 
-		Memory::Ref<Renderer> m_Renderer;
+		Renderer* m_Renderer;
 
 		std::string m_ApplicationName;
 
 		Backend m_Backend = Backend::Vulkan;
 
-		Eternal::Window* m_Window = nullptr;
-
-		Memory::Ref<GraphicsPlatform> m_GraphicsPlatform = nullptr;
-
-		Memory::Ref<EntityManager > m_EntityManager = nullptr;
-
-		bool m_IsRunning = false;
+		GraphicsPlatform* m_GraphicsPlatform = nullptr;
 	};
 }

@@ -3,9 +3,9 @@
 
 namespace Eternal {
 
-	Memory::Ref<GraphicsPlatform> GraphicsPlatform::create(const Builder& builder)
+	GraphicsPlatform* GraphicsPlatform::create(const Builder& builder)
 	{
-		return Memory::CreateRef<VulkanPlatform>(builder);
+		return Memory::Allocate<VulkanPlatform>(builder);
 	}
 
 	GraphicsPlatform::Builder::Builder() noexcept = default;
@@ -30,7 +30,7 @@ namespace Eternal {
 		return *this;
 	}
 
-	Memory::Ref<GraphicsPlatform> GraphicsPlatform::Builder::build() noexcept {
+	GraphicsPlatform* GraphicsPlatform::Builder::build() noexcept {
 		return GraphicsPlatform::create(*this);
 	}
 }

@@ -19,27 +19,25 @@ namespace Eternal {
 			.applicationName(m_ApplicationName)
 			.backend(m_Backend)
 			.build();
-
-		m_IsRunning = true;
 	}
 
 	Engine::~Engine()
 	{
-
+		delete m_Renderer;
 	}
 
-	Memory::Ref<Renderer> Engine::createRenderer(Memory::Ref<Window> window)
+	Renderer* Engine::createRenderer(Window* window, EntityManager* entityManager)
 	{
-		auto vulkanPlatform = Memory::DynamicPtrCast<VulkanPlatform>(m_GraphicsPlatform);
 		if (m_Backend == Backend::Vulkan)
 		{
+			auto vulkanPlatform = dynamic_cast<VulkanPlatform*>(m_GraphicsPlatform);
 			if (vulkanPlatform)
 			{
-				m_Renderer = Memory::CreateRef<VulkanRenderer>(vulkanPlatform, window, m_EntityManager);
+				m_Renderer = Memory::Allocate<VulkanRenderer>(vulkanPlatform, window, entityManager);
 				return m_Renderer;
 			}
 
-			Eternal::Logger::Error("Currently Only supported Backend is Vulkan");
+			Eternal::Logger::Error("Casting issue in createRenderer(...)");
 			return nullptr;
 		}
 		else
@@ -47,12 +45,6 @@ namespace Eternal {
 			Eternal::Logger::Error("Currently Only supported Backend is Vulkan");
 			return nullptr;
 		}
-	}
-
-	Memory::Ref<EntityManager> Engine::createEntityManager()
-	{
-		m_EntityManager = Memory::Ref<EntityManager>();
-		return m_EntityManager;
 	}
 
 	Engine::Builder::Builder() noexcept = default;
@@ -77,7 +69,7 @@ namespace Eternal {
 		return *this;
 	}
 
-	Memory::Ref<Engine> Engine::Builder::build() {
-		return Memory::CreateRef<Engine>(*this);
+	Engine* Engine::Builder::build() {
+		return Memory::Allocate<Engine>(*this);
 	}
 }

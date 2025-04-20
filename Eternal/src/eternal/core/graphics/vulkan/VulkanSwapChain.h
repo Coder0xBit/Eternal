@@ -16,6 +16,7 @@ namespace Eternal {
 		};
 
 		VulkanSwapChain(
+			vk::Instance instance,
 			vk::Device logicalDevice,
 			vk::PhysicalDevice physicalDevice,
 			vk::Queue queue,
@@ -45,6 +46,8 @@ namespace Eternal {
 
 		vk::RenderPass getRenderPass() { return m_RenderPass; }
 
+		vk::SurfaceKHR getSurface() { return m_Surface; }
+
 		void destroy();
 
 	private:
@@ -62,18 +65,28 @@ namespace Eternal {
 
 		void createFrameBuffers();
 
+		vk::Instance m_VkInstance = nullptr;
+
 		vk::Device m_LogicalDevice = nullptr;
+
 		vk::PhysicalDevice m_PhysicalDevice = nullptr;
+
 		vk::Queue m_PresentQueue = nullptr;
+
 		uint32_t m_GraphicsQueueFamilyIndex = INVALID_VK_INDEX;
+
 		uint32_t m_PresentQueueFamilyIndex = INVALID_VK_INDEX;
+
 		vk::SurfaceKHR m_Surface = nullptr;
+
 		vk::Extent2D m_FallBackExtent;
 
 		vk::RenderPass m_RenderPass = nullptr;
+
 		std::vector<vk::Framebuffer> m_SwapChainFrameBuffers;
 
 		std::vector<vk::Image> m_SwapChainImages;
+
 		std::vector<vk::ImageView> m_SwapChainImageViews;
 
 		vk::SwapchainKHR m_SwapChain = nullptr;

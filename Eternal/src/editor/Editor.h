@@ -8,12 +8,15 @@ namespace Eternal {
 	{
 	public:
 		Editor();
+
 		~Editor();
 
 		static Editor* create();
 
 		void onImGuiRender() override;
+
 		void run() override;
+
 		void shutdown() override;
 
 	private:
@@ -23,10 +26,14 @@ namespace Eternal {
 
 		void addCube();
 
-		Memory::Ref<Engine> m_Engine = nullptr;
-		Memory::Ref<Window> m_Window = nullptr;
-		Memory::Ref<SwapChain> m_SwapChain = nullptr;
-		Memory::Ref<EntityManager> m_EntityManager = nullptr;
+		Engine* m_Engine = nullptr;
+
+		EntityManager* m_EntityManager = nullptr;
+
+		Window* m_Window = nullptr;
+
+		SwapChain* m_SwapChain = nullptr;
+
 		ImGuiLayer* m_ImGuiLayer = nullptr;
 	};
 }

@@ -3,7 +3,7 @@
 
 namespace Eternal {
 
-	VulkanBufferManager::VulkanBufferManager(vk::Device device, vk::PhysicalDevice physicalDevice, Memory::Ref<Eternal::EntityManager> entityManager)
+	VulkanBufferManager::VulkanBufferManager(vk::Device device, vk::PhysicalDevice physicalDevice, EntityManager* entityManager)
 	{
 		m_Device = device;
 		m_EntityManager = entityManager;
