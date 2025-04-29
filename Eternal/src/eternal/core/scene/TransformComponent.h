@@ -1,13 +1,13 @@
 #pragma once 
 #include <eternal/utils/Base.h>
-#include <eternal/core/ecs/Component.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtx/euler_angles.hpp>
 
 namespace Eternal {
-	class TransformComponent : public Component {
+	struct TransformComponent  {
 	public:
+
 		TransformComponent(glm::vec3 translation = {}, glm::vec3 rot = {}, glm::vec3 scale = { 1.0f , 1.0f , 1.0f })
 			: m_Translation(translation), m_Rotation(rot), m_Scale(scale) {
 		}
@@ -39,10 +39,12 @@ namespace Eternal {
 		}
 
 	private:
+
 		glm::vec3 m_Translation = { 0.0f, 0.0f, 0.0f };
 
 		glm::vec3 m_Rotation = { 0.0f, 0.0f, 0.0f };
 
-		glm::vec3 m_Scale = { 1.0f, 1.0f, 1.0f };
+		glm::vec3 m_Scale = { 2.0f, 2.0f, 2.0f };
+
 	};
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <eternal/core/ecs/EntityManager.h>
+#include <eternal/core/scene/Scene.h>
 #include <eternal/utils/Base.h>
 
 #include <vulkan/vulkan.hpp>
@@ -20,7 +20,7 @@ namespace Eternal {
 			vk::BufferUsageFlagBits usage = vk::BufferUsageFlagBits::eIndexBuffer;
 		};
 
-		VulkanBufferManager(vk::Device device, vk::PhysicalDevice physicalDevice, EntityManager* entityManager);
+		VulkanBufferManager(vk::Device device, vk::PhysicalDevice physicalDevice, Scene* scene);
 
 		void bindBuffers(vk::CommandBuffer commandBuffer);
 
@@ -36,7 +36,7 @@ namespace Eternal {
 
 		uint32_t getMemoryType(vk::MemoryPropertyFlags properties, uint32_t type_bits);
 
-		EntityManager* m_EntityManager;
+		Scene* m_Scene;
 
 		vk::Device m_Device;
 

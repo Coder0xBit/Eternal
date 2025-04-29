@@ -1,12 +1,13 @@
 #include "VulkanBufferManager.h"
-#include <eternal/core/ecs/RenderComponent.h>
+#include <eternal/core/scene/RenderComponent.h>
+#include <eternal/core/scene/Entity.h>
 
 namespace Eternal {
 
-	VulkanBufferManager::VulkanBufferManager(vk::Device device, vk::PhysicalDevice physicalDevice, EntityManager* entityManager)
+	VulkanBufferManager::VulkanBufferManager(vk::Device device, vk::PhysicalDevice physicalDevice, Scene* scene)
 	{
 		m_Device = device;
-		m_EntityManager = entityManager;
+		m_Scene = scene;
 		m_PhysicalDevice = physicalDevice;
 
 		initializeBuffers();
@@ -54,8 +55,11 @@ namespace Eternal {
 
 	void VulkanBufferManager::initializeBuffers()
 	{
-		for (auto& [entityId, component] : m_EntityManager->getComponentStorage<Eternal::RenderComponent>())
+		for (auto& e : m_Scene->getAllEntityWith<Eternal::RenderComponent>())
 		{
+			Eternal::Entity entity = Eternal::Entity(e, m_Scene);
+			auto& component = entity.getComponent<Eternal::RenderComponent>();
+
 			auto vertexBuffer = std::make_shared<Buffer>();
 
 			vertexBuffer->count = component.getVertices().size();
@@ -66,7 +70,7 @@ namespace Eternal {
 			Eternal::Vertex* vertexBufferMemory = static_cast<Eternal::Vertex*>(m_Device.mapMemory(vertexBuffer->memory, 0, vertexBufferSize));
 			memcpy(vertexBufferMemory, component.getVertices().data(), vertexBufferSize);
 
-			m_VertexBuffers[entityId] = vertexBuffer;
+			m_VertexBuffers[entity.getUUID()] = vertexBuffer;
 
 			auto indexBuffer = std::make_shared<Buffer>();
 
@@ -78,7 +82,7 @@ namespace Eternal {
 			uint32_t* indexBufferMemory = static_cast<uint32_t*>(m_Device.mapMemory(indexBuffer->memory, 0, indexBufferSize));
 			memcpy(indexBufferMemory, component.getIndices().data(), indexBufferSize);
 
-			m_IndexBuffers[entityId] = indexBuffer;
+			m_IndexBuffers[entity.getUUID()] = indexBuffer;
 
 			m_Device.unmapMemory(vertexBuffer->memory);
 			m_Device.unmapMemory(indexBuffer->memory);

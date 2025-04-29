@@ -1,10 +1,16 @@
 #include "VulkanRenderer.h"
+#include "imgui/imgui.h"
+#include "imgui/backends/imgui_impl_glfw.h"
+#include "imgui/backends/imgui_impl_vulkan.h"
+
+#include <eternal/core/scene/Entity.h>
+#include <eternal/core/scene/TransformComponent.h>
 
 namespace Eternal {
 
-	VulkanRenderer::VulkanRenderer(VulkanPlatform* platform, Window* window, EntityManager* entityManager) : m_EntityManager(entityManager), m_Platform(platform)
+	VulkanRenderer::VulkanRenderer(VulkanPlatform* platform, Window* window, Scene* scene) : m_Scene(scene), m_Platform(platform)
 	{
-		ETERNAL_ASSERT(m_EntityManager != nullptr, "EntityManager is null");
+		ETERNAL_ASSERT(m_Scene != nullptr, "Scene is null");
 		ETERNAL_ASSERT(m_Platform != nullptr, "Platform is null");
 
 		m_Camera = Memory::Allocate<Camera>();
@@ -43,7 +49,7 @@ namespace Eternal {
 
 		createFences();
 
-		m_VulkanBufferManager = Memory::Allocate<VulkanBufferManager>(m_LogicalDevice, m_PhysicalDevice, m_EntityManager);
+		m_VulkanBufferManager = Memory::Allocate<VulkanBufferManager>(m_LogicalDevice, m_PhysicalDevice, m_Scene);
 	}
 
 	VulkanRenderer::~VulkanRenderer()
@@ -82,8 +88,6 @@ namespace Eternal {
 		Memory::Deallocate(m_Platform);
 
 		Memory::Deallocate(m_Camera);
-
-		Memory::Deallocate(m_EntityManager);
 	}
 
 	void VulkanRenderer::createCommandPool()
@@ -214,19 +218,16 @@ namespace Eternal {
 
 		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
 
-		for (auto& [entityId, component] : m_EntityManager->getComponentStorage<Eternal::TransformComponent>())
+		for (auto& e : m_Scene->getAllEntityWith<Eternal::TransformComponent>())
 		{
-			auto newRotationX = component.getRotation().x;
-
-			auto newRotationY = glm::mod(component.getRotation().y + 0.005f, glm::two_pi<float>());
-
-			auto newRotationZ = component.getRotation().z;
-
-			component.setRotation(glm::vec3(newRotationX, newRotationY, newRotationZ));
+			Eternal::Entity entity = Eternal::Entity(e, m_Scene);
+			auto& component = entity.getComponent<Eternal::TransformComponent>();
 
 			glm::mat4 modelMatrix = m_Camera->getProjection() * component.mat4();
 
 			m_PushConstants.transform = modelMatrix;
+
+			m_PushConstants.normalMatrix = component.mat4();
 
 			commandBuffer.pushConstants(m_PipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(PushConstants), &m_PushConstants);
 		}
@@ -250,6 +251,8 @@ namespace Eternal {
 		commandBuffer.setScissor(0, 1, &scissor);
 
 		m_VulkanBufferManager->draw(commandBuffer);
+
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 
 		commandBuffer.endRenderPass();
 

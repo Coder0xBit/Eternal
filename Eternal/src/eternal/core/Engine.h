@@ -6,8 +6,8 @@
 #include <eternal/core/Logger.h>
 #include <eternal/core/Window.h>
 #include <eternal/core/graphics/GraphicsPlatform.h>
-#include <eternal/core/ecs/EntityManager.h>
 #include <eternal/core/graphics/Renderer.h>
+#include <eternal/core/scene/Scene.h>
 #include <eternal/core/graphics/Backend.h>
 
 #include <GLFW/glfw3.h>
@@ -51,7 +51,9 @@ namespace Eternal {
 
 		~Engine();
 
-		Renderer* createRenderer(Window* window, EntityManager* entityManager);
+		Renderer* createRenderer(Window* window, Scene* scene);
+
+		Renderer* getRenderer() { return m_Renderer; }
 
 		Eternal::GraphicsPlatform* getPlatform() { return m_GraphicsPlatform; }
 

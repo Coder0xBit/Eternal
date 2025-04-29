@@ -9,9 +9,6 @@
 #include <eternal/core/graphics/vulkan/VulkanSwapChain.h>
 #include <eternal/core/graphics/vulkan/VulkanGraphicsContext.h>
 #include <eternal/core/graphics/Vertex.h>
-#include <eternal/core/ecs/EntityManager.h>
-#include <eternal/core/ecs/RenderComponent.h>
-#include <eternal/core/ecs/TransformComponent.h>
 #include <eternal/core/graphics/vulkan/VulkanBufferManager.h>
 #include <eternal/core/graphics/Camera.hpp>
 

@@ -1,11 +1,10 @@
 #pragma once
 
 #include <eternal/utils/Base.h>
-#include <eternal/core/ecs/Component.h>
 #include <eternal/core/graphics/Vertex.h>
 
 namespace Eternal {
-	class RenderComponent : public Component {
+	struct RenderComponent {
 	public:
 
 		RenderComponent() = default;

@@ -1,7 +1,7 @@
 #pragma once 
 
 #include <eternal/core/graphics/Renderer.h>
-#include <eternal/core/ecs/EntityManager.h>
+#include <eternal/core/scene/Scene.h>
 #include <eternal/core/graphics/vulkan/VulkanPlatform.h>
 #include <eternal/utils/Base.h>
 
@@ -14,6 +14,7 @@ namespace Eternal {
 	public:
 		struct PushConstants {
 			glm::mat4 transform{ 1.f };
+			glm::mat4 normalMatrix{ 1.f };
 		};
 
 		struct VulkanFrameInfo : public Renderer::FrameInfo {
@@ -23,7 +24,7 @@ namespace Eternal {
 
 			}
 
-			bool operator==(const VulkanFrameInfo& other) noexcept 
+			bool operator==(const VulkanFrameInfo& other) noexcept
 			{
 				return this->commandBuffer == other.commandBuffer && this->imageIndex == other.imageIndex;
 			}
@@ -32,9 +33,13 @@ namespace Eternal {
 			uint32_t imageIndex;
 		};
 
-		VulkanRenderer(VulkanPlatform* platform, Window* window, EntityManager* entityManager);
+		VulkanRenderer(VulkanPlatform* platform, Window* window, Scene* scene);
 
 		~VulkanRenderer();
+
+		VulkanPlatform* getPlatform() { return m_Platform; }
+
+		VulkanSwapChain* getSwapChain() { return m_SwapChain; }
 
 		FrameInfo* beginFrame() override;
 
@@ -56,7 +61,7 @@ namespace Eternal {
 
 		void recordCommandBuffer(VulkanFrameInfo& vkFrameInfo);
 
-		EntityManager* m_EntityManager;
+		Scene* m_Scene;
 
 		VulkanPlatform* m_Platform;
 

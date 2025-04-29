@@ -3,7 +3,6 @@
 #include <eternal/core/graphics/Vertex.h>
 #include <eternal/core/Window.h>
 #include <eternal/core/graphics/SwapChain.h>
-#include <eternal/core/ecs/EntityManager.h>
 #include <eternal/core/graphics/Backend.h>
 
 namespace Eternal {

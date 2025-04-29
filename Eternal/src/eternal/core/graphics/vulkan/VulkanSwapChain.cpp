@@ -57,6 +57,7 @@ namespace Eternal {
 		vk::SurfaceFormatKHR format = selectSwapChainSurfaceFormat();
 
 		vk::PresentModeKHR presentMode = selectSwapChainPresentMode();
+		Eternal::Logger::Debug("Selected Present Mode {}", vk::to_string(presentMode));
 
 		vk::Extent2D extent = selectSwapChainExtent(capabilities);
 		Eternal::Logger::Info("Selected Extent: {}x{}", extent.width, extent.height);
@@ -140,7 +141,7 @@ namespace Eternal {
 	{
 		std::vector<vk::SurfaceFormatKHR> availableFormats = m_PhysicalDevice.getSurfaceFormatsKHR(m_Surface);
 		for (const vk::SurfaceFormatKHR& availableFormat : availableFormats) {
-			if (availableFormat.format == vk::Format::eB8G8R8A8Srgb && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear) {
+			if (availableFormat.format == vk::Format::eB8G8R8A8Unorm && availableFormat.colorSpace == vk::ColorSpaceKHR::eSrgbNonlinear) {
 				return availableFormat;
 			}
 		}

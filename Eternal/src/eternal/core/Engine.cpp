@@ -1,9 +1,10 @@
 #include <eternal/core/Engine.h>
 #include <eternal/core/graphics/vulkan/VulkanPlatform.h>
 #include <eternal/core/graphics/Vertex.h>
-#include<eternal/core/graphics/vulkan/VulkanRenderer.h>
-#include <set>
+#include <eternal/core/graphics/vulkan/VulkanRenderer.h>
+#include <eternal/core/scene/Scene.h>
 
+#include <set>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/hash.hpp>
 
@@ -23,17 +24,17 @@ namespace Eternal {
 
 	Engine::~Engine()
 	{
-		delete m_Renderer;
+		Memory::Deallocate(m_Renderer);
 	}
 
-	Renderer* Engine::createRenderer(Window* window, EntityManager* entityManager)
+	Renderer* Engine::createRenderer(Window* window, Scene* scene)
 	{
 		if (m_Backend == Backend::Vulkan)
 		{
 			auto vulkanPlatform = dynamic_cast<VulkanPlatform*>(m_GraphicsPlatform);
 			if (vulkanPlatform)
 			{
-				m_Renderer = Memory::Allocate<VulkanRenderer>(vulkanPlatform, window, entityManager);
+				m_Renderer = Memory::Allocate<VulkanRenderer>(vulkanPlatform, window, scene);
 				return m_Renderer;
 			}
 

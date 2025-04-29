@@ -30,15 +30,11 @@ namespace Eternal {
 
 		uint32_t getPresentQueueFamilyIndex() { return m_PresentQueueFamilyIndex; }
 
-		UINT32 getPresentQueueIndex() { return m_PresentQueueIndex; }	
-
-		Eternal::VulkanWindow* getWindow() { return m_Window; }
+		uint32_t getPresentQueueIndex() { return m_PresentQueueIndex; }
 
 	protected:
 
 		vk::Instance m_VkInstance = nullptr;
-
-		Eternal::VulkanWindow* m_Window = nullptr;
 
 		vk::PhysicalDevice m_PhysicalDevice = nullptr;
 		vk::Device m_LogicalDevice = nullptr;

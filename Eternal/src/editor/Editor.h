@@ -3,6 +3,8 @@
 #include <editor/ImGuiApplication.h>
 #include <eternal/core/Window.h>
 
+#include <eternal/core/scene/Scene.h>
+
 namespace Eternal {
 	class Editor : public ImGuiApplication
 	{
@@ -28,12 +30,15 @@ namespace Eternal {
 
 		Engine* m_Engine = nullptr;
 
-		EntityManager* m_EntityManager = nullptr;
+		Eternal::Scene* m_Scene = nullptr;
 
 		Window* m_Window = nullptr;
 
 		SwapChain* m_SwapChain = nullptr;
 
 		ImGuiLayer* m_ImGuiLayer = nullptr;
+
+		vk::DescriptorPool m_ImGuiDescriptorPool = nullptr;
+
 	};
 }

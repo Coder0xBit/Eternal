@@ -6,6 +6,10 @@
 #include <eternal/core/graphics/vulkan/VulkanImGuiLayer.h>
 #include <eternal/core/graphics/vulkan/VulkanGraphicsContext.h>
 #include <eternal/core/graphics/vulkan/VulkanPlatform.h>
+#include <eternal/core/graphics/vulkan/VulkanRenderer.h>
+#include <eternal/core/scene/Entity.h>
+#include <eternal/core/scene/RenderComponent.h>
+#include <eternal/core/scene/TransformComponent.h>
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <eternal/utils/TinyObjLoader.h>
@@ -37,7 +41,7 @@ namespace Eternal {
 			.applicationName("Eternal Application")
 			.build();
 
-		m_EntityManager = Memory::Allocate<EntityManager>();
+		m_Scene = Memory::Allocate<Eternal::Scene>();
 
 		setupEntities();
 
@@ -46,7 +50,7 @@ namespace Eternal {
 
 	void Editor::setupEntities()
 	{
-		std::string filepath = "res/models/flat_vase.obj";
+		std::string filepath = "res/models/wooden_watch_tower.obj";
 
 		tinyobj::attrib_t attrib;
 		std::vector<tinyobj::shape_t> shapes;
@@ -105,15 +109,16 @@ namespace Eternal {
 
 		Eternal::Logger::Info("Obj Vertices: {}", vertices.size());
 
-		Eternal::Entity model = m_EntityManager->createEntity();
-		m_EntityManager->addComponent<Eternal::RenderComponent>(model, vertices, indices);
-		m_EntityManager->addComponent<Eternal::TransformComponent>(model, glm::vec3(0.0f, 0.3f, -6.0f));
-
+		Eternal::Entity model = m_Scene->createEntity();
+		model.addComponent<Eternal::IdComponent>(UUID());
+		model.addComponent<Eternal::NameComponent>("wooden_watch_tower");
+		model.addComponent<Eternal::RenderComponent>(vertices, indices);
+		model.addComponent<Eternal::TransformComponent>(glm::vec3(0.0f, 0.0f, -4.0f));
 	}
 
 	void Editor::addTriangle()
 	{
-		Eternal::Entity e = m_EntityManager->createEntity();
+		Eternal::Entity entity = m_Scene->createEntity();
 
 		std::vector<Eternal::Vertex> vertices = {
 			{ 0.0f  , 0.5f  , 0.0f },
@@ -123,8 +128,7 @@ namespace Eternal {
 
 		std::vector<uint32_t> indices = { 1, 0, 2 };
 
-		m_EntityManager->addComponent<Eternal::RenderComponent>(e, vertices, indices);
-
+		entity.addComponent<Eternal::RenderComponent>(vertices, indices);
 	}
 
 	void Editor::addCube()
@@ -150,9 +154,9 @@ namespace Eternal {
 			7, 0, 3, 3, 4, 7, // Bottom
 		};
 
-		Eternal::Entity cube = m_EntityManager->createEntity();
-		m_EntityManager->addComponent<Eternal::RenderComponent>(cube, cubeVertices, cubeIndices);
-		m_EntityManager->addComponent<Eternal::TransformComponent>(cube, glm::vec3(0.0f, 0.0f, -4.0f));
+		Eternal::Entity cube = m_Scene->createEntity();
+		cube.addComponent<Eternal::RenderComponent>(cubeVertices, cubeIndices);
+		cube.addComponent<Eternal::TransformComponent>(glm::vec3(0.0f, 0.0f, -4.0f));
 	}
 
 	Editor::~Editor()
@@ -162,16 +166,33 @@ namespace Eternal {
 
 	void Editor::run()
 	{
-		auto renderer = m_Engine->createRenderer(m_Window, m_EntityManager);
+		auto renderer = m_Engine->createRenderer(m_Window, m_Scene);
+
+		auto vkRenderer = static_cast<VulkanRenderer*>(renderer);
+
+		auto swapchain = vkRenderer->getSwapChain();
+
+		auto renderPass = static_cast<VulkanSwapChain*>(swapchain)->getRenderPass();
+
+		auto platform = vkRenderer->getPlatform();
+
+		m_ImGuiLayer = Memory::Allocate<VulkanImGuiLayer>(platform, static_cast<VulkanSwapChain*>(swapchain), m_Window);
 
 		while (m_IsRunning)
 		{
 			m_Window->onUpdate();
 
 			if (Renderer::FrameInfo* frameInfo = renderer->beginFrame()) {
+
+				m_ImGuiLayer->beginFrame();
+
+				onImGuiRender();
+
+				m_ImGuiLayer->render();
+
 				renderer->render(frameInfo);
+
 				renderer->endFrame();
-				Memory::Deallocate(frameInfo);
 			}
 
 			m_IsRunning = !m_Window->shouldClose();
@@ -185,16 +206,39 @@ namespace Eternal {
 
 	void Editor::onImGuiRender()
 	{
-		static bool showDemoWindow = true;
-		ImGui::ShowDemoWindow(&showDemoWindow);
+		ImGui::Begin("Debug Info");
+		ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+		for (auto e : m_Scene->getAllEntityWith<Eternal::TransformComponent>())
+		{
+			Eternal::Entity entity = Eternal::Entity(e, m_Scene);
+
+			auto& nameComponent = entity.getComponent<Eternal::NameComponent>();
+			ImGui::Text("Entity Name: %s", nameComponent.getName());
+
+			auto& component = entity.getComponent<Eternal::TransformComponent>();
+			glm::vec3 translation = component.getTranslation();
+			if (ImGui::DragFloat3("Position", &translation.x, 0.01f))
+			{
+				component.setTranslation(translation);
+			}
+
+			glm::vec3 rotationDegrees = glm::degrees(component.getRotation());
+			if (ImGui::SliderFloat3("Rotation", &rotationDegrees.x, 0.0f, 180.0f, "%.1f"))
+			{
+				rotationDegrees = glm::clamp(rotationDegrees, 0.0f, 180.0f);
+				component.setRotation(glm::radians(rotationDegrees));
+			}
+		}
+		ImGui::End();
 	}
 
 	void Editor::shutdown()
 	{
+		Memory::Deallocate(m_ImGuiLayer);
+
 		Memory::Deallocate(m_Engine);
 
 		Memory::Deallocate(m_Window);
 
-		delete m_ImGuiLayer;
 	}
 }

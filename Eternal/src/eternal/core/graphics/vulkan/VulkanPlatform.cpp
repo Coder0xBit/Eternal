@@ -98,7 +98,7 @@ namespace Eternal {
 		std::vector<vk::PhysicalDevice> availableDevices = instance.enumeratePhysicalDevices();
 
 		for (vk::PhysicalDevice& device : availableDevices) {
-			if (checkDeviceIsSuitable(device)) {
+			if (checkDeviceIsSuitable(device) && device.getProperties().deviceType == vk::PhysicalDeviceType::eDiscreteGpu) {
 				Eternal::Logger::Info("************ Supported Device Properties ************");
 				logDeviceProps(device);
 				return device;
@@ -415,13 +415,8 @@ namespace Eternal {
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME
 		};
 
-		Eternal::Logger::Debug("*********** Requested Extensions ***********");
-		for (const char* extension : requestedExtensions) {
-			Eternal::Logger::Debug("{}", extension);
-		}
-
 		bool isExtensionsSupported = checkDeviceExtensionSupport(device, requestedExtensions);
-		return isExtensionsSupported && device.getProperties().deviceType == vk::PhysicalDeviceType::eDiscreteGpu;
+		return isExtensionsSupported;
 	}
 
 	void VulkanPlatform::logDeviceProps(const vk::PhysicalDevice& device)

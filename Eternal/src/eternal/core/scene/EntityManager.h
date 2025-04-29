@@ -1,7 +1,6 @@
 #pragma once
 
 #include <eternal/utils/Base.h>
-#include <eternal/core/ecs/Component.h>
 #include <eternal/core/ecs/Entity.h>
 
 namespace Eternal {

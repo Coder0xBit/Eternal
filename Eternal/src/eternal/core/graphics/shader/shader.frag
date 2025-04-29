@@ -1,14 +1,14 @@
 #version 450
 
-layout (location = 0) in vec3 frag_color;
+layout (location = 0) in vec3 fragColor;
 
-layout(location = 0) out vec4 out_color;
+layout (location = 0) out vec4 outColor;
 
 layout(push_constant) uniform Push {
-  mat4 transform;
+  mat4 transform; // projection * view * model
+  mat4 normalMatrix;
 } push;
 
-void main()
-{
-	out_color = vec4(frag_color, 1.0);
+void main() {
+  outColor = vec4(fragColor, 1.0);
 }
