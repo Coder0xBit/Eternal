@@ -172,7 +172,8 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="src\editor\Editor.h" />
     <ClInclude Include="src\editor\ImGuiApplication.h" />
-    <ClInclude Include="src\eternal\core\scene\EntityManager.h" />
+    <ClInclude Include="src\eternal\core\graphics\FrameInfo.h" />
+    <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanFrameInfo.h" />
     <ClInclude Include="src\eternal\core\scene\IdComponent.h" />
     <ClInclude Include="src\eternal\core\scene\NameComponent.h" />
     <ClInclude Include="src\eternal\core\scene\RenderComponent.h" />

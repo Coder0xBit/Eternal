@@ -139,30 +139,31 @@ namespace Eternal {
 		}
 	}
 
-	VulkanRenderer::FrameInfo* VulkanRenderer::beginFrame()
+	FrameInfo* VulkanRenderer::beginFrame()
 	{
-		uint32_t imageIndex = 0;
-
 		vk::Result result;
 
-		result = m_SwapChain->acquire(m_ImageAvailableSemaphores[m_CurrentFrame], &imageIndex);
+		result = m_SwapChain->acquire(m_ImageAvailableSemaphores[m_CurrentFrame], &m_CurrentImageIndex);
 
 		result = m_LogicalDevice.waitForFences(1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT16_MAX);
 
 		result = m_LogicalDevice.resetFences(1, &m_InFlightFences[m_CurrentFrame]);
 
-		vk::CommandBuffer commandBuffer = m_CommandBuffers[m_CurrentFrame];
+		m_CurrentCommandBuffer = m_CommandBuffers[m_CurrentFrame];
 
-		commandBuffer.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
+		m_CurrentCommandBuffer.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
 
-		return Memory::Allocate<VulkanFrameInfo>(commandBuffer, imageIndex);
+		return Memory::Allocate<VulkanFrameInfo>(m_CurrentCommandBuffer, m_CurrentImageIndex);
 	}
 
-	void VulkanRenderer::render(FrameInfo* frameInfo)
+	void VulkanRenderer::render()
 	{
-		auto* vkFrameInfo = static_cast<VulkanFrameInfo*>(frameInfo);
+		beginRecording(m_CurrentCommandBuffer);
+	}
 
-		recordCommandBuffer(*vkFrameInfo);
+	void VulkanRenderer::endFrame()
+	{
+		endRecoding(m_CurrentCommandBuffer);
 
 		vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
 
@@ -171,7 +172,7 @@ namespace Eternal {
 			.setPWaitSemaphores(&m_ImageAvailableSemaphores[m_CurrentFrame])
 			.setPWaitDstStageMask(waitStages)
 			.setCommandBufferCount(1)
-			.setPCommandBuffers(&(vkFrameInfo->commandBuffer))
+			.setPCommandBuffers(&m_CurrentCommandBuffer)
 			.setSignalSemaphoreCount(1)
 			.setPSignalSemaphores(&m_RenderFinishedSemaphores[m_CurrentFrame]);
 
@@ -179,20 +180,12 @@ namespace Eternal {
 
 		vk::Result result = graphicsQueue.submit(1, &submitInfo, m_InFlightFences[m_CurrentFrame]);
 
-		m_SwapChain->present(m_RenderFinishedSemaphores[m_CurrentFrame], vkFrameInfo->imageIndex);
-	}
+		m_SwapChain->present(m_RenderFinishedSemaphores[m_CurrentFrame], m_CurrentImageIndex);
 
-	void VulkanRenderer::endFrame()
-	{
 		m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 
-	void VulkanRenderer::recordCommandBuffer(VulkanFrameInfo& vkFrameInfo)
-	{
-		recordCommandBuffer(vkFrameInfo.commandBuffer, vkFrameInfo.imageIndex);
-	}
-
-	void VulkanRenderer::recordCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t imageIndex)
+	void VulkanRenderer::beginRecording(vk::CommandBuffer commandBuffer)
 	{
 		VulkanSwapChain::SwapChainDetails swapChainDetails = m_SwapChain->getSwapChainDetails();
 
@@ -209,7 +202,7 @@ namespace Eternal {
 
 		vk::RenderPassBeginInfo renderPassBeginInfo = vk::RenderPassBeginInfo()
 			.setRenderPass(m_RenderPass)
-			.setFramebuffer(m_SwapChain->getFrameBuffers()[imageIndex])
+			.setFramebuffer(m_SwapChain->getFrameBuffers()[m_CurrentImageIndex])
 			.setRenderArea(renderArea)
 			.setClearValueCount(1)
 			.setPClearValues(&clearValue);
@@ -251,9 +244,10 @@ namespace Eternal {
 		commandBuffer.setScissor(0, 1, &scissor);
 
 		m_VulkanBufferManager->draw(commandBuffer);
+	}
 
-		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
-
+	void VulkanRenderer::endRecoding(vk::CommandBuffer commandBuffer)
+	{
 		commandBuffer.endRenderPass();
 
 		commandBuffer.end();

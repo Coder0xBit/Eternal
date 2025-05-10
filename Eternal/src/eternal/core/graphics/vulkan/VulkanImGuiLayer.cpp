@@ -51,9 +51,11 @@ namespace Eternal {
 		ImGui::NewFrame();
 	}
 
-	void VulkanImGuiLayer::render()
+	void VulkanImGuiLayer::render(FrameInfo* frameInfo)
 	{
 		ImGui::Render();
+		auto commandBuffer = static_cast<VulkanFrameInfo*>(frameInfo)->commandBuffer;
+		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
 	}
 }
 

@@ -3,11 +3,10 @@
 #include <eternal/core/graphics/Renderer.h>
 #include <eternal/core/scene/Scene.h>
 #include <eternal/core/graphics/vulkan/VulkanPlatform.h>
+#include <eternal/core/graphics/vulkan/VulkanFrameInfo.h>
 #include <eternal/utils/Base.h>
 
 namespace Eternal {
-
-
 
 	class VulkanRenderer : public Renderer {
 
@@ -15,22 +14,6 @@ namespace Eternal {
 		struct PushConstants {
 			glm::mat4 transform{ 1.f };
 			glm::mat4 normalMatrix{ 1.f };
-		};
-
-		struct VulkanFrameInfo : public Renderer::FrameInfo {
-			VulkanFrameInfo(vk::CommandBuffer commandBuffer, uint32_t imageIndex) :
-				commandBuffer(commandBuffer), imageIndex(imageIndex)
-			{
-
-			}
-
-			bool operator==(const VulkanFrameInfo& other) noexcept
-			{
-				return this->commandBuffer == other.commandBuffer && this->imageIndex == other.imageIndex;
-			}
-
-			vk::CommandBuffer commandBuffer;
-			uint32_t imageIndex;
 		};
 
 		VulkanRenderer(VulkanPlatform* platform, Window* window, Scene* scene);
@@ -43,7 +26,7 @@ namespace Eternal {
 
 		FrameInfo* beginFrame() override;
 
-		void render(FrameInfo* frameInfo) override;
+		void render() override;
 
 		void endFrame() override;
 
@@ -57,9 +40,9 @@ namespace Eternal {
 
 		void createFences();
 
-		void recordCommandBuffer(vk::CommandBuffer commandBuffer, uint32_t imageIndex);
+		void beginRecording(vk::CommandBuffer commandBuffer);
 
-		void recordCommandBuffer(VulkanFrameInfo& vkFrameInfo);
+		void endRecoding(vk::CommandBuffer commandBuffer);
 
 		Scene* m_Scene;
 
@@ -82,6 +65,10 @@ namespace Eternal {
 		vk::CommandPool m_CommandPool = nullptr;
 
 		std::vector<vk::CommandBuffer> m_CommandBuffers;
+
+		vk::CommandBuffer m_CurrentCommandBuffer = nullptr;
+
+		uint32_t m_CurrentImageIndex = 0;
 
 		vk::Device m_LogicalDevice = nullptr;
 

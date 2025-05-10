@@ -1,4 +1,5 @@
 #pragma once
+#include <eternal/core/graphics/FrameInfo.h>
 
 namespace Eternal {
 	class ImGuiLayer
@@ -6,7 +7,7 @@ namespace Eternal {
 	public:
 		virtual void beginFrame() = 0;
 
-		virtual void render() = 0;
+		virtual void render(FrameInfo* frameInfo) = 0;
 
 		virtual ~ImGuiLayer() = default;
 	};

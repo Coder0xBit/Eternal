@@ -172,8 +172,6 @@ namespace Eternal {
 
 		auto swapchain = vkRenderer->getSwapChain();
 
-		auto renderPass = static_cast<VulkanSwapChain*>(swapchain)->getRenderPass();
-
 		auto platform = vkRenderer->getPlatform();
 
 		m_ImGuiLayer = Memory::Allocate<VulkanImGuiLayer>(platform, static_cast<VulkanSwapChain*>(swapchain), m_Window);
@@ -182,17 +180,19 @@ namespace Eternal {
 		{
 			m_Window->onUpdate();
 
-			if (Renderer::FrameInfo* frameInfo = renderer->beginFrame()) {
+			if (FrameInfo* frameInfo = renderer->beginFrame()) {
 
 				m_ImGuiLayer->beginFrame();
 
 				onImGuiRender();
 
-				m_ImGuiLayer->render();
+				renderer->render();
 
-				renderer->render(frameInfo);
+				m_ImGuiLayer->render(frameInfo);
 
 				renderer->endFrame();
+
+				Memory::Deallocate(frameInfo);
 			}
 
 			m_IsRunning = !m_Window->shouldClose();
@@ -239,6 +239,5 @@ namespace Eternal {
 		Memory::Deallocate(m_Engine);
 
 		Memory::Deallocate(m_Window);
-
 	}
 }

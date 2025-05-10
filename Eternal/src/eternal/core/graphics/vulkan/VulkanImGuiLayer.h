@@ -1,8 +1,8 @@
 #pragma once
 #include <eternal/core/ImGuiLayer.h>
-#include <eternal/core/graphics/vulkan/VulkanGraphicsContext.h>
 #include <eternal/core/graphics/vulkan/VulkanPlatform.h>
 #include <eternal/core/graphics/vulkan/VulkanSwapChain.h>
+#include <eternal/core/graphics/vulkan/VulkanFrameInfo.h>
 #include <eternal/core/Window.h>
 
 namespace Eternal {
@@ -15,7 +15,7 @@ namespace Eternal {
 
 		void beginFrame() override;
 
-		void render() override;
+		void render(FrameInfo* frameInfo) override;
 
 	private:
 		VulkanPlatform* m_VulkanPlatform = nullptr;
