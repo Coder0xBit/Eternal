@@ -11,6 +11,14 @@ namespace Eternal {
 		init();
 	}
 
+	VulkanImGuiLayer::VulkanImGuiLayer(VulkanRenderer* vulkanRenderer, Window* window)
+	{
+		m_VulkanPlatform = vulkanRenderer->getPlatform();
+		m_SwapChain = vulkanRenderer->getSwapChain();
+		m_Window = window;
+		init();
+	}
+
 	void VulkanImGuiLayer::init()
 	{
 		IMGUI_CHECKVERSION();

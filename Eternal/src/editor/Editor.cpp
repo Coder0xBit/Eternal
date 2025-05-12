@@ -45,6 +45,8 @@ namespace Eternal {
 
 		setupEntities();
 
+		m_Renderer = m_Engine->createRenderer(m_Window, m_Scene);
+
 		m_IsRunning = true;
 	}
 
@@ -166,31 +168,25 @@ namespace Eternal {
 
 	void Editor::run()
 	{
-		auto renderer = m_Engine->createRenderer(m_Window, m_Scene);
+		auto vkRenderer = static_cast<VulkanRenderer*>(m_Renderer);
 
-		auto vkRenderer = static_cast<VulkanRenderer*>(renderer);
-
-		auto swapchain = vkRenderer->getSwapChain();
-
-		auto platform = vkRenderer->getPlatform();
-
-		m_ImGuiLayer = Memory::Allocate<VulkanImGuiLayer>(platform, static_cast<VulkanSwapChain*>(swapchain), m_Window);
+		m_ImGuiLayer = Memory::Allocate<VulkanImGuiLayer>(vkRenderer, m_Window);
 
 		while (m_IsRunning)
 		{
 			m_Window->onUpdate();
 
-			if (FrameInfo* frameInfo = renderer->beginFrame()) {
+			if (FrameInfo* frameInfo = m_Renderer->beginFrame()) {
 
 				m_ImGuiLayer->beginFrame();
 
 				onImGuiRender();
 
-				renderer->render();
+				m_Renderer->render();
 
 				m_ImGuiLayer->render(frameInfo);
 
-				renderer->endFrame();
+				m_Renderer->endFrame();
 
 				Memory::Deallocate(frameInfo);
 			}

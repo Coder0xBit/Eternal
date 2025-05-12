@@ -8,14 +8,15 @@
 
 namespace Eternal {
 
-	VulkanRenderer::VulkanRenderer(VulkanPlatform* platform, Window* window, Scene* scene) : m_Scene(scene), m_Platform(platform)
+	VulkanRenderer::VulkanRenderer(VulkanPlatform* platform, Window* window, Scene* scene) : m_Scene(scene), m_Platform(platform), m_Window(window)
 	{
 		ETERNAL_ASSERT(m_Scene != nullptr, "Scene is null");
 		ETERNAL_ASSERT(m_Platform != nullptr, "Platform is null");
+		ETERNAL_ASSERT(m_Window != nullptr, "Window is null");
 
 		m_Camera = Memory::Allocate<Camera>();
-		float aspectRatio = (float)window->getWidth() / (float)window->getHeight();
-		m_Camera->setPerspectiveProjection(glm::radians(50.f), aspectRatio, 0.1f, 10.f);
+		float aspectRatio = (float)m_Window->getWidth() / (float)m_Window->getHeight();
+		m_Camera->setPerspectiveProjection(glm::radians(50.f), aspectRatio, 0.1f, 1000.f);
 
 		auto swapchain = m_Platform->createSwapChain(window);
 		m_SwapChain = dynamic_cast<VulkanSwapChain*>(swapchain);
@@ -83,8 +84,6 @@ namespace Eternal {
 
 		m_LogicalDevice.destroy();
 
-		m_Platform->getVkInstance().destroy();
-
 		Memory::Deallocate(m_Platform);
 
 		Memory::Deallocate(m_Camera);
@@ -139,18 +138,32 @@ namespace Eternal {
 		}
 	}
 
+	void VulkanRenderer::handleWindowResize()
+	{
+		m_LogicalDevice.waitForFences(1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT16_MAX);
+		m_LogicalDevice.resetFences(1, &m_InFlightFences[m_CurrentFrame]);
+		m_SwapChain->recreate();
+		m_RenderPass = m_SwapChain->getRenderPass();
+		float aspectRatio = (float)m_Window->getWidth() / (float)m_Window->getHeight();
+		m_Camera->setPerspectiveProjection(glm::radians(50.f), aspectRatio, 0.1f, 1000.f);
+	}
+
 	FrameInfo* VulkanRenderer::beginFrame()
 	{
 		vk::Result result;
 
 		result = m_SwapChain->acquire(m_ImageAvailableSemaphores[m_CurrentFrame], &m_CurrentImageIndex);
 
-		result = m_LogicalDevice.waitForFences(1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT16_MAX);
+		if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
+		{
+			handleWindowResize();
+			return nullptr;
+		}
 
-		result = m_LogicalDevice.resetFences(1, &m_InFlightFences[m_CurrentFrame]);
+		m_LogicalDevice.waitForFences(1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT16_MAX);
+		m_LogicalDevice.resetFences(1, &m_InFlightFences[m_CurrentFrame]);
 
 		m_CurrentCommandBuffer = m_CommandBuffers[m_CurrentFrame];
-
 		m_CurrentCommandBuffer.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
 
 		return Memory::Allocate<VulkanFrameInfo>(m_CurrentCommandBuffer, m_CurrentImageIndex);
@@ -180,7 +193,13 @@ namespace Eternal {
 
 		vk::Result result = graphicsQueue.submit(1, &submitInfo, m_InFlightFences[m_CurrentFrame]);
 
-		m_SwapChain->present(m_RenderFinishedSemaphores[m_CurrentFrame], m_CurrentImageIndex);
+		result = m_SwapChain->present(m_RenderFinishedSemaphores[m_CurrentFrame], m_CurrentImageIndex);
+
+		if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
+		{
+			handleWindowResize();
+			return;
+		}
 
 		m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}

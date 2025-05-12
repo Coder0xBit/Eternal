@@ -32,6 +32,8 @@ namespace Eternal {
 
 		Eternal::Scene* m_Scene = nullptr;
 
+		Eternal::Renderer* m_Renderer = nullptr;
+
 		Window* m_Window = nullptr;
 
 		SwapChain* m_SwapChain = nullptr;

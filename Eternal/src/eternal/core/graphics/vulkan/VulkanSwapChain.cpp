@@ -41,7 +41,8 @@ namespace Eternal {
 			.setPSwapchains(&m_SwapChain)
 			.setPImageIndices(&imageIndex);
 
-		return m_PresentQueue.presentKHR(presentInfo);
+		vk::Result result = m_PresentQueue.presentKHR(&presentInfo);
+		return result;
 	}
 
 	void VulkanSwapChain::recreate()
@@ -133,8 +134,6 @@ namespace Eternal {
 		{
 			m_LogicalDevice.destroySwapchainKHR(m_SwapChain);
 		}
-
-		m_VkInstance.destroySurfaceKHR(m_Surface);
 	}
 
 	vk::SurfaceFormatKHR VulkanSwapChain::selectSwapChainSurfaceFormat()

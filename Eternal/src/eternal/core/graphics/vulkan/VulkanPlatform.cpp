@@ -149,7 +149,12 @@ namespace Eternal {
 
 	void VulkanPlatform::shutDown()
 	{
+		if (m_Surface)
+		{
+			m_VkInstance.destroySurfaceKHR(m_Surface);
+		}
 
+		m_VkInstance.destroy();
 	}
 
 	SwapChain* VulkanPlatform::createSwapChain(Window* window)
@@ -161,11 +166,11 @@ namespace Eternal {
 			return nullptr;
 		}
 
-		vk::SurfaceKHR surface = vkWindow->createWindowSurface(m_VkInstance);
+		m_Surface = vkWindow->createWindowSurface(m_VkInstance);
 
 		vk::Extent2D fallbackExtent = vkWindow->getExtent();
 
-		m_PresentQueueFamilyIndex = identifyPresentQueueFamilyIndex(m_PhysicalDevice, surface);
+		m_PresentQueueFamilyIndex = identifyPresentQueueFamilyIndex(m_PhysicalDevice, m_Surface);
 		ETERNAL_ASSERT(m_PresentQueueFamilyIndex != INVALID_VK_INDEX, "Present Queue Family Index is Invalid");
 
 		m_GraphicsQueueFamilyIndex = identifyGraphicsQueueFamilyIndex(m_PhysicalDevice, vk::QueueFlagBits::eGraphics);
@@ -177,7 +182,7 @@ namespace Eternal {
 
 		m_GraphicsQueue = m_LogicalDevice.getQueue(m_GraphicsQueueFamilyIndex, m_GraphicsQueueIndex);
 
-		return Memory::Allocate<VulkanSwapChain>(m_VkInstance, m_LogicalDevice, m_PhysicalDevice, m_PresentQueue, surface, fallbackExtent, m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex);
+		return Memory::Allocate<VulkanSwapChain>(m_VkInstance, m_LogicalDevice, m_PhysicalDevice, m_PresentQueue, m_Surface, fallbackExtent, m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex);
 	}
 
 	vk::ShaderModule VulkanPlatform::loadShader(const vk::Device& logicalDevice, const std::filesystem::path& path)

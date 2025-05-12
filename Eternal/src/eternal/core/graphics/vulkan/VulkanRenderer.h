@@ -40,6 +40,8 @@ namespace Eternal {
 
 		void createFences();
 
+		void handleWindowResize();
+
 		void beginRecording(vk::CommandBuffer commandBuffer);
 
 		void endRecoding(vk::CommandBuffer commandBuffer);
@@ -53,6 +55,8 @@ namespace Eternal {
 		Eternal::VulkanBufferManager* m_VulkanBufferManager;
 
 		Eternal::Camera* m_Camera;
+
+		Eternal::Window* m_Window;
 
 		std::vector<vk::Semaphore> m_ImageAvailableSemaphores;
 

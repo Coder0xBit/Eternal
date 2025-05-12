@@ -3,6 +3,7 @@
 #include <eternal/core/graphics/vulkan/VulkanPlatform.h>
 #include <eternal/core/graphics/vulkan/VulkanSwapChain.h>
 #include <eternal/core/graphics/vulkan/VulkanFrameInfo.h>
+#include <eternal/core/graphics/vulkan/VulkanRenderer.h>
 #include <eternal/core/Window.h>
 
 namespace Eternal {
@@ -10,6 +11,8 @@ namespace Eternal {
 	{
 	public:
 		VulkanImGuiLayer(VulkanPlatform* vulkanPlatform, VulkanSwapChain* swapChain, Window* window);
+
+		VulkanImGuiLayer(VulkanRenderer* vulkanRenderer, Window* window);
 
 		~VulkanImGuiLayer();
 

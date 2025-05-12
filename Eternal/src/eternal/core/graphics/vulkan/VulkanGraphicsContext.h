@@ -39,6 +39,8 @@ namespace Eternal {
 		vk::PhysicalDevice m_PhysicalDevice = nullptr;
 		vk::Device m_LogicalDevice = nullptr;
 
+		vk::SurfaceKHR m_Surface = nullptr;
+
 		vk::Queue m_GraphicsQueue = nullptr;
 		uint32_t m_GraphicsQueueFamilyIndex = INVALID_VK_INDEX;
 		uint32_t m_GraphicsQueueIndex = 0;
