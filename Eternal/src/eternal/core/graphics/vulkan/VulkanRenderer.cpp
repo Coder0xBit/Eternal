@@ -15,7 +15,7 @@ namespace Eternal {
 		ETERNAL_ASSERT(m_Window != nullptr, "Window is null");
 
 		m_Camera = Memory::Allocate<Camera>();
-		float aspectRatio = (float)m_Window->getWidth() / (float)m_Window->getHeight();
+		float aspectRatio = m_Window->getAspectRatio();
 		m_Camera->setPerspectiveProjection(glm::radians(50.f), aspectRatio, 0.1f, 1000.f);
 
 		auto swapchain = m_Platform->createSwapChain(window);
@@ -28,6 +28,7 @@ namespace Eternal {
 		}
 
 		m_RenderPass = m_SwapChain->getRenderPass();
+		ETERNAL_ASSERT(m_RenderPass, "Render pass is null");
 
 		vk::PushConstantRange pushConstantRange = vk::PushConstantRange()
 			.setOffset(0)
@@ -36,7 +37,7 @@ namespace Eternal {
 
 		m_PipelineLayout = m_Platform->createPipelineLayout(pushConstantRange);
 
-		m_Pipeline = m_Platform->createPipeline(m_PipelineLayout, m_SwapChain->getRenderPass());
+		m_Pipeline = m_Platform->createPipeline(m_PipelineLayout, m_RenderPass);
 
 		m_LogicalDevice = m_Platform->getLogicalDevice();
 
@@ -140,21 +141,36 @@ namespace Eternal {
 
 	void VulkanRenderer::handleWindowResize()
 	{
+		Eternal::Logger::Debug("Window resized to {}x{}", m_Window->getWidth(), m_Window->getHeight());
+
+		if (m_Window->isMinimized())
+			return;
+
+		m_Window->setWindowResized(false);
+		m_SwapChain->setShouldRecreate(false);
+
 		m_LogicalDevice.waitForFences(1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT16_MAX);
 		m_LogicalDevice.resetFences(1, &m_InFlightFences[m_CurrentFrame]);
+
+		m_LogicalDevice.waitIdle();
+
 		m_SwapChain->recreate();
 		m_RenderPass = m_SwapChain->getRenderPass();
-		float aspectRatio = (float)m_Window->getWidth() / (float)m_Window->getHeight();
+
+		float aspectRatio = m_Window->getAspectRatio();
 		m_Camera->setPerspectiveProjection(glm::radians(50.f), aspectRatio, 0.1f, 1000.f);
 	}
 
 	FrameInfo* VulkanRenderer::beginFrame()
 	{
+		if (m_Window->isMinimized())
+			return nullptr;
+
 		vk::Result result;
 
-		result = m_SwapChain->acquire(m_ImageAvailableSemaphores[m_CurrentFrame], &m_CurrentImageIndex);
+		m_SwapChain->acquire(m_ImageAvailableSemaphores[m_CurrentFrame], &m_CurrentImageIndex);
 
-		if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
+		if (m_SwapChain->shouldRecreate() || m_Window->isResized())
 		{
 			handleWindowResize();
 			return nullptr;
@@ -166,12 +182,48 @@ namespace Eternal {
 		m_CurrentCommandBuffer = m_CommandBuffers[m_CurrentFrame];
 		m_CurrentCommandBuffer.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
 
+		beginRecording(m_CurrentCommandBuffer);
+
 		return Memory::Allocate<VulkanFrameInfo>(m_CurrentCommandBuffer, m_CurrentImageIndex);
 	}
 
 	void VulkanRenderer::render()
 	{
-		beginRecording(m_CurrentCommandBuffer);
+		VulkanSwapChain::SwapChainDetails swapChainDetails = m_SwapChain->getSwapChainDetails();
+
+		for (auto& e : m_Scene->getAllEntityWith<Eternal::TransformComponent>())
+		{
+			Eternal::Entity entity = Eternal::Entity(e, m_Scene);
+			auto& component = entity.getComponent<Eternal::TransformComponent>();
+
+			glm::mat4 modelMatrix = m_Camera->getProjection() * component.mat4();
+
+			m_PushConstants.transform = modelMatrix;
+
+			m_PushConstants.normalMatrix = component.mat4();
+
+			m_CurrentCommandBuffer.pushConstants(m_PipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(PushConstants), &m_PushConstants);
+		}
+
+		m_VulkanBufferManager->bindBuffers(m_CurrentCommandBuffer);
+
+		vk::Viewport viewport = vk::Viewport()
+			.setX(0.0f)
+			.setY(0.0f)
+			.setWidth((float)swapChainDetails.extent.width)
+			.setHeight((float)swapChainDetails.extent.height)
+			.setMinDepth(0.0f)
+			.setMaxDepth(1.0f);
+
+		m_CurrentCommandBuffer.setViewport(0, 1, &viewport);
+
+		vk::Rect2D scissor = vk::Rect2D()
+			.setOffset({ 0,0 })
+			.setExtent(swapChainDetails.extent);
+
+		m_CurrentCommandBuffer.setScissor(0, 1, &scissor);
+
+		m_VulkanBufferManager->draw(m_CurrentCommandBuffer);
 	}
 
 	void VulkanRenderer::endFrame()
@@ -193,9 +245,9 @@ namespace Eternal {
 
 		vk::Result result = graphicsQueue.submit(1, &submitInfo, m_InFlightFences[m_CurrentFrame]);
 
-		result = m_SwapChain->present(m_RenderFinishedSemaphores[m_CurrentFrame], m_CurrentImageIndex);
+		m_SwapChain->present(m_RenderFinishedSemaphores[m_CurrentFrame], m_CurrentImageIndex);
 
-		if (result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR)
+		if (m_SwapChain->shouldRecreate() || m_Window->isResized())
 		{
 			handleWindowResize();
 			return;
@@ -218,51 +270,19 @@ namespace Eternal {
 
 		vk::ClearColorValue clearColor = vk::ClearColorValue(std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f});
 		vk::ClearValue clearValue = vk::ClearValue(clearColor);
+		vk::ClearValue depthStencil = vk::ClearValue().setDepthStencil({ 1.0f ,0 });
+
+		std::array<vk::ClearValue, 2> clearValues = { clearValue, depthStencil };
 
 		vk::RenderPassBeginInfo renderPassBeginInfo = vk::RenderPassBeginInfo()
 			.setRenderPass(m_RenderPass)
 			.setFramebuffer(m_SwapChain->getFrameBuffers()[m_CurrentImageIndex])
 			.setRenderArea(renderArea)
-			.setClearValueCount(1)
-			.setPClearValues(&clearValue);
+			.setClearValues(clearValues);
 
 		commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 
 		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
-
-		for (auto& e : m_Scene->getAllEntityWith<Eternal::TransformComponent>())
-		{
-			Eternal::Entity entity = Eternal::Entity(e, m_Scene);
-			auto& component = entity.getComponent<Eternal::TransformComponent>();
-
-			glm::mat4 modelMatrix = m_Camera->getProjection() * component.mat4();
-
-			m_PushConstants.transform = modelMatrix;
-
-			m_PushConstants.normalMatrix = component.mat4();
-
-			commandBuffer.pushConstants(m_PipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(PushConstants), &m_PushConstants);
-		}
-
-		m_VulkanBufferManager->bindBuffers(commandBuffer);
-
-		vk::Viewport viewport = vk::Viewport()
-			.setX(0.0f)
-			.setY(0.0f)
-			.setWidth((float)swapChainDetails.extent.width)
-			.setHeight((float)swapChainDetails.extent.height)
-			.setMinDepth(0.0f)
-			.setMaxDepth(1.0f);
-
-		commandBuffer.setViewport(0, 1, &viewport);
-
-		vk::Rect2D scissor = vk::Rect2D()
-			.setOffset({ 0,0 })
-			.setExtent(swapChainDetails.extent);
-
-		commandBuffer.setScissor(0, 1, &scissor);
-
-		m_VulkanBufferManager->draw(commandBuffer);
 	}
 
 	void VulkanRenderer::endRecoding(vk::CommandBuffer commandBuffer)

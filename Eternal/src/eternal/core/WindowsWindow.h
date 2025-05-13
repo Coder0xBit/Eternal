@@ -30,6 +30,13 @@ namespace Eternal {
 
 		virtual void shutDown() const override;
 
+		virtual bool isMinimized() const { return m_Width == 0 || m_Height == 0; }
+
+		virtual float getAspectRatio() const override
+		{
+			return static_cast<float>(m_Width) / static_cast<float>(m_Height);
+		}
+
 		virtual vk::SurfaceKHR createWindowSurface(vk::Instance instance) const override;
 
 		virtual vk::Extent2D getExtent() const override;
@@ -37,6 +44,9 @@ namespace Eternal {
 		void setWindowIcon(const std::filesystem::path& path, GLFWwindow* window);
 
 	private:
+
+		void onWindowResize(GLFWwindow* window, int width, int height);
+
 		GLFWwindow* m_Window = nullptr;
 		std::string m_Title = "";
 		uint32_t m_Height = 0;

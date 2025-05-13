@@ -7,6 +7,9 @@ namespace Eternal {
 	class Window
 	{
 	public:
+
+		using ResizeCallback = std::function<void(int, int)>;
+
 		virtual ~Window() = default;
 
 		virtual void onUpdate() = 0;
@@ -15,11 +18,30 @@ namespace Eternal {
 
 		virtual uint32_t getWidth() const = 0;
 
+		virtual float getAspectRatio() const = 0;
+
 		virtual void* getNativeWindow() const = 0;
 
 		virtual bool shouldClose() const = 0;
 
 		virtual void shutDown() const = 0;
+
+		virtual bool isMinimized() const = 0;
+
+		void setWindowResizeCallback(ResizeCallback callback) noexcept
+		{
+			m_WindowResizeCallback = callback;
+		}
+
+		void setWindowResized(bool resized) noexcept
+		{
+			m_IsWindowResized = resized;
+		}
+
+		bool isResized() const noexcept
+		{
+			return m_IsWindowResized;
+		}
 
 		struct BuilderDetails {
 			std::string title = "";
@@ -53,5 +75,11 @@ namespace Eternal {
 		};
 
 		static Window* create(const Builder& builder);
+
+	protected:
+
+		bool m_IsWindowResized = false;
+
+		ResizeCallback m_WindowResizeCallback;
 	};
 }

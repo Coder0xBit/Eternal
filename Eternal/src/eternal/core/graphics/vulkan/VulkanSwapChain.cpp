@@ -29,7 +29,9 @@ namespace Eternal {
 
 	vk::Result VulkanSwapChain::acquire(vk::Semaphore imageReadySemaphore, uint32_t* imageIndex)
 	{
-		return m_LogicalDevice.acquireNextImageKHR(m_SwapChain, std::numeric_limits<uint64_t>::max(), imageReadySemaphore, nullptr, imageIndex);
+		vk::Result result = m_LogicalDevice.acquireNextImageKHR(m_SwapChain, std::numeric_limits<uint64_t>::max(), imageReadySemaphore, nullptr, imageIndex);
+		m_ShouldRecreate = result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR;
+		return result;
 	}
 
 	vk::Result VulkanSwapChain::present(vk::Semaphore renderFinishedSemaphore, uint32_t imageIndex)
@@ -42,11 +44,13 @@ namespace Eternal {
 			.setPImageIndices(&imageIndex);
 
 		vk::Result result = m_PresentQueue.presentKHR(&presentInfo);
+		m_ShouldRecreate = result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR;
 		return result;
 	}
 
 	void VulkanSwapChain::recreate()
 	{
+		m_ShouldRecreate = false;
 		destroy();
 		create();
 	}
@@ -118,6 +122,8 @@ namespace Eternal {
 
 	void VulkanSwapChain::destroy()
 	{
+		m_ShouldRecreate = false;
+
 		for (auto imageView : m_SwapChainImageViews)
 		{
 			m_LogicalDevice.destroyImageView(imageView);
@@ -203,6 +209,32 @@ namespace Eternal {
 		}
 	}
 
+	void VulkanSwapChain::createDepthImageView()
+	{
+		vk::ImageCreateInfo imageCreateInfo = vk::ImageCreateInfo()
+			.setImageType(vk::ImageType::e2D)
+			.setFormat(vk::Format::eD32Sfloat)
+			.setExtent({ m_SwapChainDetails.extent.width, m_SwapChainDetails.extent.height, 1 })
+			.setMipLevels(1)
+			.setArrayLayers(1)
+			.setSamples(vk::SampleCountFlagBits::e1)
+			.setTiling(vk::ImageTiling::eOptimal)
+			.setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment);
+
+		m_DepthImage = m_LogicalDevice.createImage(imageCreateInfo);
+
+		vk::ImageViewCreateInfo imageViewCreateInfo = vk::ImageViewCreateInfo()
+			.setImage(m_DepthImage)
+			.setViewType(vk::ImageViewType::e2D)
+			.setFormat(vk::Format::eD32Sfloat)
+			.setSubresourceRange({
+				vk::ImageAspectFlagBits::eDepth,
+				0, 1, 0, 1
+				});
+
+		m_DepthImageView = m_LogicalDevice.createImageView(imageViewCreateInfo);
+	}
+
 	void VulkanSwapChain::createRenderPass()
 	{
 		vk::AttachmentDescription colorAttachment = vk::AttachmentDescription()
@@ -219,19 +251,34 @@ namespace Eternal {
 			.setAttachment(0)
 			.setLayout(vk::ImageLayout::eColorAttachmentOptimal);
 
+		vk::AttachmentDescription depthAttachment = vk::AttachmentDescription()
+			.setFormat(vk::Format::eD32Sfloat)
+			.setSamples(vk::SampleCountFlagBits::e1)
+			.setLoadOp(vk::AttachmentLoadOp::eClear)
+			.setStoreOp(vk::AttachmentStoreOp::eDontCare)
+			.setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
+			.setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
+			.setInitialLayout(vk::ImageLayout::eUndefined)
+			.setFinalLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
+
+		vk::AttachmentReference depthAttachmentReference = vk::AttachmentReference()
+			.setAttachment(1)
+			.setLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
+
 		vk::SubpassDescription subPass = vk::SubpassDescription()
 			.setColorAttachmentCount(1)
-			.setPColorAttachments(&colorAttachmentReference);
+			.setPColorAttachments(&colorAttachmentReference)
+			.setPDepthStencilAttachment(&depthAttachmentReference);
+
+		std::array<vk::AttachmentDescription, 2> attachments = { colorAttachment, depthAttachment };
 
 		vk::RenderPassCreateInfo renderPassCreateInfo = vk::RenderPassCreateInfo()
-			.setAttachmentCount(1)
-			.setPAttachments(&colorAttachment)
+			.setAttachments(attachments)
 			.setSubpassCount(1)
 			.setPSubpasses(&subPass);
 
 		m_RenderPass = m_LogicalDevice.createRenderPass(renderPassCreateInfo);
 	}
-
 
 	void VulkanSwapChain::createFrameBuffers()
 	{
@@ -239,7 +286,7 @@ namespace Eternal {
 
 		for (uint32_t i = 0; i < m_SwapChainImageViews.size(); i++)
 		{
-			vk::ImageView attachment[] = { m_SwapChainImageViews[i] };
+			vk::ImageView attachment[] = { m_SwapChainImageViews[i] , m_DepthImageView };
 
 			vk::FramebufferCreateInfo frameBufferInfo = vk::FramebufferCreateInfo()
 				.setRenderPass(m_RenderPass)

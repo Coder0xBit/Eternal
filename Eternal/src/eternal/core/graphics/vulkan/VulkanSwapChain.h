@@ -48,6 +48,10 @@ namespace Eternal {
 
 		vk::SurfaceKHR getSurface() { return m_Surface; }
 
+		bool shouldRecreate() const { return m_ShouldRecreate; }
+
+		void setShouldRecreate(bool shouldRecreate) { m_ShouldRecreate = shouldRecreate; }
+
 		void destroy();
 
 	private:
@@ -61,9 +65,13 @@ namespace Eternal {
 
 		void createImageViews();
 
+		void createDepthImageView();
+
 		void createRenderPass();
 
 		void createFrameBuffers();
+
+		bool m_ShouldRecreate = false;
 
 		vk::Instance m_VkInstance = nullptr;
 
@@ -88,6 +96,10 @@ namespace Eternal {
 		std::vector<vk::Image> m_SwapChainImages;
 
 		std::vector<vk::ImageView> m_SwapChainImageViews;
+
+		vk::Image m_DepthImage;
+
+		vk::ImageView m_DepthImageView;
 
 		vk::SwapchainKHR m_SwapChain = nullptr;
 

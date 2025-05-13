@@ -18,6 +18,16 @@ namespace Eternal {
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
 		m_Window = glfwCreateWindow(m_Width, m_Height, m_Title.c_str(), nullptr, nullptr);
+		ETERNAL_ASSERT(m_Window != nullptr, "Failed to create GLFW window");
+
+		glfwSetWindowUserPointer(m_Window, this);
+
+		glfwSetFramebufferSizeCallback(m_Window,
+			[](GLFWwindow* window, int width, int height) {
+				auto app = static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
+				app->onWindowResize(window, width, height);
+			}
+		);
 
 		setWindowIcon(WINDOW_ICON_PATH, m_Window);
 
@@ -94,6 +104,19 @@ namespace Eternal {
 		glfwSetWindowIcon(window, 1, &icon);
 
 		stbi_image_free(icon.pixels);
+	}
+
+	void WindowsWindow::onWindowResize(GLFWwindow* window, int width, int height)
+	{
+		m_Height = height;
+		m_Width = width;
+
+		if (m_WindowResizeCallback)
+		{
+			m_WindowResizeCallback(m_Width, m_Height);
+		}
+
+		m_IsWindowResized = true;
 	}
 
 	WindowsWindow::~WindowsWindow()

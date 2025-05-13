@@ -8,7 +8,7 @@ namespace Eternal
 	{
 	public:
 
-		IdComponent() = default;
+		IdComponent() : m_Id(UUID()) {}
 
 		IdComponent(const UUID& id) : m_Id(id) {}
 

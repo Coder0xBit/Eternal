@@ -112,8 +112,8 @@ namespace Eternal {
 		Eternal::Logger::Info("Obj Vertices: {}", vertices.size());
 
 		Eternal::Entity model = m_Scene->createEntity();
-		model.addComponent<Eternal::IdComponent>(UUID());
-		model.addComponent<Eternal::NameComponent>("wooden_watch_tower");
+		model.addComponent<Eternal::IdComponent>();
+		model.addComponent<Eternal::NameComponent>("watch_tower");
 		model.addComponent<Eternal::RenderComponent>(vertices, indices);
 		model.addComponent<Eternal::TransformComponent>(glm::vec3(0.0f, 0.0f, -4.0f));
 	}
@@ -183,7 +183,7 @@ namespace Eternal {
 				onImGuiRender();
 
 				m_Renderer->render();
-
+					
 				m_ImGuiLayer->render(frameInfo);
 
 				m_Renderer->endFrame();

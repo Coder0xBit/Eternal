@@ -281,8 +281,8 @@ namespace Eternal {
 			.setPolygonMode(vk::PolygonMode::eFill)
 			.setLineWidth(1.0f)
 			.setCullMode(vk::CullModeFlagBits::eBack)
-			.setFrontFace(vk::FrontFace::eClockwise)
-			.setDepthBiasEnable(VK_FALSE);
+			.setFrontFace(vk::FrontFace::eCounterClockwise)
+			.setDepthBiasEnable(VK_TRUE);
 
 		vk::PipelineMultisampleStateCreateInfo multiSampleStateCreateInfo = vk::PipelineMultisampleStateCreateInfo()
 			.setSampleShadingEnable(VK_FALSE)
