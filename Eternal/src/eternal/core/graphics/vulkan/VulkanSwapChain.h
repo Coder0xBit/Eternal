@@ -71,6 +71,8 @@ namespace Eternal {
 
 		void createFrameBuffers();
 
+		uint32_t getMemoryType(vk::MemoryPropertyFlags properties, uint32_t type_bits);
+
 		bool m_ShouldRecreate = false;
 
 		vk::Instance m_VkInstance = nullptr;
@@ -98,6 +100,8 @@ namespace Eternal {
 		std::vector<vk::ImageView> m_SwapChainImageViews;
 
 		vk::Image m_DepthImage;
+
+		vk::DeviceMemory m_DepthImageMemory;
 
 		vk::ImageView m_DepthImageView;
 

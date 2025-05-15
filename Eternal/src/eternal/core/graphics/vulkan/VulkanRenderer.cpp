@@ -114,7 +114,6 @@ namespace Eternal {
 	void VulkanRenderer::createSemaphores()
 	{
 		m_ImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-
 		m_RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 
 		for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
@@ -122,7 +121,6 @@ namespace Eternal {
 			vk::SemaphoreCreateInfo semaphoreCreateInfo = vk::SemaphoreCreateInfo();
 
 			m_ImageAvailableSemaphores[i] = m_LogicalDevice.createSemaphore(semaphoreCreateInfo);
-
 			m_RenderFinishedSemaphores[i] = m_LogicalDevice.createSemaphore(semaphoreCreateInfo);
 		}
 	}

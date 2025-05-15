@@ -115,6 +115,8 @@ namespace Eternal {
 
 		createImageViews();
 
+		createDepthImageView();
+
 		createRenderPass();
 
 		createFrameBuffers();
@@ -128,17 +130,42 @@ namespace Eternal {
 		{
 			m_LogicalDevice.destroyImageView(imageView);
 		}
+		m_SwapChainImages.clear();
 
 		for (auto frameBuffer : m_SwapChainFrameBuffers)
 		{
 			m_LogicalDevice.destroyFramebuffer(frameBuffer);
 		}
+		m_SwapChainFrameBuffers.clear();
 
-		m_LogicalDevice.destroyRenderPass(m_RenderPass);
+		if (m_DepthImageView)
+		{
+			m_LogicalDevice.destroyImageView(m_DepthImageView);
+			m_DepthImageView = nullptr;
+		}
+
+		if (m_DepthImage)
+		{
+			m_LogicalDevice.destroyImage(m_DepthImage);
+			m_DepthImage = nullptr;
+		}
+
+		if (m_DepthImageMemory)
+		{
+			m_LogicalDevice.freeMemory(m_DepthImageMemory);
+			m_DepthImageMemory = nullptr;
+		}
+
+		if (m_RenderPass)
+		{
+			m_LogicalDevice.destroyRenderPass(m_RenderPass);
+			m_RenderPass = nullptr;
+		}
 
 		if (m_SwapChain)
 		{
 			m_LogicalDevice.destroySwapchainKHR(m_SwapChain);
+			m_SwapChain = nullptr;
 		}
 	}
 
@@ -223,16 +250,35 @@ namespace Eternal {
 
 		m_DepthImage = m_LogicalDevice.createImage(imageCreateInfo);
 
+		vk::MemoryRequirements memRequirements = m_LogicalDevice.getImageMemoryRequirements(m_DepthImage);
+
+		uint32_t memoryTypeIndex = getMemoryType(vk::MemoryPropertyFlagBits::eDeviceLocal, memRequirements.memoryTypeBits);
+		ETERNAL_ASSERT(memoryTypeIndex != 0xFFFFFFFF, "Failed to find suitable memory type for depth image");
+
+		vk::MemoryAllocateInfo allocInfo = vk::MemoryAllocateInfo()
+			.setAllocationSize(memRequirements.size)
+			.setMemoryTypeIndex(memoryTypeIndex);
+
+		m_DepthImageMemory = m_LogicalDevice.allocateMemory(allocInfo);
+
+		m_LogicalDevice.bindImageMemory(m_DepthImage, m_DepthImageMemory, 0);
+
 		vk::ImageViewCreateInfo imageViewCreateInfo = vk::ImageViewCreateInfo()
 			.setImage(m_DepthImage)
 			.setViewType(vk::ImageViewType::e2D)
 			.setFormat(vk::Format::eD32Sfloat)
-			.setSubresourceRange({
-				vk::ImageAspectFlagBits::eDepth,
-				0, 1, 0, 1
-				});
+			.setSubresourceRange({ vk::ImageAspectFlagBits::eDepth,0, 1, 0, 1 });
 
 		m_DepthImageView = m_LogicalDevice.createImageView(imageViewCreateInfo);
+	}
+
+	uint32_t VulkanSwapChain::getMemoryType(vk::MemoryPropertyFlags properties, uint32_t type_bits)
+	{
+		vk::PhysicalDeviceMemoryProperties prop = m_PhysicalDevice.getMemoryProperties();
+		for (uint32_t i = 0; i < prop.memoryTypeCount; i++)
+			if ((prop.memoryTypes[i].propertyFlags & properties) == properties && type_bits & (1 << i))
+				return i;
+		return 0xFFFFFFFF;
 	}
 
 	void VulkanSwapChain::createRenderPass()
