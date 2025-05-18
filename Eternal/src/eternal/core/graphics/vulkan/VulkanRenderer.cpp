@@ -19,15 +19,15 @@ namespace Eternal {
 		m_Camera->setPerspectiveProjection(glm::radians(50.f), aspectRatio, 0.1f, 1000.f);
 
 		auto swapchain = m_Platform->createSwapChain(window);
-		m_SwapChain = dynamic_cast<VulkanSwapChain*>(swapchain);
+		m_VulkanSwapChain = dynamic_cast<VulkanSwapChain*>(swapchain);
 
-		if (!m_SwapChain)
+		if (!m_VulkanSwapChain)
 		{
 			Eternal::Logger::Error("Failed to create Vulkan SwapChain");
 			return;
 		}
 
-		m_RenderPass = m_SwapChain->getRenderPass();
+		m_RenderPass = m_VulkanSwapChain->getRenderPass();
 		ETERNAL_ASSERT(m_RenderPass, "Render pass is null");
 
 		vk::PushConstantRange pushConstantRange = vk::PushConstantRange()
@@ -79,7 +79,7 @@ namespace Eternal {
 
 		m_LogicalDevice.destroyPipelineLayout(m_PipelineLayout);
 
-		Memory::Deallocate(m_SwapChain);
+		Memory::Deallocate(m_VulkanSwapChain);
 
 		Memory::Deallocate(m_VulkanBufferManager);
 
@@ -88,6 +88,10 @@ namespace Eternal {
 		Memory::Deallocate(m_Platform);
 
 		Memory::Deallocate(m_Camera);
+	}
+
+	void VulkanRenderer::createUniformBuffers()
+	{
 	}
 
 	void VulkanRenderer::createCommandPool()
@@ -145,15 +149,13 @@ namespace Eternal {
 			return;
 
 		m_Window->setWindowResized(false);
-		m_SwapChain->setShouldRecreate(false);
+		m_VulkanSwapChain->setShouldRecreate(false);
 
 		m_LogicalDevice.waitForFences(1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT16_MAX);
 		m_LogicalDevice.resetFences(1, &m_InFlightFences[m_CurrentFrame]);
 
-		m_LogicalDevice.waitIdle();
-
-		m_SwapChain->recreate();
-		m_RenderPass = m_SwapChain->getRenderPass();
+		m_VulkanSwapChain->recreate();
+		m_RenderPass = m_VulkanSwapChain->getRenderPass();
 
 		float aspectRatio = m_Window->getAspectRatio();
 		m_Camera->setPerspectiveProjection(glm::radians(50.f), aspectRatio, 0.1f, 1000.f);
@@ -164,11 +166,9 @@ namespace Eternal {
 		if (m_Window->isMinimized())
 			return nullptr;
 
-		vk::Result result;
+		m_VulkanSwapChain->acquire(m_ImageAvailableSemaphores[m_CurrentFrame], &m_CurrentImageIndex);
 
-		m_SwapChain->acquire(m_ImageAvailableSemaphores[m_CurrentFrame], &m_CurrentImageIndex);
-
-		if (m_SwapChain->shouldRecreate() || m_Window->isResized())
+		if (m_VulkanSwapChain->shouldRecreate() || m_Window->isResized())
 		{
 			handleWindowResize();
 			return nullptr;
@@ -187,7 +187,7 @@ namespace Eternal {
 
 	void VulkanRenderer::render()
 	{
-		VulkanSwapChain::SwapChainDetails swapChainDetails = m_SwapChain->getSwapChainDetails();
+		VulkanSwapChain::SwapChainDetails swapChainDetails = m_VulkanSwapChain->getSwapChainDetails();
 
 		for (auto& e : m_Scene->getAllEntityWith<Eternal::TransformComponent>())
 		{
@@ -243,9 +243,9 @@ namespace Eternal {
 
 		vk::Result result = graphicsQueue.submit(1, &submitInfo, m_InFlightFences[m_CurrentFrame]);
 
-		m_SwapChain->present(m_RenderFinishedSemaphores[m_CurrentFrame], m_CurrentImageIndex);
+		m_VulkanSwapChain->present(m_RenderFinishedSemaphores[m_CurrentFrame], m_CurrentImageIndex);
 
-		if (m_SwapChain->shouldRecreate() || m_Window->isResized())
+		if (m_VulkanSwapChain->shouldRecreate() || m_Window->isResized())
 		{
 			handleWindowResize();
 			return;
@@ -256,7 +256,7 @@ namespace Eternal {
 
 	void VulkanRenderer::beginRecording(vk::CommandBuffer commandBuffer)
 	{
-		VulkanSwapChain::SwapChainDetails swapChainDetails = m_SwapChain->getSwapChainDetails();
+		VulkanSwapChain::SwapChainDetails swapChainDetails = m_VulkanSwapChain->getSwapChainDetails();
 
 		vk::CommandBufferBeginInfo commandBufferBeginInfo = vk::CommandBufferBeginInfo();
 
@@ -274,7 +274,7 @@ namespace Eternal {
 
 		vk::RenderPassBeginInfo renderPassBeginInfo = vk::RenderPassBeginInfo()
 			.setRenderPass(m_RenderPass)
-			.setFramebuffer(m_SwapChain->getFrameBuffers()[m_CurrentImageIndex])
+			.setFramebuffer(m_VulkanSwapChain->getFrameBuffers()[m_CurrentImageIndex])
 			.setRenderArea(renderArea)
 			.setClearValues(clearValues);
 

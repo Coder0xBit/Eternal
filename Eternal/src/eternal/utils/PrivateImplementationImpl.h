@@ -27,7 +27,7 @@ namespace utils {
 		if (this != &rhs) {
 			*mImpl = *rhs.mImpl;
 		}
-		return*this;
+		return *this;
 	}
 
 }

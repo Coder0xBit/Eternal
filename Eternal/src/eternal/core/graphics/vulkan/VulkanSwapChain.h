@@ -4,6 +4,9 @@
 #include <eternal/core/graphics/SwapChain.h>
 
 namespace Eternal {
+
+	class VulkanPlatform;	
+
 	class VulkanSwapChain : public SwapChain
 	{
 	public:

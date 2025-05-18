@@ -1,4 +1,5 @@
 #include "VulkanSwapChain.h"
+#include <eternal/core/graphics/vulkan/VulkanPlatform.h>
 
 namespace Eternal {
 	VulkanSwapChain::VulkanSwapChain(
@@ -126,6 +127,8 @@ namespace Eternal {
 	{
 		m_ShouldRecreate = false;
 
+		m_LogicalDevice.waitIdle();
+
 		for (auto imageView : m_SwapChainImageViews)
 		{
 			m_LogicalDevice.destroyImageView(imageView);
@@ -252,7 +255,12 @@ namespace Eternal {
 
 		vk::MemoryRequirements memRequirements = m_LogicalDevice.getImageMemoryRequirements(m_DepthImage);
 
-		uint32_t memoryTypeIndex = getMemoryType(vk::MemoryPropertyFlagBits::eDeviceLocal, memRequirements.memoryTypeBits);
+		uint32_t memoryTypeIndex = VulkanPlatform::getMemoryType(
+			m_PhysicalDevice,
+			vk::MemoryPropertyFlagBits::eDeviceLocal,
+			memRequirements.memoryTypeBits
+		);
+
 		ETERNAL_ASSERT(memoryTypeIndex != 0xFFFFFFFF, "Failed to find suitable memory type for depth image");
 
 		vk::MemoryAllocateInfo allocInfo = vk::MemoryAllocateInfo()

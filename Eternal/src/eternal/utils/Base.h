@@ -42,7 +42,10 @@ namespace Eternal {
 
 		template<typename T>
 		inline void Deallocate(T* ptr) {
-			delete ptr;
+			if (ptr)
+			{
+				delete ptr;
+			}
 		}
 
 	}

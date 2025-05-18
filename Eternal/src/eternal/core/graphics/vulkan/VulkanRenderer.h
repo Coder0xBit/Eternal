@@ -5,6 +5,7 @@
 #include <eternal/core/graphics/vulkan/VulkanPlatform.h>
 #include <eternal/core/graphics/vulkan/VulkanFrameInfo.h>
 #include <eternal/utils/Base.h>
+#include <eternal/core/graphics/vulkan/VulkanUtils.h>
 
 namespace Eternal {
 
@@ -22,7 +23,7 @@ namespace Eternal {
 
 		VulkanPlatform* getPlatform() { return m_Platform; }
 
-		VulkanSwapChain* getSwapChain() { return m_SwapChain; }
+		VulkanSwapChain* getSwapChain() { return m_VulkanSwapChain; }
 
 		FrameInfo* beginFrame() override;
 
@@ -31,6 +32,8 @@ namespace Eternal {
 		void endFrame() override;
 
 	private:
+
+		void createUniformBuffers();
 
 		void createCommandPool();
 
@@ -50,7 +53,7 @@ namespace Eternal {
 
 		VulkanPlatform* m_Platform;
 
-		VulkanSwapChain* m_SwapChain;
+		VulkanSwapChain* m_VulkanSwapChain;
 
 		Eternal::VulkanBufferManager* m_VulkanBufferManager;
 
@@ -85,5 +88,12 @@ namespace Eternal {
 		vk::Pipeline m_Pipeline = nullptr;
 
 		vk::RenderPass m_RenderPass = nullptr;
+
+		std::vector<vk::Buffer> uniformBuffers;
+
+		std::vector<vk::DeviceMemory> uniformBuffersMemory;
+
+		std::vector<void*> uniformBuffersMapped;
+
 	};
 }

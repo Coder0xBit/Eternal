@@ -281,7 +281,7 @@ namespace Eternal {
 			.setPolygonMode(vk::PolygonMode::eFill)
 			.setLineWidth(1.0f)
 			.setCullMode(vk::CullModeFlagBits::eBack)
-			.setFrontFace(vk::FrontFace::eClockwise)
+			.setFrontFace(vk::FrontFace::eCounterClockwise)
 			.setDepthBiasEnable(VK_TRUE);
 
 		vk::PipelineMultisampleStateCreateInfo multiSampleStateCreateInfo = vk::PipelineMultisampleStateCreateInfo()
@@ -355,6 +355,15 @@ namespace Eternal {
 		return pipeline;
 	}
 
+	uint32_t VulkanPlatform::getMemoryType(vk::PhysicalDevice physicalDevice, vk::MemoryPropertyFlags properties, uint32_t typeBits)
+	{
+		vk::PhysicalDeviceMemoryProperties prop = physicalDevice.getMemoryProperties();
+		for (uint32_t i = 0; i < prop.memoryTypeCount; i++)
+			if ((prop.memoryTypes[i].propertyFlags & properties) == properties && typeBits & (1 << i))
+				return i;
+		return 0xFFFFFFFF;
+	}
+
 	bool VulkanPlatform::validateExtensions(VkStringArray extensions)
 	{
 		std::vector<vk::ExtensionProperties> supportedExtensions = vk::enumerateInstanceExtensionProperties();
@@ -414,7 +423,7 @@ namespace Eternal {
 		return requiredExtesnions.empty();
 	}
 
-	bool VulkanPlatform::checkDeviceIsSuitable(vk::PhysicalDevice& device)
+	bool VulkanPlatform::checkDeviceIsSuitable(const vk::PhysicalDevice& device)
 	{
 		VkStringArray requestedExtensions = {
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME

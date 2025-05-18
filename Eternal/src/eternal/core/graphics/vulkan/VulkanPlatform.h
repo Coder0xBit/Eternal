@@ -20,8 +20,6 @@
 
 namespace Eternal {
 
-	constexpr uint32_t const MAX_FRAMES_IN_FLIGHT = 2;
-
 	using VkStringArray = std::vector<const char*>;
 	using VkString = const char*;
 	using VkStringArrayPtr = const char**;
@@ -62,13 +60,15 @@ namespace Eternal {
 
 		bool checkDeviceExtensionSupport(const vk::PhysicalDevice& device, const VkStringArray requestedExtensions);
 
-		bool checkDeviceIsSuitable(vk::PhysicalDevice& device);
+		bool checkDeviceIsSuitable(const vk::PhysicalDevice& device);
 
 		void logDeviceProps(const vk::PhysicalDevice& device);
 
 		vk::PipelineLayout createPipelineLayout(vk::PushConstantRange pushConstantRange);
 
 		vk::Pipeline createPipeline(vk::PipelineLayout pipelineLayout, vk::RenderPass renderPass);
+
+		static uint32_t getMemoryType(vk::PhysicalDevice physicalDevice, vk::MemoryPropertyFlags properties, uint32_t typeBits);
 
 	private:
 

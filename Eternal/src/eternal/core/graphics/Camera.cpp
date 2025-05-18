@@ -15,7 +15,9 @@ namespace Eternal {
 	void Eternal::Camera::setPerspectiveProjection(float fovy, float aspect, float nearPlane, float farPlane)
 	{
 		ETERNAL_ASSERT(glm::abs(aspect - std::numeric_limits<float>::epsilon()) > 0.0f, "something wrong in setPerspectiveProjection(...)");
-		projectionMatrix = glm::perspective(fovy, aspect, nearPlane, farPlane);
+		glm::mat4 projection = glm::perspective(fovy, aspect, nearPlane, farPlane);
+		projection[1][1] *= -1; // Invert Y axis Since Vulkan uses a different coordinate system
+		projectionMatrix = projection;
 	}
 }
 
