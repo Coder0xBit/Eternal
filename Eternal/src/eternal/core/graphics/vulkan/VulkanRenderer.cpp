@@ -51,6 +51,8 @@ namespace Eternal {
 
 		createFences();
 
+		createUniformBuffers();
+
 		m_VulkanBufferManager = Memory::Allocate<VulkanBufferManager>(m_LogicalDevice, m_PhysicalDevice, m_Scene);
 	}
 
@@ -81,6 +83,8 @@ namespace Eternal {
 
 		Memory::Deallocate(m_VulkanSwapChain);
 
+		m_UniformBuffers.clear();
+
 		Memory::Deallocate(m_VulkanBufferManager);
 
 		m_LogicalDevice.destroy();
@@ -92,6 +96,18 @@ namespace Eternal {
 
 	void VulkanRenderer::createUniformBuffers()
 	{
+		vk::MemoryPropertyFlags bufferProperties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+
+		m_UniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
+
+		for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+		{
+			auto buffer = std::make_shared<VulkanBuffer>(m_Platform->getLogicalDevice(), m_Platform->getPhysicalDevice());
+			buffer->create(1, sizeof(UniformBuffer), vk::BufferUsageFlagBits::eUniformBuffer);
+			buffer->allocate(bufferProperties);
+			buffer->map();
+			m_UniformBuffers.push_back(buffer);
+		}
 	}
 
 	void VulkanRenderer::createCommandPool()

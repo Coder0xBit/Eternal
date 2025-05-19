@@ -17,6 +17,11 @@ namespace Eternal {
 			glm::mat4 normalMatrix{ 1.f };
 		};
 
+		struct UniformBuffer {
+			glm::mat4 transform{ 1.f };
+			glm::mat4 normalMatrix{ 1.f };
+		};
+
 		VulkanRenderer(VulkanPlatform* platform, Window* window, Scene* scene);
 
 		~VulkanRenderer();
@@ -89,11 +94,6 @@ namespace Eternal {
 
 		vk::RenderPass m_RenderPass = nullptr;
 
-		std::vector<vk::Buffer> uniformBuffers;
-
-		std::vector<vk::DeviceMemory> uniformBuffersMemory;
-
-		std::vector<void*> uniformBuffersMapped;
-
+		std::vector<std::shared_ptr<VulkanBuffer>> m_UniformBuffers;
 	};
 }

@@ -51,12 +51,18 @@ namespace Eternal {
 			auto& component = entity.getComponent<Eternal::RenderComponent>();
 
 			auto vertexBuffer = std::make_shared<VulkanBuffer>(m_Device, m_PhysicalDevice);
-			vertexBuffer->create(component.getVertices(), vk::BufferUsageFlagBits::eVertexBuffer, bufferProperties);
+			vertexBuffer->create(component.getVertices().size(), sizeof(Eternal::Vertex), vk::BufferUsageFlagBits::eVertexBuffer);
+			vertexBuffer->allocate(bufferProperties);
+			vertexBuffer->map();
+			vertexBuffer->write((void*)(component.getVertices().data()));
 
 			m_VertexBuffers[entity.getUUID()] = vertexBuffer;
 
 			auto indexBuffer = std::make_shared<VulkanBuffer>(m_Device, m_PhysicalDevice);
-			indexBuffer->create(component.getIndices(), vk::BufferUsageFlagBits::eIndexBuffer, bufferProperties);
+			indexBuffer->create(component.getIndices().size(), sizeof(uint32_t), vk::BufferUsageFlagBits::eIndexBuffer);
+			indexBuffer->allocate(bufferProperties);
+			indexBuffer->map();
+			indexBuffer->write((void*)(component.getIndices().data()));
 
 			m_IndexBuffers[entity.getUUID()] = indexBuffer;
 		}

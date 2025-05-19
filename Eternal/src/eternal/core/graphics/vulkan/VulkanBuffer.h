@@ -2,7 +2,8 @@
 
 #include <vulkan/vulkan.hpp>
 #include <eternal/utils/Base.h>
-#include "VulkanPlatform.h"
+#include <eternal/core/Logger.h>
+
 
 namespace Eternal {
 	class VulkanBuffer {
@@ -12,49 +13,25 @@ namespace Eternal {
 			m_LogicalDevice(logicalDevice), m_PhysicalDevice(physicalDevice) {
 		}
 
-		template<typename T>
-		void create(const std::vector<T>& bufferData, vk::BufferUsageFlagBits usage, vk::MemoryPropertyFlags properties)
-		{
-			m_ElementCount = static_cast<uint32_t>(bufferData.size());
-			m_BufferSize = sizeof(T) * m_ElementCount;
+		VulkanBuffer(const VulkanBuffer&) = delete;
 
-			vk::BufferCreateInfo bufferInfo = vk::BufferCreateInfo()
-				.setSize(m_BufferSize)
-				.setUsage(usage)
-				.setSharingMode(vk::SharingMode::eExclusive);
+		VulkanBuffer& operator=(const VulkanBuffer&) = delete;
 
-			m_Buffer = m_LogicalDevice.createBuffer(bufferInfo);
+		void create(uint32_t elementCount, uint32_t elementSize, vk::BufferUsageFlagBits usage);
 
-			vk::MemoryRequirements memRequirements = m_LogicalDevice.getBufferMemoryRequirements(m_Buffer);
+		void allocate(vk::MemoryPropertyFlags properties);
 
-			uint32_t memoryTypeIndex = VulkanPlatform::getMemoryType(m_PhysicalDevice, properties, memRequirements.memoryTypeBits);
-			ETERNAL_ASSERT(memoryTypeIndex != 0xFFFFFFFF, "Failed to find suitable memory type");
+		void map();
 
-			vk::MemoryAllocateInfo allocInfo = vk::MemoryAllocateInfo()
-				.setAllocationSize(memRequirements.size)
-				.setMemoryTypeIndex(memoryTypeIndex);
+		void unMap();
 
-			m_Memory = m_LogicalDevice.allocateMemory(allocInfo);
-			m_LogicalDevice.bindBufferMemory(m_Buffer, m_Memory, 0);
+		void write(void* data);
 
-			void* data = m_LogicalDevice.mapMemory(m_Memory, 0, m_BufferSize);
-			memcpy(data, bufferData.data(), (size_t)m_BufferSize);
-			m_LogicalDevice.unmapMemory(m_Memory);
-		}
+		~VulkanBuffer();
 
-		~VulkanBuffer()
-		{
-			if (m_Memory)
-			{
-				m_LogicalDevice.freeMemory(m_Memory);
-			}
-			if (m_Buffer)
-			{
-				m_LogicalDevice.destroyBuffer(m_Buffer);
-			}
-		}
+		bool isCurrentlyMapped() const { return m_MappedMemory != nullptr; }
 
-		bool isCurrentlyMapped() const { return m_Memory; }
+		void* mappedMemory() const { return m_MappedMemory; }
 
 		const uint32_t& getElementCount() const { return m_ElementCount; }
 
@@ -67,6 +44,7 @@ namespace Eternal {
 		vk::PhysicalDevice m_PhysicalDevice = nullptr;
 		vk::Buffer m_Buffer = nullptr;
 		vk::DeviceMemory m_Memory = nullptr;
+		void* m_MappedMemory = nullptr;
 		uint32_t m_ElementCount = 0;
 		uint32_t m_BufferSize = 0;
 	};

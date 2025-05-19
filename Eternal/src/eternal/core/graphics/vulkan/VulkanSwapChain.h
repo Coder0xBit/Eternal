@@ -5,8 +5,6 @@
 
 namespace Eternal {
 
-	class VulkanPlatform;	
-
 	class VulkanSwapChain : public SwapChain
 	{
 	public:

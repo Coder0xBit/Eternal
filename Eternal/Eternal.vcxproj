@@ -148,6 +148,7 @@
     <ClCompile Include="src\eternal\core\Engine.cpp" />
     <ClCompile Include="src\eternal\core\graphics\Camera.cpp" />
     <ClCompile Include="src\eternal\core\graphics\GraphicsPlatform.cpp" />
+    <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanBuffer.cpp" />
     <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanBufferManager.cpp" />
     <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanGraphicsContext.cpp" />
     <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanImGuiLayer.cpp" />

@@ -5,8 +5,6 @@
 
 #include "VulkanBuffer.h"
 
-#include <vulkan/vulkan.hpp>
-
 namespace Eternal {
 
 	class VulkanPlatform;
