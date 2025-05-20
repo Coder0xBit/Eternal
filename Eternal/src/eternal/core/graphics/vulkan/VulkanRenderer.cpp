@@ -3,6 +3,7 @@
 #include "imgui/backends/imgui_impl_glfw.h"
 #include "imgui/backends/imgui_impl_vulkan.h"
 
+#include <eternal/core/graphics/vulkan/VulkanDescsriptorSetLayout.h>
 #include <eternal/core/scene/Entity.h>
 #include <eternal/core/scene/TransformComponent.h>
 
@@ -54,6 +55,10 @@ namespace Eternal {
 		createUniformBuffers();
 
 		m_VulkanBufferManager = Memory::Allocate<VulkanBufferManager>(m_LogicalDevice, m_PhysicalDevice, m_Scene);
+
+		VulkanDescriptorSetLayout* descriptorLayout = VulkanDescriptorSetLayout::Builder(m_LogicalDevice)
+			.addBinding({ 0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex })
+			.build();
 	}
 
 	VulkanRenderer::~VulkanRenderer()
