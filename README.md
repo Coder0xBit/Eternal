@@ -1,14 +1,18 @@
-### **Eternal Renderer** - A Vulkan-based Graphics Engine  
+# **Eternal Renderer** - A Lightweight Vulkan-Based Rendering Engine
 
-Eternal is a high-performance **Vulkan-based renderer** built from scratch in **C++**. Designed for **efficiency and scalability**, it serves as the foundation for **real-time rendering, ray tracing, and graphical applications**.  
+Eternal is a simple and evolving 3D renderer built with Vulkan, aimed at learning modern graphics programming and building a flexible rendering architecture from scratch.
 
----
+## ✨ **Current Features**
+- ✅ Loads and renders .obj 3D models.
+- ✅ Basic Vulkan rendering pipeline setup.
+- ✅ Basic Diffuse lighting without material colors.
+- ✅ Entity-based scene structure (early ECS-like design).
+- ✅ Custom VulkanBuffer abstraction for vertex/index management.
 
-## 🚀 **Features**  
-✅ **Modern Vulkan API** - Explicit GPU control for optimized rendering.  
-✅ **Modular Engine Architecture** - Clean and extensible design.  
-✅ **Cross-Platform Compatibility** - Designed for future adaptability.  
-✅ **ImGui Integration** *(Upcoming)* - UI for debugging and controls.  
-✅ **Ray Tracing Support** *(Planned)* - Realistic lighting and reflections.  
+## 🛠️ **In Progress**
+- 🎨 Per-object materials and textures
+- 🧱 Improved rendering abstraction (separate render passes, pipelines)
+- 🧠 Camera + input handling
+- 🧰 Editor integration (via ImGui)
 
 ---
