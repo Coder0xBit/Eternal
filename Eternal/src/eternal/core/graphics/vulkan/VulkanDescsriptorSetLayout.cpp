@@ -1,6 +1,5 @@
 #include "VulkanDescsriptorSetLayout.h"
 
-
 namespace Eternal {
 
 	VulkanDescriptorSetLayout::Builder::Builder(vk::Device logicalDevice) noexcept
@@ -18,7 +17,7 @@ namespace Eternal {
 
 	VulkanDescriptorSetLayout::Builder& VulkanDescriptorSetLayout::Builder::operator=(Builder&& rhs) noexcept = default;
 
-	VulkanDescriptorSetLayout::Builder& VulkanDescriptorSetLayout::Builder::addBinding(LayoutInfo layoutInfo) noexcept
+	VulkanDescriptorSetLayout::Builder& VulkanDescriptorSetLayout::Builder::addBinding(LayoutInfo layoutInfo)
 	{
 		ETERNAL_ASSERT(mImpl->bindings.count(layoutInfo.binding) == 0, "Binding is in use");
 		vk::DescriptorSetLayoutBinding binding = vk::DescriptorSetLayoutBinding()
@@ -44,13 +43,10 @@ namespace Eternal {
 		bindings.reserve(m_Binding.size());
 
 		for (const auto& [binding, layoutBinding] : m_Binding)
-		{
 			bindings.push_back(layoutBinding);
-		}
 
 		vk::DescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = vk::DescriptorSetLayoutCreateInfo()
-			.setBindingCount(static_cast<uint32_t>(bindings.size()))
-			.setPBindings(bindings.data());
+			.setBindings(bindings);
 
 		m_DescriptorSetLayout = m_LogicalDevice.createDescriptorSetLayout(descriptorSetLayoutCreateInfo);
 	}

@@ -4,6 +4,7 @@
 #include "imgui/backends/imgui_impl_vulkan.h"
 
 #include <eternal/core/graphics/vulkan/VulkanDescsriptorSetLayout.h>
+#include <eternal/core/graphics/vulkan/VulkanDescriptorPool.h>
 #include <eternal/core/scene/Entity.h>
 #include <eternal/core/scene/TransformComponent.h>
 
@@ -56,9 +57,7 @@ namespace Eternal {
 
 		m_VulkanBufferManager = Memory::Allocate<VulkanBufferManager>(m_LogicalDevice, m_PhysicalDevice, m_Scene);
 
-		VulkanDescriptorSetLayout* descriptorLayout = VulkanDescriptorSetLayout::Builder(m_LogicalDevice)
-			.addBinding({ 0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex })
-			.build();
+		initializeDescriptors();
 	}
 
 	VulkanRenderer::~VulkanRenderer()
@@ -113,6 +112,21 @@ namespace Eternal {
 			buffer->map();
 			m_UniformBuffers.push_back(buffer);
 		}
+	}
+
+	void VulkanRenderer::initializeDescriptors()
+	{
+		VulkanDescriptorSetLayout* descLayout = VulkanDescriptorSetLayout::Builder(m_LogicalDevice)
+			.addBinding({ 0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex })
+			.build();
+		
+		VulkanDescriptorPool* descriptorPool = VulkanDescriptorPool::Builder(m_LogicalDevice)
+			.addPoolSize({ vk::DescriptorType::eUniformBuffer, 0 })
+			.setMaxSets(4)
+			.build();
+
+		vk::DescriptorSet descSet = descriptorPool->allocate(*descLayout);
+		std::vector<vk::DescriptorSet> descSets = descriptorPool->allocate(MAX_FRAMES_IN_FLIGHT, *descLayout);
 	}
 
 	void VulkanRenderer::createCommandPool()

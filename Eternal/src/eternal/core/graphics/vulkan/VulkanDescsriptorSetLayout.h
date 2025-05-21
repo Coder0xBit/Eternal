@@ -13,7 +13,7 @@ namespace Eternal {
 			uint32_t binding;
 			vk::DescriptorType type;
 			vk::ShaderStageFlags stageFlags;
-			uint32_t count;
+			uint32_t count = 1;
 		};
 
 		struct BuilderDetails {
@@ -36,14 +36,20 @@ namespace Eternal {
 
 			Builder& operator=(Builder&& rhs) noexcept;
 
-			Builder& addBinding(LayoutInfo layoutInfo) noexcept;
+			Builder& addBinding(LayoutInfo layoutInfo);
 
 			VulkanDescriptorSetLayout* build() noexcept;
 		};
 
 		VulkanDescriptorSetLayout(const Builder& builder);
 
-		vk::DescriptorSetLayout getDescriptorSetLayout() const { return m_DescriptorSetLayout; }
+		VulkanDescriptorSetLayout(const VulkanDescriptorSetLayout&) = delete;
+
+		VulkanDescriptorSetLayout& operator=(const VulkanDescriptorSetLayout&) = delete;
+
+		const vk::DescriptorSetLayout& getDescriptorSetLayout() const { return m_DescriptorSetLayout; }
+
+		const VulkanDesccriptorBinding& getBindings() const { return m_Binding; }
 
 		~VulkanDescriptorSetLayout();
 

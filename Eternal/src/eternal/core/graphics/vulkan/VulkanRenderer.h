@@ -40,6 +40,8 @@ namespace Eternal {
 
 		void createUniformBuffers();
 
+		void initializeDescriptors();
+
 		void createCommandPool();
 
 		void createCommandBuffers();

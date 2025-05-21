@@ -150,6 +150,7 @@
     <ClCompile Include="src\eternal\core\graphics\GraphicsPlatform.cpp" />
     <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanBuffer.cpp" />
     <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanBufferManager.cpp" />
+    <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanDescriptorPool.cpp" />
     <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanDescsriptorSetLayout.cpp" />
     <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanGraphicsContext.cpp" />
     <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanImGuiLayer.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="src\editor\ImGuiApplication.h" />
     <ClInclude Include="src\eternal\core\graphics\FrameInfo.h" />
     <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanBuffer.h" />
+    <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanDescriptorPool.h" />
     <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanDescsriptorSetLayout.h" />
     <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanFrameInfo.h" />
     <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanUtils.h" />
