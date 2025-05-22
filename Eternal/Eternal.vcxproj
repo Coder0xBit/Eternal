@@ -27,26 +27,26 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -70,99 +70,77 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include\GLFW;$(SolutionDir)vendor\include\spdlog;$(SolutionDir)vendor\include;$(SolutionDir)Eternal\src\imgui;$(SolutionDir)Eternal\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Eternal\vendor;$(SolutionDir)Eternal\vendor\include;$(SolutionDir)Eternal\src;$(SolutionDir)Eternal\src\imgui;$(SolutionDir)Eternal\vendor\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)vendor\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
+    <Lib>
+      <AdditionalDependencies>glfw3.lib;vulkan-1.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(SolutionDir)Eternal\vendor\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include\GLFW;$(SolutionDir)vendor\include\spdlog;$(SolutionDir)vendor\include;$(SolutionDir)Eternal\src\imgui;$(SolutionDir)Eternal\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Eternal\vendor;$(SolutionDir)Eternal\vendor\include;$(SolutionDir)Eternal\src;$(SolutionDir)Eternal\src\imgui;$(SolutionDir)Eternal\vendor\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)vendor\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
+    <Lib>
+      <AdditionalDependencies>glfw3.lib;vulkan-1.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(SolutionDir)Eternal\vendor\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include\GLFW;$(SolutionDir)vendor\include\spdlog;$(SolutionDir)vendor\include;$(SolutionDir)Eternal\src\imgui;$(SolutionDir)Eternal\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Eternal\vendor;$(SolutionDir)Eternal\vendor\include;$(SolutionDir)Eternal\src;$(SolutionDir)Eternal\src\imgui;$(SolutionDir)Eternal\vendor\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)vendor\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
+    <Lib>
+      <AdditionalDependencies>glfw3.lib;vulkan-1.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(SolutionDir)Eternal\vendor\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)vendor\include\GLFW;$(SolutionDir)vendor\include\spdlog;$(SolutionDir)vendor\include;$(SolutionDir)Eternal\src\imgui;$(SolutionDir)Eternal\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Eternal\vendor;$(SolutionDir)Eternal\vendor\include;$(SolutionDir)Eternal\src;$(SolutionDir)Eternal\src\imgui;$(SolutionDir)Eternal\vendor\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)vendor\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glfw3.lib;vulkan-1.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
+    <Lib>
+      <AdditionalDependencies>glfw3.lib;vulkan-1.lib</AdditionalDependencies>
+    </Lib>
+    <Lib>
+      <AdditionalLibraryDirectories>$(SolutionDir)Eternal\vendor\lib\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\editor\Editor.cpp" />
-    <ClCompile Include="src\EntryPoint.cpp" />
-    <ClCompile Include="src\eternal\core\Engine.cpp" />
-    <ClCompile Include="src\eternal\core\graphics\Camera.cpp" />
-    <ClCompile Include="src\eternal\core\graphics\GraphicsPlatform.cpp" />
-    <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanBuffer.cpp" />
-    <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanBufferManager.cpp" />
-    <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanDescriptorPool.cpp" />
-    <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanDescsriptorSetLayout.cpp" />
-    <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanGraphicsContext.cpp" />
-    <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanImGuiLayer.cpp" />
-    <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanRenderer.cpp" />
-    <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanSwapChain.cpp" />
-    <ClCompile Include="src\eternal\core\Logger.cpp" />
-    <ClCompile Include="src\eternal\core\graphics\vulkan\VulkanPlatform.cpp" />
-    <ClCompile Include="src\eternal\core\scene\Scene.cpp" />
-    <ClCompile Include="src\eternal\core\WindowsWindow.cpp" />
-    <ClCompile Include="src\eternal\utils\PrivateImplementationImpl.h" />
-    <ClCompile Include="src\eternal\core\Window.cpp" />
-    <ClCompile Include="src\eternal\utils\UUID.cpp" />
+    <ClCompile Include="src\core\Engine.cpp" />
+    <ClCompile Include="src\core\graphics\Camera.cpp" />
+    <ClCompile Include="src\core\graphics\GraphicsPlatform.cpp" />
+    <ClCompile Include="src\core\graphics\vulkan\VulkanBuffer.cpp" />
+    <ClCompile Include="src\core\graphics\vulkan\VulkanBufferManager.cpp" />
+    <ClCompile Include="src\core\graphics\vulkan\VulkanDescriptorPool.cpp" />
+    <ClCompile Include="src\core\graphics\vulkan\VulkanDescsriptorSetLayout.cpp" />
+    <ClCompile Include="src\core\graphics\vulkan\VulkanGraphicsContext.cpp" />
+    <ClCompile Include="src\core\graphics\vulkan\VulkanImGuiLayer.cpp" />
+    <ClCompile Include="src\core\graphics\vulkan\VulkanPlatform.cpp" />
+    <ClCompile Include="src\core\graphics\vulkan\VulkanRenderer.cpp" />
+    <ClCompile Include="src\core\graphics\vulkan\VulkanSwapChain.cpp" />
+    <ClCompile Include="src\core\Logger.cpp" />
+    <ClCompile Include="src\core\scene\Scene.cpp" />
+    <ClCompile Include="src\core\Window.cpp" />
+    <ClCompile Include="src\core\WindowsWindow.cpp" />
     <ClCompile Include="src\imgui\backends\imgui_impl_glfw.cpp" />
     <ClCompile Include="src\imgui\backends\imgui_impl_vulkan.cpp" />
     <ClCompile Include="src\imgui\imgui.cpp" />
@@ -170,49 +148,43 @@
     <ClCompile Include="src\imgui\imgui_draw.cpp" />
     <ClCompile Include="src\imgui\imgui_tables.cpp" />
     <ClCompile Include="src\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\utils\UUID.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="src\editor\Editor.h" />
-    <ClInclude Include="src\editor\ImGuiApplication.h" />
-    <ClInclude Include="src\eternal\core\graphics\FrameInfo.h" />
-    <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanBuffer.h" />
-    <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanDescriptorPool.h" />
-    <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanDescsriptorSetLayout.h" />
-    <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanFrameInfo.h" />
-    <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanUtils.h" />
-    <ClInclude Include="src\eternal\core\scene\IdComponent.h" />
-    <ClInclude Include="src\eternal\core\scene\NameComponent.h" />
-    <ClInclude Include="src\eternal\core\scene\RenderComponent.h" />
-    <ClInclude Include="src\eternal\core\scene\Entity.h" />
-    <ClInclude Include="src\eternal\core\graphics\Backend.h" />
-    <ClInclude Include="src\eternal\core\graphics\Camera.hpp" />
-    <ClInclude Include="src\eternal\core\graphics\Renderer.h" />
-    <ClInclude Include="src\eternal\core\graphics\SwapChain.h" />
-    <ClInclude Include="src\eternal\core\graphics\Vertex.h" />
-    <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanBufferManager.h" />
-    <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanGraphicsContext.h" />
-    <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanImGuiLayer.h" />
-    <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanRenderer.h" />
-    <ClInclude Include="src\eternal\core\ImGuiLayer.h" />
-    <ClInclude Include="src\eternal\core\Engine.h" />
-    <ClInclude Include="src\eternal\core\graphics\GraphicsPlatform.h" />
-    <ClInclude Include="src\eternal\core\graphics\Timer.h" />
-    <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanConstants.h" />
-    <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanSwapChain.h" />
-    <ClInclude Include="src\eternal\core\scene\Scene.h" />
-    <ClInclude Include="src\eternal\core\System.h" />
-    <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanPlatform.h" />
-    <ClInclude Include="src\eternal\core\graphics\vulkan\VulkanWindow.h" />
-    <ClInclude Include="src\eternal\core\scene\TransformComponent.h" />
-    <ClInclude Include="src\eternal\core\WindowsWindow.h" />
-    <ClInclude Include="src\eternal\core\graphics\GraphicsContext.h" />
-    <ClInclude Include="src\eternal\utils\Base.h" />
-    <ClInclude Include="src\eternal\core\Logger.h" />
-    <ClInclude Include="src\eternal\utils\PrivateImplementation.h" />
-    <ClInclude Include="src\eternal\core\Window.h" />
-    <ClInclude Include="src\eternal\utils\TinyObjLoader.h" />
-    <ClInclude Include="src\eternal\utils\UUID.h" />
+    <ClInclude Include="src\core\Engine.h" />
+    <ClInclude Include="src\core\graphics\Backend.h" />
+    <ClInclude Include="src\core\graphics\Camera.hpp" />
+    <ClInclude Include="src\core\graphics\FrameInfo.h" />
+    <ClInclude Include="src\core\graphics\GraphicsContext.h" />
+    <ClInclude Include="src\core\graphics\GraphicsPlatform.h" />
+    <ClInclude Include="src\core\graphics\Renderer.h" />
+    <ClInclude Include="src\core\graphics\SwapChain.h" />
+    <ClInclude Include="src\core\graphics\Timer.h" />
+    <ClInclude Include="src\core\graphics\Vertex.h" />
+    <ClInclude Include="src\core\graphics\vulkan\VulkanBuffer.h" />
+    <ClInclude Include="src\core\graphics\vulkan\VulkanBufferManager.h" />
+    <ClInclude Include="src\core\graphics\vulkan\VulkanConstants.h" />
+    <ClInclude Include="src\core\graphics\vulkan\VulkanDescriptorPool.h" />
+    <ClInclude Include="src\core\graphics\vulkan\VulkanDescsriptorSetLayout.h" />
+    <ClInclude Include="src\core\graphics\vulkan\VulkanFrameInfo.h" />
+    <ClInclude Include="src\core\graphics\vulkan\VulkanGraphicsContext.h" />
+    <ClInclude Include="src\core\graphics\vulkan\VulkanImGuiLayer.h" />
+    <ClInclude Include="src\core\graphics\vulkan\VulkanPlatform.h" />
+    <ClInclude Include="src\core\graphics\vulkan\VulkanRenderer.h" />
+    <ClInclude Include="src\core\graphics\vulkan\VulkanSwapChain.h" />
+    <ClInclude Include="src\core\graphics\vulkan\VulkanUtils.h" />
+    <ClInclude Include="src\core\graphics\vulkan\VulkanWindow.h" />
+    <ClInclude Include="src\core\ImGuiLayer.h" />
+    <ClInclude Include="src\core\Logger.h" />
+    <ClInclude Include="src\core\scene\Entity.h" />
+    <ClInclude Include="src\core\scene\IdComponent.h" />
+    <ClInclude Include="src\core\scene\NameComponent.h" />
+    <ClInclude Include="src\core\scene\RenderComponent.h" />
+    <ClInclude Include="src\core\scene\Scene.h" />
+    <ClInclude Include="src\core\scene\TransformComponent.h" />
+    <ClInclude Include="src\core\System.h" />
+    <ClInclude Include="src\core\Window.h" />
+    <ClInclude Include="src\core\WindowsWindow.h" />
     <ClInclude Include="src\imgui\backends\imgui_impl_glfw.h" />
     <ClInclude Include="src\imgui\backends\imgui_impl_vulkan.h" />
     <ClInclude Include="src\imgui\imconfig.h" />
@@ -221,18 +193,13 @@
     <ClInclude Include="src\imgui\imstb_rectpack.h" />
     <ClInclude Include="src\imgui\imstb_textedit.h" />
     <ClInclude Include="src\imgui\imstb_truetype.h" />
+    <ClInclude Include="src\utils\Base.h" />
+    <ClInclude Include="src\utils\PrivateImplementation.h" />
+    <ClInclude Include="src\utils\PrivateImplementationImpl.h" />
+    <ClInclude Include="src\utils\TinyObjLoader.h" />
+    <ClInclude Include="src\utils\UUID.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Eternal.aps" />
-    <None Include="src\eternal\core\graphics\shader\Compile.bat" />
-    <None Include="src\eternal\core\graphics\shader\shader.frag" />
-    <None Include="src\eternal\core\graphics\shader\shader.vert" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Eternal.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="..\..\..\..\OneDrive\Documents\Eternal Assets\ICON\eternal_logo_icon.ico" />
     <Image Include="res\ICON\eternal_logo_icon.ico" />
     <Image Include="res\PNGs\eternal_full_logo.png" />
     <Image Include="res\PNGs\eternal_logo.png" />
