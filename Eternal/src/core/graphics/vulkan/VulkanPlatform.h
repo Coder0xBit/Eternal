@@ -11,6 +11,7 @@
 #include <core/graphics/Vertex.h>
 #include <core/graphics/vulkan/VulkanBufferManager.h>
 #include <core/graphics/Camera.hpp>
+#include <core/graphics/vulkan/VulkanDescsriptorSetLayout.h>
 
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
@@ -65,6 +66,8 @@ namespace Eternal {
 		void logDeviceProps(const vk::PhysicalDevice& device);
 
 		vk::PipelineLayout createPipelineLayout(vk::PushConstantRange pushConstantRange);
+
+		vk::PipelineLayout createPipelineLayout(VulkanDescriptorSetLayout& descriptorSetLayout);
 
 		vk::Pipeline createPipeline(vk::PipelineLayout pipelineLayout, vk::RenderPass renderPass);
 

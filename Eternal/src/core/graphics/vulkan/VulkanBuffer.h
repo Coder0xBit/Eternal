@@ -36,7 +36,10 @@ namespace Eternal {
 
 		uint32_t getBufferSize() const { return m_BufferSize; }
 
-		vk::Buffer* getBuffer() { return &m_Buffer; }
+		vk::Buffer* getBuffer() {
+			ETERNAL_ASSERT_LOG(m_Buffer, "Buffer is not created yet, call create() first");
+			return &m_Buffer;
+		}
 
 	private:
 		vk::Device m_LogicalDevice = nullptr;

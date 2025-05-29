@@ -22,7 +22,7 @@ namespace Eternal {
 		void shutdown() override;
 
 	private:
-		void setupEntities();
+		void setupEntities(std::string name);
 
 		void addTriangle();
 

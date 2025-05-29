@@ -6,6 +6,8 @@
 #include <core/graphics/vulkan/VulkanFrameInfo.h>
 #include <utils/Base.h>
 #include <core/graphics/vulkan/VulkanUtils.h>
+#include <core/graphics/vulkan/VulkanDescriptorPool.h>
+#include <core/graphics/vulkan/VulkanDescsriptorSetLayout.h>
 
 namespace Eternal {
 
@@ -18,8 +20,8 @@ namespace Eternal {
 		};
 
 		struct UniformBuffer {
-			glm::mat4 transform{ 1.f };
-			glm::mat4 normalMatrix{ 1.f };
+			alignas(16) glm::mat4 transform{ 1.f };
+			alignas(16) glm::mat4 normalMatrix{ 1.f };
 		};
 
 		VulkanRenderer(VulkanPlatform* platform, Window* window, Scene* scene);
@@ -55,6 +57,8 @@ namespace Eternal {
 		void beginRecording(vk::CommandBuffer commandBuffer);
 
 		void endRecoding(vk::CommandBuffer commandBuffer);
+
+		void updateUniformBuffers();
 
 		Scene* m_Scene;
 
@@ -97,5 +101,11 @@ namespace Eternal {
 		vk::RenderPass m_RenderPass = nullptr;
 
 		std::vector<std::shared_ptr<VulkanBuffer>> m_UniformBuffers;
+
+		VulkanDescriptorPool* m_DescriptorPool = nullptr;
+
+		VulkanDescriptorSetLayout* m_DescriptorSetLayout = nullptr;
+
+		std::vector<vk::DescriptorSet> m_DescriptorSets;
 	};
 }

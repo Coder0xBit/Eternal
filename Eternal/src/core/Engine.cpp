@@ -14,6 +14,7 @@ namespace Eternal {
 		m_ApplicationName = builder->applicationName;
 
 		m_Backend = builder->backend;
+		ETERNAL_ASSERT(m_Backend == Backend::Vulkan, "Currently Only supported Backend is Vulkan");
 
 		m_GraphicsPlatform = Eternal::GraphicsPlatform::Builder()
 			.applicationName(m_ApplicationName)
@@ -28,6 +29,7 @@ namespace Eternal {
 
 	Renderer* Engine::createRenderer(Window* window, Scene* scene)
 	{
+
 		if (m_Backend == Backend::Vulkan)
 		{
 			auto vulkanPlatform = dynamic_cast<VulkanPlatform*>(m_GraphicsPlatform);

@@ -14,11 +14,12 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <utils/TinyObjLoader.h>
 
-
 namespace std {
 	template <>
-	struct hash<Eternal::Vertex> {
-		size_t operator()(Eternal::Vertex const& vertex) const {
+	struct hash<Eternal::Vertex>
+	{
+		size_t operator()(Eternal::Vertex const& vertex) const
+		{
 			size_t seed = 0;
 			Eternal::hashCombine(seed, vertex.position.x, vertex.position.y, vertex.position.z, vertex.color.x, vertex.color.y, vertex.color.z);
 			return seed;
@@ -55,14 +56,16 @@ namespace Eternal {
 
 		m_Scene = Memory::Allocate<Eternal::Scene>();
 
-		setupEntities();
+		setupEntities("watch_tower_1");
+
+		setupEntities("watch_tower_2");
 
 		m_Renderer = m_Engine->createRenderer(m_Window, m_Scene);
 
 		m_IsRunning = true;
 	}
 
-	void Editor::setupEntities()
+	void Editor::setupEntities(std::string name)
 	{
 		std::string filepath = "res/models/wooden_watch_tower.obj";
 
@@ -125,7 +128,7 @@ namespace Eternal {
 
 		Eternal::Entity model = m_Scene->createEntity();
 		model.addComponent<Eternal::IdComponent>();
-		model.addComponent<Eternal::NameComponent>("watch_tower");
+		model.addComponent<Eternal::NameComponent>(name);
 		model.addComponent<Eternal::RenderComponent>(vertices, indices);
 		model.addComponent<Eternal::TransformComponent>(glm::vec3(0.0f, 0.0f, -4.0f));
 	}
@@ -170,7 +173,7 @@ namespace Eternal {
 
 		Eternal::Entity cube = m_Scene->createEntity();
 		cube.addComponent<Eternal::RenderComponent>(cubeVertices, cubeIndices);
-		cube.addComponent<Eternal::TransformComponent>(glm::vec3(0.0f, 0.0f, -4.0f));
+		cube.addComponent<Eternal::TransformComponent>(glm::vec3(0.0f, 0.0f, -10.0f));
 	}
 
 	Editor::~Editor()
@@ -225,13 +228,15 @@ namespace Eternal {
 
 			auto& component = entity.getComponent<Eternal::TransformComponent>();
 			glm::vec3 translation = component.getTranslation();
-			if (ImGui::DragFloat3("Position", &translation.x, 0.01f))
+			std::string posLabel = "Position" + std::string(nameComponent.getName());
+			if (ImGui::DragFloat3(posLabel.c_str(), &translation.x, 0.01f))
 			{
 				component.setTranslation(translation);
 			}
 
 			glm::vec3 rotationDegrees = glm::degrees(component.getRotation());
-			if (ImGui::SliderFloat3("Rotation", &rotationDegrees.x, 0.0f, 180.0f, "%.1f"))
+			std::string rotationLabel = "Rotation" + std::string(nameComponent.getName());
+			if (ImGui::SliderFloat3(rotationLabel.c_str(), &rotationDegrees.x, 0.0f, 180.0f, "%.1f"))
 			{
 				rotationDegrees = glm::clamp(rotationDegrees, 0.0f, 180.0f);
 				component.setRotation(glm::radians(rotationDegrees));

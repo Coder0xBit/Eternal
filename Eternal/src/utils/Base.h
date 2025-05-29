@@ -24,11 +24,19 @@
         } \
     } while (0)
 
+#define ETERNAL_ASSERT_LOG(condition, message) \
+    do { \
+        if (!(condition)) { \
+            Eternal::Logger::Error("Assertion failed: {}. File: {}, Line: {}", message, __FILE__, __LINE__); \
+        } \
+    } while (0)
+
 namespace Eternal {
 	constexpr uint32_t const INVALID_VK_INDEX = 0xFFFFFFFF;
 
 	template <typename T, typename... Rest>
-	void hashCombine(std::size_t& seed, const T& v, const Rest&... rest) {
+	void hashCombine(std::size_t& seed, const T& v, const Rest&... rest) 
+	{
 		seed ^= std::hash<T>{}(v)+0x9e3779b9 + (seed << 6) + (seed >> 2);
 		(hashCombine(seed, rest), ...);
 	};
@@ -36,12 +44,14 @@ namespace Eternal {
 	namespace Memory {
 
 		template<typename T, typename... Args>
-		inline T* Allocate(Args&&... args) {
+		inline T* Allocate(Args&&... args) 
+		{
 			return new T(std::forward<Args>(args)...);
 		}
 
 		template<typename T>
-		inline void Deallocate(T* ptr) {
+		inline void Deallocate(T* ptr) 
+		{
 			if (ptr)
 			{
 				delete ptr;

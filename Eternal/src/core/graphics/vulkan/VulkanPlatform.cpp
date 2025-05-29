@@ -247,6 +247,15 @@ namespace Eternal {
 		return pipelineLayout;
 	}
 
+	vk::PipelineLayout VulkanPlatform::createPipelineLayout(VulkanDescriptorSetLayout& descriptorSetLayout)
+	{
+		vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo()
+			.setSetLayouts(descriptorSetLayout.getDescriptorSetLayout());
+
+		vk::PipelineLayout pipelineLayout = m_LogicalDevice.createPipelineLayout(pipelineLayoutCreateInfo);
+		return pipelineLayout;
+	}
+
 	vk::Pipeline VulkanPlatform::createPipeline(vk::PipelineLayout pipelineLayout, vk::RenderPass renderPass)
 	{
 		vk::ShaderModule vertexShaderModule = loadShader(m_LogicalDevice, m_VertexShaderPath);

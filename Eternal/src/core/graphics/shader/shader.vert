@@ -7,7 +7,7 @@ layout(location = 3) in vec2 uv;
 
 layout(location = 0) out vec3 fragColor;
 
-layout(push_constant) uniform Push {
+layout(binding = 0) uniform Push {
   mat4 transform; // projection * view * model
   mat4 normalMatrix;
 } push;

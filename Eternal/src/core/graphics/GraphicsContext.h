@@ -1,8 +1,7 @@
 #pragma once 
 
 namespace Eternal {
-	class GraphicsContext
-	{
+	class GraphicsContext {
 	public:
 		virtual ~GraphicsContext() = default;
 	};

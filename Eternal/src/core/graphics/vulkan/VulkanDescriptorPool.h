@@ -49,6 +49,8 @@ namespace Eternal {
 
 		VulkanDescriptorPool& operator=(const VulkanDescriptorPool&) = delete;
 
+		~VulkanDescriptorPool();
+
 		vk::DescriptorPool getDescriptorPool() const { return m_DescriptorPool; }
 
 		uint32_t getCurrentlyAllocatedSets() const { return m_CurrentlyAllocatedSets; }

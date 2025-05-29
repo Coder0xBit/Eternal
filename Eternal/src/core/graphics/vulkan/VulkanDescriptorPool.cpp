@@ -56,6 +56,17 @@ namespace Eternal {
 		m_DescriptorPool = m_LogicalDevice.createDescriptorPool(descriptorPoolCreateInfo);
 	}
 
+	VulkanDescriptorPool::~VulkanDescriptorPool()
+	{
+		if (m_DescriptorPool)
+		{
+			m_LogicalDevice.destroyDescriptorPool(m_DescriptorPool);
+			m_DescriptorPool = nullptr;
+		}
+		m_PoolSizes.clear();
+		m_CurrentlyAllocatedSets = 0;
+	}
+
 	void VulkanDescriptorPool::reset()
 	{
 		m_LogicalDevice.resetDescriptorPool(m_DescriptorPool, vk::DescriptorPoolResetFlags());
@@ -89,8 +100,7 @@ namespace Eternal {
 
 		auto descSets = m_LogicalDevice.allocateDescriptorSets(descriptorSetAllocateInfo);
 
-		if (descSets.size() != descriptorSetCount)
-			ETERNAL_ASSERT(false, "Failed to allocate descriptor sets");
+		ETERNAL_ASSERT(descSets.size() == descriptorSetCount, "Failed to allocate descriptor sets");
 
 		m_CurrentlyAllocatedSets += descriptorSetCount;
 
