@@ -29,14 +29,12 @@ namespace Eternal {
 		}
 
 		template<typename T>
-		T& getComponent()
-		{
+		T& getComponent() {
 			return m_Scene->m_Registry.get<T>(m_EntityHandle);
 		}
 
 		template<typename T>
-		void removeComponent()
-		{
+		void removeComponent() {
 			m_Scene->m_Registry.remove<T>(m_EntityHandle);
 		}
 

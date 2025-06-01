@@ -134,6 +134,7 @@
     <ClCompile Include="src\core\graphics\vulkan\VulkanDescsriptorSetLayout.cpp" />
     <ClCompile Include="src\core\graphics\vulkan\VulkanGraphicsContext.cpp" />
     <ClCompile Include="src\core\graphics\vulkan\VulkanImGuiLayer.cpp" />
+    <ClCompile Include="src\core\graphics\vulkan\VulkanPipeline.cpp" />
     <ClCompile Include="src\core\graphics\vulkan\VulkanPlatform.cpp" />
     <ClCompile Include="src\core\graphics\vulkan\VulkanRenderer.cpp" />
     <ClCompile Include="src\core\graphics\vulkan\VulkanSwapChain.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="src\core\graphics\vulkan\VulkanFrameInfo.h" />
     <ClInclude Include="src\core\graphics\vulkan\VulkanGraphicsContext.h" />
     <ClInclude Include="src\core\graphics\vulkan\VulkanImGuiLayer.h" />
+    <ClInclude Include="src\core\graphics\vulkan\VulkanPipeline.h" />
     <ClInclude Include="src\core\graphics\vulkan\VulkanPlatform.h" />
     <ClInclude Include="src\core\graphics\vulkan\VulkanRenderer.h" />
     <ClInclude Include="src\core\graphics\vulkan\VulkanSwapChain.h" />

@@ -65,21 +65,11 @@ namespace Eternal {
 
 		void logDeviceProps(const vk::PhysicalDevice& device);
 
-		vk::PipelineLayout createPipelineLayout(vk::PushConstantRange pushConstantRange);
-
-		vk::PipelineLayout createPipelineLayout(VulkanDescriptorSetLayout& descriptorSetLayout);
-
-		vk::Pipeline createPipeline(vk::PipelineLayout pipelineLayout, vk::RenderPass renderPass);
-
 		static uint32_t getMemoryType(vk::PhysicalDevice physicalDevice, vk::MemoryPropertyFlags properties, uint32_t typeBits);
 
 	private:
 
 		std::string m_ApplicationName;
-
-		std::string m_VertexShaderPath;
-
-		std::string m_FragmentShaderPath;
 
 		Timer timer;
 	};

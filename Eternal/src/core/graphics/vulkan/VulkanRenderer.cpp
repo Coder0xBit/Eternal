@@ -7,6 +7,7 @@
 #include <core/graphics/vulkan/VulkanDescriptorPool.h>
 #include <core/scene/Entity.h>
 #include <core/scene/TransformComponent.h>
+#include <core/scene/RenderComponent.h>
 
 namespace Eternal {
 
@@ -32,22 +33,11 @@ namespace Eternal {
 		m_RenderPass = m_VulkanSwapChain->getRenderPass();
 		ETERNAL_ASSERT(m_RenderPass, "Render pass is null");
 
-		vk::PushConstantRange pushConstantRange = vk::PushConstantRange()
-			.setOffset(0)
-			.setSize(sizeof(PushConstants))
-			.setStageFlags(vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
-
 		m_LogicalDevice = m_Platform->getLogicalDevice();
 
 		m_PhysicalDevice = m_Platform->getPhysicalDevice();
 
-		createUniformBuffers();
-
-		initializeDescriptors();
-
-		m_PipelineLayout = m_Platform->createPipelineLayout(*m_DescriptorSetLayout);
-
-		m_Pipeline = m_Platform->createPipeline(m_PipelineLayout, m_RenderPass);
+		createPipeline();
 
 		createCommandPool();
 
@@ -58,7 +48,6 @@ namespace Eternal {
 		createFences();
 
 		m_VulkanBufferManager = Memory::Allocate<VulkanBufferManager>(m_LogicalDevice, m_PhysicalDevice, m_Scene);
-
 	}
 
 	VulkanRenderer::~VulkanRenderer()
@@ -82,17 +71,17 @@ namespace Eternal {
 
 		m_LogicalDevice.destroyCommandPool(m_CommandPool);
 
-		m_LogicalDevice.destroyPipeline(m_Pipeline);
+		Memory::Deallocate(m_VulkanPipeline);
 
 		m_LogicalDevice.destroyPipelineLayout(m_PipelineLayout);
 
 		Memory::Deallocate(m_VulkanSwapChain);
 
-		m_UniformBuffers.clear();
+		//m_UniformBuffers.clear();
 
-		Memory::Deallocate(m_DescriptorSetLayout);
+		//Memory::Deallocate(m_DescriptorSetLayout);
 
-		Memory::Deallocate(m_DescriptorPool);
+		//Memory::Deallocate(m_DescriptorPool);
 
 		Memory::Deallocate(m_VulkanBufferManager);
 
@@ -101,6 +90,35 @@ namespace Eternal {
 		Memory::Deallocate(m_Platform);
 
 		Memory::Deallocate(m_Camera);
+	}
+
+	void VulkanRenderer::createPipeline() {
+		//createUniformBuffers();
+		//initializeDescriptors();
+
+		vk::PushConstantRange pushConstantRange = vk::PushConstantRange()
+			.setOffset(0)
+			.setSize(sizeof(PushConstants))
+			.setStageFlags(vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
+
+		vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo()
+			.setSetLayoutCount(0)
+			.setPushConstantRanges(pushConstantRange);
+
+		m_PipelineLayout = m_LogicalDevice.createPipelineLayout(pipelineLayoutCreateInfo);
+
+		vk::ShaderModule vertexShaderModule = m_Platform->loadShader(m_LogicalDevice, "src/core/graphics/shader/bin/vert.spv");
+		vk::ShaderModule fragmentShaderModule = m_Platform->loadShader(m_LogicalDevice, "src/core/graphics/shader/bin/frag.spv");
+
+		m_VulkanPipeline = Memory::Allocate<VulkanPipeline>(m_LogicalDevice);
+		m_VulkanPipeline->bindLayout(m_PipelineLayout);
+		m_VulkanPipeline->bindRenderPass(m_RenderPass);
+		m_VulkanPipeline->bindVertexShader(vertexShaderModule);
+		m_VulkanPipeline->bindFragmentShader(fragmentShaderModule);
+		m_VulkanPipeline->create();
+
+		m_LogicalDevice.destroyShaderModule(vertexShaderModule);
+		m_LogicalDevice.destroyShaderModule(fragmentShaderModule);
 	}
 
 	void VulkanRenderer::createUniformBuffers()
@@ -238,8 +256,6 @@ namespace Eternal {
 
 		m_VulkanSwapChain->acquire(m_ImageAvailableSemaphores[m_CurrentFrame], &m_CurrentImageIndex);
 
-		updateUniformBuffers();
-
 		if (m_VulkanSwapChain->shouldRecreate() || m_Window->isResized())
 		{
 			handleWindowResize();
@@ -261,41 +277,51 @@ namespace Eternal {
 	{
 		VulkanSwapChain::SwapChainDetails swapChainDetails = m_VulkanSwapChain->getSwapChainDetails();
 
-		//for (auto& e : m_Scene->getAllEntityWith<Eternal::TransformComponent>())
-		//{
-		//	Eternal::Entity entity = Eternal::Entity(e, m_Scene);
-		//	auto& component = entity.getComponent<Eternal::TransformComponent>();
+		for (auto& [e, transform] : m_Scene->getAllEntityWith<Eternal::TransformComponent>().each())
+		{
+			Eternal::Entity entity = Eternal::Entity(e, m_Scene);
 
-		//	glm::mat4 modelMatrix = m_Camera->getProjection() * component.mat4();
+			glm::mat4 projection = m_Camera->getProjection();
+			glm::mat4 model = transform.mat4();
+			glm::mat4 normal = glm::transpose(glm::inverse(transform.mat4()));
 
-		//	m_PushConstants.transform = modelMatrix;
+			m_PushConstants.transform = projection * model;
+			m_PushConstants.normalMatrix = normal;
+			m_PushConstants.modelMatrix = model;
 
-		//	m_PushConstants.normalMatrix = component.mat4();
+			m_CurrentCommandBuffer.pushConstants(m_PipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(PushConstants), &m_PushConstants);
 
-		//	m_CurrentCommandBuffer.pushConstants(m_PipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(PushConstants), &m_PushConstants);
-		//}
+			std::shared_ptr<VulkanBuffer> vertexBuffer = m_VulkanBufferManager->getVertexBuffer(entity.getUUID());
+			if (vertexBuffer) {
+				vk::DeviceSize offset = vk::DeviceSize(0);
+				m_CurrentCommandBuffer.bindVertexBuffers(0, 1, vertexBuffer->getBuffer(), &offset);
+			}
 
-		m_CurrentCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, 1, &m_DescriptorSets[m_CurrentFrame], 0, nullptr);
+			std::shared_ptr<VulkanBuffer> indexBuffer = m_VulkanBufferManager->getIndexBuffer(entity.getUUID());
+			if (indexBuffer) {
+				m_CurrentCommandBuffer.bindIndexBuffer(*(indexBuffer->getBuffer()), 0, vk::IndexType::eUint32);
+			}
 
-		m_VulkanBufferManager->bindBuffers(m_CurrentCommandBuffer);
+			vk::Viewport viewport = vk::Viewport()
+				.setX(0.0f)
+				.setY(0.0f)
+				.setWidth((float)swapChainDetails.extent.width)
+				.setHeight((float)swapChainDetails.extent.height)
+				.setMinDepth(0.0f)
+				.setMaxDepth(1.0f);
 
-		vk::Viewport viewport = vk::Viewport()
-			.setX(0.0f)
-			.setY(0.0f)
-			.setWidth((float)swapChainDetails.extent.width)
-			.setHeight((float)swapChainDetails.extent.height)
-			.setMinDepth(0.0f)
-			.setMaxDepth(1.0f);
+			m_CurrentCommandBuffer.setViewport(0, 1, &viewport);
 
-		m_CurrentCommandBuffer.setViewport(0, 1, &viewport);
+			vk::Rect2D scissor = vk::Rect2D()
+				.setOffset({ 0,0 })
+				.setExtent(swapChainDetails.extent);
 
-		vk::Rect2D scissor = vk::Rect2D()
-			.setOffset({ 0,0 })
-			.setExtent(swapChainDetails.extent);
+			m_CurrentCommandBuffer.setScissor(0, 1, &scissor);
 
-		m_CurrentCommandBuffer.setScissor(0, 1, &scissor);
-
-		m_VulkanBufferManager->draw(m_CurrentCommandBuffer);
+			if (indexBuffer) {
+				m_CurrentCommandBuffer.drawIndexed(indexBuffer->getElementCount(), 1, 0, 0, 0);
+			}
+		}
 	}
 
 	void VulkanRenderer::endFrame()
@@ -354,7 +380,7 @@ namespace Eternal {
 
 		commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
 
-		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
+		m_VulkanPipeline->bind(commandBuffer);
 	}
 
 	void VulkanRenderer::endRecoding(vk::CommandBuffer commandBuffer)

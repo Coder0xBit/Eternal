@@ -22,7 +22,9 @@ namespace Eternal {
 		void shutdown() override;
 
 	private:
-		void setupEntities(std::string name);
+		void addEntity(std::string name);
+
+		void addEntity(std::string name , std::string filePath , glm::vec3 initialPosition);
 
 		void addTriangle();
 
@@ -39,8 +41,6 @@ namespace Eternal {
 		SwapChain* m_SwapChain = nullptr;
 
 		ImGuiLayer* m_ImGuiLayer = nullptr;
-
-		vk::DescriptorPool m_ImGuiDescriptorPool = nullptr;
 
 	};
 }

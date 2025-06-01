@@ -14,27 +14,6 @@ namespace Eternal {
 		initializeBuffers();
 	}
 
-	void VulkanBufferManager::bindBuffers(vk::CommandBuffer commandBuffer)
-	{
-		for (auto& [entityId, buffer] : m_VertexBuffers)
-		{
-			vk::DeviceSize offset = vk::DeviceSize(0);
-			commandBuffer.bindVertexBuffers(0, 1, buffer->getBuffer(), &offset);
-		}
-		for (auto& [entityId, buffer] : m_IndexBuffers)
-		{
-			commandBuffer.bindIndexBuffer(*(buffer->getBuffer()), 0, vk::IndexType::eUint32);
-		}
-	}
-
-	void VulkanBufferManager::draw(vk::CommandBuffer commandBuffer)
-	{
-		for (auto& [entityId, buffer] : m_IndexBuffers)
-		{
-			commandBuffer.drawIndexed(buffer->getElementCount(), 1, 0, 0, 0);
-		}
-	}
-
 	VulkanBufferManager::~VulkanBufferManager()
 	{
 		m_VertexBuffers.clear();

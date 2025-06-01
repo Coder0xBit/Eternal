@@ -16,9 +16,21 @@ namespace Eternal {
 
 		VulkanBufferManager(vk::Device device, vk::PhysicalDevice physicalDevice, Scene* scene);
 
-		void bindBuffers(vk::CommandBuffer commandBuffer);
+		std::shared_ptr<VulkanBuffer> getVertexBuffer(EntityId entityId) {
+			auto it = m_VertexBuffers.find(entityId);
+			if (it != m_VertexBuffers.end()) {
+				return it->second;
+			}
+			return nullptr;
+		}
 
-		void draw(vk::CommandBuffer commandBuffer);
+		std::shared_ptr<VulkanBuffer> getIndexBuffer(EntityId entityId) {
+			auto it = m_IndexBuffers.find(entityId);
+			if (it != m_IndexBuffers.end()) {
+				return it->second;
+			}
+			return nullptr;
+		}
 
 		~VulkanBufferManager();
 
