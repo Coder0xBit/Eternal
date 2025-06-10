@@ -58,7 +58,7 @@ namespace Eternal {
 
 		addEntity("watch_tower_1", "res/models/wooden_watch_tower.obj", glm::vec3(0.0f, 0.0f, -4.0f));
 
-		addEntity("cube", "res/models/cube.obj", glm::vec3(0.0f, 0.0f, -10.0f));
+		//addEntity("cube", "res/models/cube.obj", glm::vec3(0.0f, 0.0f, -10.0f));
 
 		m_Renderer = m_Engine->createRenderer(m_Window, m_Scene);
 

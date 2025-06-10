@@ -24,7 +24,7 @@ void main() {
 
   float lightIntensity = AMBIENT + max(dot(normalWorldSpace, lightDirection), 0);
   float distance = length(LIGHT_POS - worldPosition.xyz);
-  lightIntensity /= (distance); 
+  lightIntensity /= (distance * distance); 
 
   fragColor = lightIntensity * color;
   gl_Position = push.transform * vec4(position, 1.0);
