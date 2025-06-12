@@ -1,8 +1,7 @@
-
-#define STB_IMAGE_IMPLEMENTATION
-#include <stb/stb_image.h>
-
 #include "WindowsWindow.h"
+
+#include "resource/ResourceManager.h"
+#include "resource/Image.h"
 
 namespace Eternal {
 
@@ -89,22 +88,9 @@ namespace Eternal {
 			return;
 		}
 
-		GLFWimage icon;
-		int width, height, channels;
-
-		icon.pixels = stbi_load(path.string().c_str(), &width, &height, &channels, 4);
-		if (!icon.pixels)
-		{
-			Eternal::Logger::Error("Failed to load icon, from this path {}", path.string());
-			return;
-		}
-
-		icon.width = width;
-		icon.height = height;
-
+		Image* image = ResourceManager::get().loadResource<Image>(path.string());
+		GLFWimage icon = image->getGLFWImage();
 		glfwSetWindowIcon(window, 1, &icon);
-
-		stbi_image_free(icon.pixels);
 	}
 
 	void WindowsWindow::onWindowResize(GLFWwindow* window, int width, int height)

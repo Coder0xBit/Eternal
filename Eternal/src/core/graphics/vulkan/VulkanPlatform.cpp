@@ -1,6 +1,8 @@
 #include "VulkanPlatform.h"
 #include "VulkanConstants.h"
 
+#include <core/resource/ResourceManager.h>
+#include <core/resource/ShaderProgram.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -184,23 +186,11 @@ namespace Eternal {
 
 	vk::ShaderModule VulkanPlatform::loadShader(const vk::Device& logicalDevice, const std::filesystem::path& path)
 	{
-		std::ifstream stream(path, std::ios::binary);
-		if (!stream) {
-			Eternal::Logger::Error("Failed load stream in loadShader(..)");
-			return nullptr;
-		}
-
-		stream.seekg(0, std::ios_base::end);
-		std::streampos size = stream.tellg();
-		stream.seekg(0, std::ios_base::beg);
-
-		std::vector<char> buffer(size);
-		stream.read(buffer.data(), size);
-		stream.close();
+		ShaderProgram* shader = ResourceManager::get().loadResource<ShaderProgram>(path.string());
 
 		vk::ShaderModuleCreateInfo shaderModuleCreateInfo = vk::ShaderModuleCreateInfo()
-			.setCodeSize(buffer.size())
-			.setPCode(reinterpret_cast<uint32_t*>(buffer.data()));
+			.setCodeSize(shader->getBlobSize())
+			.setPCode(shader->getBlob());
 
 		vk::ShaderModule shaderModule;
 		shaderModule = logicalDevice.createShaderModule(shaderModuleCreateInfo);

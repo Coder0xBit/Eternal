@@ -107,8 +107,8 @@ namespace Eternal {
 
 		m_PipelineLayout = m_LogicalDevice.createPipelineLayout(pipelineLayoutCreateInfo);
 
-		vk::ShaderModule vertexShaderModule = m_Platform->loadShader(m_LogicalDevice, "src/core/graphics/shader/bin/vert.spv");
-		vk::ShaderModule fragmentShaderModule = m_Platform->loadShader(m_LogicalDevice, "src/core/graphics/shader/bin/frag.spv");
+		vk::ShaderModule vertexShaderModule = m_Platform->loadShader(m_LogicalDevice, "res/shader/bin/vert.spv");
+		vk::ShaderModule fragmentShaderModule = m_Platform->loadShader(m_LogicalDevice, "res/shader/bin/frag.spv");
 
 		m_VulkanPipeline = Memory::Allocate<VulkanPipeline>(m_LogicalDevice);
 		m_VulkanPipeline->bindLayout(m_PipelineLayout);

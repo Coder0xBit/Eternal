@@ -10,22 +10,9 @@
 #include <core/scene/Entity.h>
 #include <core/scene/RenderComponent.h>
 #include <core/scene/TransformComponent.h>
+#include <core/resource/ResourceManager.h>
+#include <core/resource/Mesh.h>
 
-#define TINYOBJLOADER_IMPLEMENTATION
-#include <utils/TinyObjLoader.h>
-
-namespace std {
-	template <>
-	struct hash<Eternal::Vertex>
-	{
-		size_t operator()(Eternal::Vertex const& vertex) const
-		{
-			size_t seed = 0;
-			Eternal::hashCombine(seed, vertex.position.x, vertex.position.y, vertex.position.z, vertex.color.x, vertex.color.y, vertex.color.z);
-			return seed;
-		}
-	};
-}
 
 void SetEngineRootDirectory() {
 	std::filesystem::path path = std::filesystem::current_path() / "../Eternal";
@@ -37,12 +24,6 @@ namespace Eternal {
 	Editor::Editor()
 	{
 		Eternal::Logger::Init();
-
-		Eternal::Logger::Info("Current Working Path Before {}", std::filesystem::current_path().string());
-		// Workaround for setting the working directory to the engine root, Need to implement Asset Or Resource Manager
-		// This is necessary for loading resources correctly	
-		SetEngineRootDirectory();
-		Eternal::Logger::Info("Current Working Path After {}", std::filesystem::current_path().string());
 
 		m_Window = Eternal::Window::Builder()
 			.title(std::string("Eternal Application"))
@@ -67,67 +48,18 @@ namespace Eternal {
 
 	void Editor::addEntity(std::string name, std::string filePath, glm::vec3 initialPosition)
 	{
-		tinyobj::attrib_t attrib;
-		std::vector<tinyobj::shape_t> shapes;
-		std::vector<tinyobj::material_t> materials;
-		std::string warn, err;
-
-		std::vector<Eternal::Vertex> vertices;
-		std::vector<uint32_t> indices;
-
-
-		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, filePath.c_str())) {
-			ETERNAL_ASSERT(true, warn + err);
+		Mesh* mesh = ResourceManager::get().loadResource<Mesh>(filePath);
+		if (!mesh) {
+			Eternal::Logger::Error("Failed to load mesh from path: {}", filePath);
+			return;
 		}
 
-		std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-		for (const auto& shape : shapes) {
-			for (const auto& index : shape.mesh.indices) {
-				Vertex vertex{};
-
-				if (index.vertex_index >= 0) {
-					vertex.position = {
-						attrib.vertices[3 * index.vertex_index + 0],
-						attrib.vertices[3 * index.vertex_index + 1],
-						attrib.vertices[3 * index.vertex_index + 2],
-					};
-
-					vertex.color = {
-						attrib.colors[3 * index.vertex_index + 0],
-						attrib.colors[3 * index.vertex_index + 1],
-						attrib.colors[3 * index.vertex_index + 2],
-					};
-				}
-
-				if (index.normal_index >= 0) {
-					vertex.normal = {
-						attrib.normals[3 * index.normal_index + 0],
-						attrib.normals[3 * index.normal_index + 1],
-						attrib.normals[3 * index.normal_index + 2],
-					};
-				}
-
-				if (index.texcoord_index >= 0) {
-					vertex.uv = {
-						attrib.texcoords[2 * index.texcoord_index + 0],
-						attrib.texcoords[2 * index.texcoord_index + 1],
-					};
-				}
-
-				if (uniqueVertices.count(vertex) == 0) {
-					uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-					vertices.push_back(vertex);
-				}
-				indices.push_back(uniqueVertices[vertex]);
-			}
-		}
-
-		Eternal::Logger::Info("Obj Vertices: {}", vertices.size());
+		Eternal::Logger::Info("Obj Vertices: {}", mesh->getVertices().size());
 
 		Eternal::Entity model = m_Scene->createEntity();
 		model.addComponent<Eternal::IdComponent>();
 		model.addComponent<Eternal::NameComponent>(name);
-		model.addComponent<Eternal::RenderComponent>(vertices, indices);
+		model.addComponent<Eternal::RenderComponent>(mesh->getVertices(), mesh->getIndices());
 		model.addComponent<Eternal::TransformComponent>(initialPosition);
 	}
 
