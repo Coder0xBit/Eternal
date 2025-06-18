@@ -2,6 +2,7 @@
 
 #include <core/scene/Scene.h>
 #include <utils/Base.h>
+#include <core/scene/RenderComponent.h>
 
 #include "VulkanBuffer.h"
 
@@ -32,6 +33,8 @@ namespace Eternal {
 			return nullptr;
 		}
 
+		void addBuffer(EntityId entityId, const RenderComponent& renderComponent);
+
 		~VulkanBufferManager();
 
 	private:
@@ -43,9 +46,10 @@ namespace Eternal {
 		vk::Device m_Device;
 
 		vk::PhysicalDevice m_PhysicalDevice;
+		vk::MemoryPropertyFlags m_BufferProperties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+
 
 		std::unordered_map<EntityId, std::shared_ptr<VulkanBuffer>> m_VertexBuffers;
-
 		std::unordered_map<EntityId, std::shared_ptr<VulkanBuffer>> m_IndexBuffers;
 	};
 }

@@ -39,9 +39,9 @@ namespace Eternal {
 
 		addEntity("watch_tower_1", "res/models/wooden_watch_tower.obj", glm::vec3(0.0f, 0.0f, -4.0f));
 
-		//addEntity("cube", "res/models/cube.obj", glm::vec3(0.0f, 0.0f, -10.0f));
-
 		m_Renderer = m_Engine->createRenderer(m_Window, m_Scene);
+
+		addEntity("cube", "res/models/cube.obj", glm::vec3(0.0f, 0.0f, -10.0f));
 
 		m_IsRunning = true;
 	}
@@ -56,16 +56,14 @@ namespace Eternal {
 
 		Eternal::Logger::Info("Obj Vertices: {}", mesh->getVertices().size());
 
-		Eternal::Entity model = m_Scene->createEntity();
-		model.addComponent<Eternal::IdComponent>();
-		model.addComponent<Eternal::NameComponent>(name);
+		Eternal::Entity model = m_Scene->createEntity(name);
 		model.addComponent<Eternal::RenderComponent>(mesh->getVertices(), mesh->getIndices());
 		model.addComponent<Eternal::TransformComponent>(initialPosition);
 	}
 
 	void Editor::addTriangle()
 	{
-		Eternal::Entity entity = m_Scene->createEntity();
+		Eternal::Entity entity = m_Scene->createEntity("Triangle");
 
 		std::vector<Eternal::Vertex> vertices = {
 			{ 0.0f  , 0.5f  , 0.0f },
@@ -101,7 +99,7 @@ namespace Eternal {
 			7, 0, 3, 3, 4, 7, // Bottom
 		};
 
-		Eternal::Entity cube = m_Scene->createEntity();
+		Eternal::Entity cube = m_Scene->createEntity("Cube");
 		cube.addComponent<Eternal::RenderComponent>(cubeVertices, cubeIndices);
 		cube.addComponent<Eternal::TransformComponent>(glm::vec3(0.0f, 0.0f, -10.0f));
 	}

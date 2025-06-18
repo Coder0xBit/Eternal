@@ -1,12 +1,11 @@
 #pragma once
 #include <utils/Base.h>
 
-
-
 #include "Resource.h"
 
 namespace Eternal
 {
+
 	class ResourceManager {
 	public:
 		ResourceManager(const ResourceManager&) = delete;
@@ -48,20 +47,7 @@ namespace Eternal
 			return std::async(std::launch::async,
 				[this, path]() -> ResourceType* {
 					std::lock_guard<std::mutex> lock(m_Mutex);
-					auto it = m_Resources.find(path);
-					if (it != m_Resources.end()) {
-						return dynamic_cast<ResourceType*>(it->second);
-					}
-
-					ResourceType* resource = new ResourceType();
-					if (!resource->load(path)) {
-						delete resource;
-						return nullptr;
-					}
-
-					resource->setPath(path);
-					m_Resources[path] = resource;
-					return resource;
+					return this->loadResource<ResourceType>(path);
 				}
 			);
 		}

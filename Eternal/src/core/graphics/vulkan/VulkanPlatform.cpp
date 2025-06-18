@@ -67,7 +67,7 @@ namespace Eternal {
 			Eternal::Logger::Info("extension = {}", extensionName);
 
 		VkStringArray layers;
-#if ETERNAL_VULKAN_ENABLED(ETERNAL_VULKAN_DEBUG_VALIDATION)
+#if ETERNAL_FLAG_ENABLED(ETERNAL_VULKAN_DEBUG_VALIDATION)
 		layers.push_back("VK_LAYER_KHRONOS_validation");
 #endif 
 

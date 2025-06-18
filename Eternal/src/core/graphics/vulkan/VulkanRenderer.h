@@ -38,6 +38,7 @@ namespace Eternal {
 
 	private:
 
+		void bindScene();
 		void createPipeline();
 		void createUniformBuffers();
 		void initializeDescriptors();

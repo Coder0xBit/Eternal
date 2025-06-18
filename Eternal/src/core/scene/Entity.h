@@ -19,12 +19,14 @@ namespace Eternal {
 		template<typename T, typename... Args>
 		T& addComponent(Args&&... args) {
 			T& component = m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+			m_Scene->notifyObservers<T>(*this, component);
 			return component;
 		}
 
 		template<typename T, typename... Args>
 		T& addOrReplaceComponent(Args&&... args) {
 			T& component = m_Scene->m_Registry.emplace_or_replace<T>(m_EntityHandle, std::forward<Args>(args)...);
+			m_Scene->notifyObservers<T>(*this, component);
 			return component;
 		}
 

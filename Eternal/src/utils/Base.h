@@ -17,6 +17,8 @@
 #include <core/Logger.h>
 #include <utils/PrivateImplementationImpl.h>
 
+#define ENABLE_LOGS 1
+#define ETERNAL_FLAG_ENABLED(flags) ((flags & 1) == 1)
 
 #define ETERNAL_ASSERT(condition, message) \
     do { \

@@ -5,6 +5,7 @@
 #include <memory>
 
 namespace Eternal {
+
 	class Logger
 	{
 	public:

@@ -17,6 +17,8 @@ namespace Eternal {
 		ETERNAL_ASSERT(m_Platform != nullptr, "Platform is null");
 		ETERNAL_ASSERT(m_Window != nullptr, "Window is null");
 
+		bindScene();
+
 		m_Camera = Memory::Allocate<Camera>();
 		float aspectRatio = m_Window->getAspectRatio();
 		m_Camera->setPerspectiveProjection(glm::radians(50.f), aspectRatio, 0.1f, 1000.f);
@@ -90,6 +92,13 @@ namespace Eternal {
 		Memory::Deallocate(m_Platform);
 
 		Memory::Deallocate(m_Camera);
+	}
+
+	void VulkanRenderer::bindScene()
+	{
+		m_Scene->onComponentAdded<Eternal::RenderComponent>([this](Eternal::Entity entity, Eternal::RenderComponent& component) {
+			m_VulkanBufferManager->addBuffer(entity.getUUID(), component);
+			});
 	}
 
 	void VulkanRenderer::createPipeline() {

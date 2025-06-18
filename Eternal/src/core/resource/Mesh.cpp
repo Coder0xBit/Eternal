@@ -26,7 +26,6 @@ namespace Eternal {
 		std::vector<tinyobj::material_t> materials;
 		std::string warn, err;
 
-
 		if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str())) {
 			ETERNAL_ASSERT_LOG(true, warn + err);
 			return false;

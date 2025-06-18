@@ -27,24 +27,34 @@ namespace Eternal {
 		for (auto& e : m_Scene->getAllEntityWith<Eternal::RenderComponent>())
 		{
 			Eternal::Entity entity = Eternal::Entity(e, m_Scene);
+			EntityId entityUUID = entity.getUUID();
+
+			if (m_VertexBuffers.count(entityUUID) >= 1 || m_IndexBuffers.count(entityUUID) >= 1)
+				continue;
+
 			auto& component = entity.getComponent<Eternal::RenderComponent>();
 
-			auto vertexBuffer = std::make_shared<VulkanBuffer>(m_Device, m_PhysicalDevice);
-			vertexBuffer->create(component.getVertices().size(), sizeof(Eternal::Vertex), vk::BufferUsageFlagBits::eVertexBuffer);
-			vertexBuffer->allocate(bufferProperties);
-			vertexBuffer->map();
-			vertexBuffer->write((void*)(component.getVertices().data()));
-
-			m_VertexBuffers[entity.getUUID()] = vertexBuffer;
-
-			auto indexBuffer = std::make_shared<VulkanBuffer>(m_Device, m_PhysicalDevice);
-			indexBuffer->create(component.getIndices().size(), sizeof(uint32_t), vk::BufferUsageFlagBits::eIndexBuffer);
-			indexBuffer->allocate(bufferProperties);
-			indexBuffer->map();
-			indexBuffer->write((void*)(component.getIndices().data()));
-
-			m_IndexBuffers[entity.getUUID()] = indexBuffer;
+			addBuffer(entityUUID, component);
 		}
+	}
+
+	void VulkanBufferManager::addBuffer(EntityId entityId, const RenderComponent& renderComponent)
+	{
+		auto vertexBuffer = std::make_shared<VulkanBuffer>(m_Device, m_PhysicalDevice);
+		vertexBuffer->create(renderComponent.getVertices().size(), sizeof(Eternal::Vertex), vk::BufferUsageFlagBits::eVertexBuffer);
+		vertexBuffer->allocate(m_BufferProperties);
+		vertexBuffer->map();
+		vertexBuffer->write((void*)(renderComponent.getVertices().data()));
+
+		m_VertexBuffers[entityId] = vertexBuffer;
+
+		auto indexBuffer = std::make_shared<VulkanBuffer>(m_Device, m_PhysicalDevice);
+		indexBuffer->create(renderComponent.getIndices().size(), sizeof(uint32_t), vk::BufferUsageFlagBits::eIndexBuffer);
+		indexBuffer->allocate(m_BufferProperties);
+		indexBuffer->map();
+		indexBuffer->write((void*)(renderComponent.getIndices().data()));
+
+		m_IndexBuffers[entityId] = indexBuffer;
 	}
 }
 
