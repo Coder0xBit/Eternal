@@ -12,28 +12,23 @@
 
 namespace Eternal {
 
-	VulkanPlatform::VulkanPlatform(const Builder& builder)
-	{
+	VulkanPlatform::VulkanPlatform(const Builder& builder) {
 		m_ApplicationName = builder->applicationName;
 
 		initialize();
 	}
 
-	VulkanPlatform::~VulkanPlatform()
-	{
+	VulkanPlatform::~VulkanPlatform() {
 		shutDown();
 	}
 
-	void VulkanPlatform::initialize()
-	{
+	void VulkanPlatform::initialize() {
 
 		m_VkInstance = createInstance(m_ApplicationName);
-
 		m_PhysicalDevice = choosePhysicalDevice(m_VkInstance);
 	}
 
-	vk::Instance VulkanPlatform::createInstance(const std::string& applicationName)
-	{
+	vk::Instance VulkanPlatform::createInstance(const std::string& applicationName) {
 		uint32_t version = 0;
 		vkEnumerateInstanceVersion(&version);
 
@@ -55,8 +50,7 @@ namespace Eternal {
 		uint32_t extensionCount = 0;
 		VkStringArrayPtr glfwExtensions = glfwGetRequiredInstanceExtensions(&extensionCount);
 
-		if (glfwExtensions == nullptr)
-		{
+		if (glfwExtensions == nullptr) {
 			Eternal::Logger::Error("vulkan glfwExtensions are null , probably before call glfwInit() function before createInstance()");
 			return nullptr;
 		}
@@ -71,14 +65,12 @@ namespace Eternal {
 		layers.push_back("VK_LAYER_KHRONOS_validation");
 #endif 
 
-		if (!validateExtensions(extensions))
-		{
+		if (!validateExtensions(extensions)) {
 			Eternal::Logger::Error("validation failed for extensions");
 			return nullptr;
 		}
 
-		if (!validateLayers(layers))
-		{
+		if (!validateLayers(layers)) {
 			Eternal::Logger::Error("validation failed for layer");
 			return nullptr;
 		}
@@ -92,8 +84,7 @@ namespace Eternal {
 		return vk::createInstance(createInfo, nullptr);
 	}
 
-	vk::PhysicalDevice VulkanPlatform::choosePhysicalDevice(vk::Instance& instance)
-	{
+	vk::PhysicalDevice VulkanPlatform::choosePhysicalDevice(vk::Instance& instance) {
 		std::vector<vk::PhysicalDevice> availableDevices = instance.enumeratePhysicalDevices();
 
 		for (vk::PhysicalDevice& device : availableDevices) {
@@ -107,8 +98,7 @@ namespace Eternal {
 		return nullptr;
 	}
 
-	vk::Device VulkanPlatform::createLogicalDevice(vk::PhysicalDevice& device, uint32_t graphicsQueueFamilyIndex, uint32_t presentQueueFamilyIndex)
-	{
+	vk::Device VulkanPlatform::createLogicalDevice(vk::PhysicalDevice& device, uint32_t graphicsQueueFamilyIndex, uint32_t presentQueueFamilyIndex) {
 		vk::Device logicalDevice;
 		float queuePriority = 1.0f;
 
@@ -146,18 +136,15 @@ namespace Eternal {
 		return logicalDevice;
 	}
 
-	void VulkanPlatform::shutDown()
-	{
-		if (m_Surface)
-		{
+	void VulkanPlatform::shutDown() {
+		if (m_Surface) {
 			m_VkInstance.destroySurfaceKHR(m_Surface);
 		}
 
 		m_VkInstance.destroy();
 	}
 
-	SwapChain* VulkanPlatform::createSwapChain(Window* window)
-	{
+	SwapChain* VulkanPlatform::createSwapChain(Window* window) {
 		VulkanWindow* vkWindow = dynamic_cast<VulkanWindow*>(window);
 
 		if (!vkWindow) {
@@ -184,8 +171,7 @@ namespace Eternal {
 		return Memory::Allocate<VulkanSwapChain>(m_VkInstance, m_LogicalDevice, m_PhysicalDevice, m_PresentQueue, m_Surface, fallbackExtent, m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex);
 	}
 
-	vk::ShaderModule VulkanPlatform::loadShader(const vk::Device& logicalDevice, const std::filesystem::path& path)
-	{
+	vk::ShaderModule VulkanPlatform::loadShader(const vk::Device& logicalDevice, const std::filesystem::path& path) {
 		ShaderProgram* shader = ResourceManager::get().loadResource<ShaderProgram>(path.string());
 
 		vk::ShaderModuleCreateInfo shaderModuleCreateInfo = vk::ShaderModuleCreateInfo()
@@ -197,8 +183,7 @@ namespace Eternal {
 		return shaderModule;
 	}
 
-	uint32_t VulkanPlatform::identifyGraphicsQueueFamilyIndex(vk::PhysicalDevice& device, vk::QueueFlags flags)
-	{
+	uint32_t VulkanPlatform::identifyGraphicsQueueFamilyIndex(vk::PhysicalDevice& device, vk::QueueFlags flags) {
 		uint32_t graphicsQueueFamilyIndex = INVALID_VK_INDEX;
 		std::vector<vk::QueueFamilyProperties> queueFamiliesProperties = device.getQueueFamilyProperties();
 		for (uint32_t i = 0; i < queueFamiliesProperties.size(); i++) {
@@ -211,8 +196,7 @@ namespace Eternal {
 		return graphicsQueueFamilyIndex;
 	}
 
-	uint32_t VulkanPlatform::identifyPresentQueueFamilyIndex(vk::PhysicalDevice& device, vk::SurfaceKHR& surface)
-	{
+	uint32_t VulkanPlatform::identifyPresentQueueFamilyIndex(vk::PhysicalDevice& device, vk::SurfaceKHR& surface) {
 		uint32_t presentQueueFamilyIndex = INVALID_VK_INDEX;
 		std::vector<vk::QueueFamilyProperties> queueFamiliesProperties = device.getQueueFamilyProperties();
 		for (uint32_t i = 0; i < queueFamiliesProperties.size(); i++) {
@@ -224,8 +208,7 @@ namespace Eternal {
 		return presentQueueFamilyIndex;
 	}
 
-	uint32_t VulkanPlatform::getMemoryType(vk::PhysicalDevice physicalDevice, vk::MemoryPropertyFlags properties, uint32_t typeBits)
-	{
+	uint32_t VulkanPlatform::getMemoryType(vk::PhysicalDevice physicalDevice, vk::MemoryPropertyFlags properties, uint32_t typeBits) {
 		vk::PhysicalDeviceMemoryProperties prop = physicalDevice.getMemoryProperties();
 		for (uint32_t i = 0; i < prop.memoryTypeCount; i++)
 			if ((prop.memoryTypes[i].propertyFlags & properties) == properties && typeBits & (1 << i))
@@ -257,8 +240,7 @@ namespace Eternal {
 		return true;
 	}
 
-	bool VulkanPlatform::validateLayers(VkStringArray layers)
-	{
+	bool VulkanPlatform::validateLayers(VkStringArray layers) {
 		std::vector<vk::LayerProperties> supportedLayers = vk::enumerateInstanceLayerProperties();
 
 		for (VkString layer : layers) {
@@ -267,12 +249,10 @@ namespace Eternal {
 					return strcmp(layer, supportedLayer.layerName) == 0;
 				});
 
-			if (it != supportedLayers.end())
-			{
+			if (it != supportedLayers.end()) {
 				Eternal::Logger::Debug("{} Layer Supported", layer);
 			}
-			else
-			{
+			else {
 				Eternal::Logger::Error("{} Layer Not Supported", layer);
 				return false;
 			}
@@ -281,8 +261,7 @@ namespace Eternal {
 		return true;
 	}
 
-	bool VulkanPlatform::checkDeviceExtensionSupport(const vk::PhysicalDevice& device, const VkStringArray requestedExtensions)
-	{
+	bool VulkanPlatform::checkDeviceExtensionSupport(const vk::PhysicalDevice& device, const VkStringArray requestedExtensions) {
 		std::set<std::string> requiredExtesnions(requestedExtensions.begin(), requestedExtensions.end());
 
 		for (vk::ExtensionProperties& extensionProperty : device.enumerateDeviceExtensionProperties()) {
@@ -292,8 +271,7 @@ namespace Eternal {
 		return requiredExtesnions.empty();
 	}
 
-	bool VulkanPlatform::checkDeviceIsSuitable(const vk::PhysicalDevice& device)
-	{
+	bool VulkanPlatform::checkDeviceIsSuitable(const vk::PhysicalDevice& device) {
 		VkStringArray requestedExtensions = {
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME
 		};
@@ -302,8 +280,7 @@ namespace Eternal {
 		return isExtensionsSupported;
 	}
 
-	void VulkanPlatform::logDeviceProps(const vk::PhysicalDevice& device)
-	{
+	void VulkanPlatform::logDeviceProps(const vk::PhysicalDevice& device) {
 		vk::PhysicalDeviceProperties properties = device.getProperties();
 
 		Eternal::Logger::Debug("Device Name : {}", properties.deviceName.data());

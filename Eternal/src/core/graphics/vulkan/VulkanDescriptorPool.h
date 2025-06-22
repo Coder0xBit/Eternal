@@ -25,55 +25,37 @@ namespace Eternal {
 			friend class VulkanDescriptorPool;
 		public:
 			Builder(vk::Device logicalDevice) noexcept;
-
 			Builder(Builder const& rhs) noexcept;
-
 			Builder(Builder&& rhs) noexcept;
-
 			~Builder() noexcept;
-
 			Builder& operator=(Builder const& rhs) noexcept;
-
 			Builder& operator=(Builder&& rhs) noexcept;
-
 			Builder& addPoolSize(PoolSize poolSize);
-
 			Builder& setMaxSets(uint32_t maxSets) noexcept;
-
 			VulkanDescriptorPool* build() noexcept;
 		};
 
 		VulkanDescriptorPool(const Builder& builder);
-
 		VulkanDescriptorPool(const VulkanDescriptorPool&) = delete;
-
 		VulkanDescriptorPool& operator=(const VulkanDescriptorPool&) = delete;
-
 		~VulkanDescriptorPool();
 
 		vk::DescriptorPool getDescriptorPool() const { return m_DescriptorPool; }
-
 		uint32_t getCurrentlyAllocatedSets() const { return m_CurrentlyAllocatedSets; }
-
 		void reset();
-
 		vk::DescriptorSet allocate(const VulkanDescriptorSetLayout& descriptorSetLayout);
-
 		std::vector<vk::DescriptorSet> allocate(uint32_t descriptorSetCount, const VulkanDescriptorSetLayout& descriptorSetLayout);
 
 		void free(vk::DescriptorSet* descriptorSet);
-
 		void free(const std::vector<vk::DescriptorSet>& descriptorSets);
 
 	private:
 		vk::Device m_LogicalDevice;
-
 		vk::DescriptorPool m_DescriptorPool;
 
 		std::vector<vk::DescriptorPoolSize> m_PoolSizes;
 
 		uint32_t m_CurrentlyAllocatedSets = 0;
-
 		uint32_t m_MaxSets;
 	};
 }

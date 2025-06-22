@@ -13,8 +13,7 @@ namespace utils {
 	PrivateImplementation<T>::PrivateImplementation(Args&& ...args) noexcept : mImpl(new T(std::forward<Args>(args)...)) {}
 
 	template<typename T>
-	PrivateImplementation<T>::~PrivateImplementation() noexcept
-	{
+	PrivateImplementation<T>::~PrivateImplementation() noexcept {
 		delete mImpl;
 	}
 
@@ -22,12 +21,10 @@ namespace utils {
 	PrivateImplementation<T>::PrivateImplementation(const PrivateImplementation& rhs) noexcept : mImpl(new T(*rhs.mImpl)) {}
 
 	template<typename T>
-	PrivateImplementation<T>& PrivateImplementation<T>::operator=(const PrivateImplementation<T>& rhs) noexcept
-	{
+	PrivateImplementation<T>& PrivateImplementation<T>::operator=(const PrivateImplementation<T>& rhs) noexcept {
 		if (this != &rhs) {
 			*mImpl = *rhs.mImpl;
 		}
 		return *this;
 	}
-
 }

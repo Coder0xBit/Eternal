@@ -53,7 +53,6 @@ namespace Eternal {
 	private:
 
 		entt::entity m_EntityHandle;
-
 		Eternal::Scene* m_Scene = nullptr;
 	};
 }

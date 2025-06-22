@@ -5,12 +5,10 @@
 
 namespace Eternal {
 
-	Window* Window::create(const Builder& builder)
-	{
+	Window* Window::create(const Builder& builder) {
 		System system = Eternal::detectSystem();
 
-		switch (system)
-		{
+		switch (system) {
 		case System::WINDOWS:
 			return Memory::Allocate<WindowsWindow>(builder);
 			break;
@@ -21,15 +19,10 @@ namespace Eternal {
 	}
 
 	Window::Builder::Builder() noexcept = default;
-
 	Window::Builder::Builder(Builder const& rhs) noexcept = default;
-
 	Window::Builder::Builder(Builder&& rhs) noexcept = default;
-
 	Window::Builder::~Builder() noexcept = default;
-
 	Window::Builder& Window::Builder::operator=(Builder const& rhs) noexcept = default;
-
 	Window::Builder& Window::Builder::operator=(Builder&& rhs) noexcept = default;
 
 	Window::Builder& Window::Builder::title(const std::string& title) noexcept {

@@ -5,8 +5,7 @@
 
 namespace Eternal {
 
-	VulkanBufferManager::VulkanBufferManager(vk::Device device, vk::PhysicalDevice physicalDevice, Scene* scene)
-	{
+	VulkanBufferManager::VulkanBufferManager(vk::Device device, vk::PhysicalDevice physicalDevice, Scene* scene) {
 		m_Device = device;
 		m_Scene = scene;
 		m_PhysicalDevice = physicalDevice;
@@ -14,18 +13,15 @@ namespace Eternal {
 		initializeBuffers();
 	}
 
-	VulkanBufferManager::~VulkanBufferManager()
-	{
+	VulkanBufferManager::~VulkanBufferManager() {
 		m_VertexBuffers.clear();
 		m_IndexBuffers.clear();
 	}
 
-	void VulkanBufferManager::initializeBuffers()
-	{
+	void VulkanBufferManager::initializeBuffers() {
 		vk::MemoryPropertyFlags bufferProperties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
 
-		for (auto& e : m_Scene->getAllEntityWith<Eternal::RenderComponent>())
-		{
+		for (auto& e : m_Scene->getAllEntityWith<Eternal::RenderComponent>()) {
 			Eternal::Entity entity = Eternal::Entity(e, m_Scene);
 			EntityId entityUUID = entity.getUUID();
 
@@ -38,8 +34,7 @@ namespace Eternal {
 		}
 	}
 
-	void VulkanBufferManager::addBuffer(EntityId entityId, const RenderComponent& renderComponent)
-	{
+	void VulkanBufferManager::addBuffer(EntityId entityId, const RenderComponent& renderComponent) {
 		auto vertexBuffer = std::make_shared<VulkanBuffer>(m_Device, m_PhysicalDevice);
 		vertexBuffer->create(renderComponent.getVertices().size(), sizeof(Eternal::Vertex), vk::BufferUsageFlagBits::eVertexBuffer);
 		vertexBuffer->allocate(m_BufferProperties);

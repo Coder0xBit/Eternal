@@ -11,8 +11,7 @@
 
 namespace Eternal {
 
-	VulkanRenderer::VulkanRenderer(VulkanPlatform* platform, Window* window, Scene* scene) : m_Scene(scene), m_Platform(platform), m_Window(window)
-	{
+	VulkanRenderer::VulkanRenderer(VulkanPlatform* platform, Window* window, Scene* scene) : m_Scene(scene), m_Platform(platform), m_Window(window) {
 		ETERNAL_ASSERT(m_Scene != nullptr, "Scene is null");
 		ETERNAL_ASSERT(m_Platform != nullptr, "Platform is null");
 		ETERNAL_ASSERT(m_Window != nullptr, "Window is null");
@@ -26,8 +25,7 @@ namespace Eternal {
 		auto swapchain = m_Platform->createSwapChain(window);
 		m_VulkanSwapChain = dynamic_cast<VulkanSwapChain*>(swapchain);
 
-		if (!m_VulkanSwapChain)
-		{
+		if (!m_VulkanSwapChain) {
 			Eternal::Logger::Error("Failed to create Vulkan SwapChain");
 			return;
 		}
@@ -52,22 +50,18 @@ namespace Eternal {
 		m_VulkanBufferManager = Memory::Allocate<VulkanBufferManager>(m_LogicalDevice, m_PhysicalDevice, m_Scene);
 	}
 
-	VulkanRenderer::~VulkanRenderer()
-	{
+	VulkanRenderer::~VulkanRenderer() {
 		m_LogicalDevice.waitIdle();
 
-		for (auto semaphore : m_ImageAvailableSemaphores)
-		{
+		for (auto semaphore : m_ImageAvailableSemaphores) {
 			m_LogicalDevice.destroySemaphore(semaphore);
 		}
 
-		for (auto semaphore : m_RenderFinishedSemaphores)
-		{
+		for (auto semaphore : m_RenderFinishedSemaphores) {
 			m_LogicalDevice.destroySemaphore(semaphore);
 		}
 
-		for (auto fence : m_InFlightFences)
-		{
+		for (auto fence : m_InFlightFences) {
 			m_LogicalDevice.destroyFence(fence);
 		}
 
@@ -94,8 +88,7 @@ namespace Eternal {
 		Memory::Deallocate(m_Camera);
 	}
 
-	void VulkanRenderer::bindScene()
-	{
+	void VulkanRenderer::bindScene() {
 		m_Scene->onComponentAdded<Eternal::RenderComponent>([this](Eternal::Entity entity, Eternal::RenderComponent& component) {
 			m_VulkanBufferManager->addBuffer(entity.getUUID(), component);
 			});
@@ -130,8 +123,7 @@ namespace Eternal {
 		m_LogicalDevice.destroyShaderModule(fragmentShaderModule);
 	}
 
-	void VulkanRenderer::createUniformBuffers()
-	{
+	void VulkanRenderer::createUniformBuffers() {
 		vk::MemoryPropertyFlags bufferProperties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
 
 		m_UniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
@@ -146,10 +138,8 @@ namespace Eternal {
 		}
 	}
 
-	void VulkanRenderer::updateUniformBuffers()
-	{
-		for (auto& e : m_Scene->getAllEntityWith<Eternal::TransformComponent>())
-		{
+	void VulkanRenderer::updateUniformBuffers() {
+		for (auto& e : m_Scene->getAllEntityWith<Eternal::TransformComponent>()) {
 			Eternal::Entity entity = Eternal::Entity(e, m_Scene);
 			auto& component = entity.getComponent<Eternal::TransformComponent>();
 
@@ -161,8 +151,7 @@ namespace Eternal {
 		}
 	}
 
-	void VulkanRenderer::initializeDescriptors()
-	{
+	void VulkanRenderer::initializeDescriptors() {
 		m_DescriptorSetLayout = VulkanDescriptorSetLayout::Builder(m_LogicalDevice)
 			.addBinding({ 0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex })
 			.build();
@@ -174,8 +163,7 @@ namespace Eternal {
 
 		m_DescriptorSets = m_DescriptorPool->allocate(MAX_FRAMES_IN_FLIGHT, *m_DescriptorSetLayout);
 
-		for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-		{
+		for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vk::DescriptorBufferInfo bufferInfo = vk::DescriptorBufferInfo()
 				.setBuffer(*(m_UniformBuffers[i]->getBuffer()))
 				.setOffset(0)
@@ -193,8 +181,7 @@ namespace Eternal {
 		}
 	}
 
-	void VulkanRenderer::createCommandPool()
-	{
+	void VulkanRenderer::createCommandPool() {
 		auto graphicsQueueIndex = m_Platform->getGraphicsQueueIndex();
 
 		vk::CommandPoolCreateInfo commandPoolCreateInfo = vk::CommandPoolCreateInfo()
@@ -204,8 +191,7 @@ namespace Eternal {
 		m_CommandPool = m_LogicalDevice.createCommandPool(commandPoolCreateInfo);
 	}
 
-	void VulkanRenderer::createCommandBuffers()
-	{
+	void VulkanRenderer::createCommandBuffers() {
 		vk::CommandBufferAllocateInfo commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
 			.setCommandPool(m_CommandPool)
 			.setLevel(vk::CommandBufferLevel::ePrimary)
@@ -214,13 +200,11 @@ namespace Eternal {
 		m_CommandBuffers = m_LogicalDevice.allocateCommandBuffers(commandBufferAllocateInfo);
 	}
 
-	void VulkanRenderer::createSemaphores()
-	{
+	void VulkanRenderer::createSemaphores() {
 		m_ImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 		m_RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 
-		for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-		{
+		for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vk::SemaphoreCreateInfo semaphoreCreateInfo = vk::SemaphoreCreateInfo();
 
 			m_ImageAvailableSemaphores[i] = m_LogicalDevice.createSemaphore(semaphoreCreateInfo);
@@ -228,8 +212,7 @@ namespace Eternal {
 		}
 	}
 
-	void VulkanRenderer::createFences()
-	{
+	void VulkanRenderer::createFences() {
 		m_InFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
 
 		for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
@@ -240,8 +223,7 @@ namespace Eternal {
 		}
 	}
 
-	void VulkanRenderer::handleWindowResize()
-	{
+	void VulkanRenderer::handleWindowResize() {
 		if (m_Window->isMinimized())
 			return;
 
@@ -258,8 +240,7 @@ namespace Eternal {
 		m_Camera->setPerspectiveProjection(glm::radians(50.f), aspectRatio, 0.1f, 1000.f);
 	}
 
-	FrameInfo* VulkanRenderer::beginFrame()
-	{
+	FrameInfo* VulkanRenderer::beginFrame() {
 		if (m_Window->isMinimized())
 			return nullptr;
 
@@ -282,12 +263,10 @@ namespace Eternal {
 		return Memory::Allocate<VulkanFrameInfo>(m_CurrentCommandBuffer, m_CurrentImageIndex);
 	}
 
-	void VulkanRenderer::render()
-	{
+	void VulkanRenderer::render() {
 		VulkanSwapChain::SwapChainDetails swapChainDetails = m_VulkanSwapChain->getSwapChainDetails();
 
-		for (auto& [e, transform] : m_Scene->getAllEntityWith<Eternal::TransformComponent>().each())
-		{
+		for (auto& [e, transform] : m_Scene->getAllEntityWith<Eternal::TransformComponent>().each()) {
 			Eternal::Entity entity = Eternal::Entity(e, m_Scene);
 
 			glm::mat4 projection = m_Camera->getProjection();
@@ -333,8 +312,7 @@ namespace Eternal {
 		}
 	}
 
-	void VulkanRenderer::endFrame()
-	{
+	void VulkanRenderer::endFrame() {
 		endRecoding(m_CurrentCommandBuffer);
 
 		vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
@@ -363,8 +341,7 @@ namespace Eternal {
 		m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 	}
 
-	void VulkanRenderer::beginRecording(vk::CommandBuffer commandBuffer)
-	{
+	void VulkanRenderer::beginRecording(vk::CommandBuffer commandBuffer) {
 		VulkanSwapChain::SwapChainDetails swapChainDetails = m_VulkanSwapChain->getSwapChainDetails();
 
 		vk::CommandBufferBeginInfo commandBufferBeginInfo = vk::CommandBufferBeginInfo();
@@ -392,10 +369,8 @@ namespace Eternal {
 		m_VulkanPipeline->bind(commandBuffer);
 	}
 
-	void VulkanRenderer::endRecoding(vk::CommandBuffer commandBuffer)
-	{
+	void VulkanRenderer::endRecoding(vk::CommandBuffer commandBuffer) {
 		commandBuffer.endRenderPass();
-
 		commandBuffer.end();
 	}
 }

@@ -15,10 +15,8 @@
 
 namespace Eternal {
 
-	class Engine
-	{
+	class Engine{
 	public:
-
 		struct BuilderDetails {
 			std::string applicationName;
 			Backend backend = Backend::Vulkan;
@@ -29,42 +27,27 @@ namespace Eternal {
 
 		public:
 			Builder() noexcept;
-
 			Builder(Builder const& rhs) noexcept;
-
 			Builder(Builder&& rhs) noexcept;
-
 			~Builder() noexcept;
-
 			Builder& operator=(Builder const& rhs) noexcept;
-
 			Builder& operator=(Builder&& rhs) noexcept;
-
 			Builder& applicationName(const std::string& applicationName) noexcept;
-
 			Builder& backend(Backend backend) noexcept;
-
 			Engine* build();
 		};
 
 		Engine(const Builder& builder);
-
 		~Engine();
-
 		Renderer* createRenderer(Window* window, Scene* scene);
-
 		Renderer* getRenderer() { return m_Renderer; }
-
 		Eternal::GraphicsPlatform* getPlatform() { return m_GraphicsPlatform; }
 
 	private:
-
 		Renderer* m_Renderer;
-
 		std::string m_ApplicationName;
-
 		Backend m_Backend = Backend::Vulkan;
-
 		GraphicsPlatform* m_GraphicsPlatform = nullptr;
+
 	};
 }

@@ -138,6 +138,8 @@
     <ClCompile Include="src\core\graphics\vulkan\VulkanPlatform.cpp" />
     <ClCompile Include="src\core\graphics\vulkan\VulkanRenderer.cpp" />
     <ClCompile Include="src\core\graphics\vulkan\VulkanSwapChain.cpp" />
+    <ClCompile Include="src\core\graphics\vulkan\VulkanTexture.cpp" />
+    <ClCompile Include="src\core\graphics\vulkan\VulkanTextureManager.cpp" />
     <ClCompile Include="src\core\Logger.cpp" />
     <ClCompile Include="src\core\resource\Image.cpp" />
     <ClCompile Include="src\core\resource\Mesh.cpp" />
@@ -177,6 +179,8 @@
     <ClInclude Include="src\core\graphics\vulkan\VulkanPlatform.h" />
     <ClInclude Include="src\core\graphics\vulkan\VulkanRenderer.h" />
     <ClInclude Include="src\core\graphics\vulkan\VulkanSwapChain.h" />
+    <ClInclude Include="src\core\graphics\vulkan\VulkanTexture.h" />
+    <ClInclude Include="src\core\graphics\vulkan\VulkanTextureManager.h" />
     <ClInclude Include="src\core\graphics\vulkan\VulkanUtils.h" />
     <ClInclude Include="src\core\graphics\vulkan\VulkanWindow.h" />
     <ClInclude Include="src\core\ImGuiLayer.h" />
@@ -187,6 +191,7 @@
     <ClInclude Include="src\core\resource\ResourceManager.h" />
     <ClInclude Include="src\core\scene\Entity.h" />
     <ClInclude Include="src\core\scene\IdComponent.h" />
+    <ClInclude Include="src\core\scene\MaterialComponent.h" />
     <ClInclude Include="src\core\scene\NameComponent.h" />
     <ClInclude Include="src\core\scene\RenderComponent.h" />
     <ClInclude Include="src\core\scene\Scene.h" />

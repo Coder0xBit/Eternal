@@ -7,8 +7,7 @@
 #include <core/Window.h>
 
 namespace Eternal {
-	class VulkanImGuiLayer : public ImGuiLayer
-	{
+	class VulkanImGuiLayer : public ImGuiLayer {
 	public:
 		VulkanImGuiLayer(VulkanPlatform* vulkanPlatform, VulkanSwapChain* swapChain, Window* window);
 

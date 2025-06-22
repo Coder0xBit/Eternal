@@ -3,9 +3,7 @@
 
 #include "Resource.h"
 
-namespace Eternal
-{
-
+namespace Eternal{
 	class ResourceManager {
 	public:
 		ResourceManager(const ResourceManager&) = delete;

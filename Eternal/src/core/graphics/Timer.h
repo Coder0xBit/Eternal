@@ -3,16 +3,13 @@
 #include <chrono>
 
 namespace Eternal {
-
 	class Timer {
 	public:
-		Timer()
-		{
+		Timer() {
 			lastFrameTime = std::chrono::high_resolution_clock::now();
 		}
 
-		float getDeltaTime()
-		{
+		float getDeltaTime() {
 			auto deltaTime = getDeltaDuration();
 			return deltaTime.count();
 		}

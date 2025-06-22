@@ -6,21 +6,18 @@ namespace Eternal {
 
 	VulkanImGuiLayer::VulkanImGuiLayer(VulkanPlatform* vulkanPlatform, VulkanSwapChain* swapChain, Window* window)
 		: m_VulkanPlatform(vulkanPlatform),
-		m_SwapChain(swapChain), m_Window(window)
-	{
+		m_SwapChain(swapChain), m_Window(window) {
 		init();
 	}
 
-	VulkanImGuiLayer::VulkanImGuiLayer(VulkanRenderer* vulkanRenderer, Window* window)
-	{
+	VulkanImGuiLayer::VulkanImGuiLayer(VulkanRenderer* vulkanRenderer, Window* window) {
 		m_VulkanPlatform = vulkanRenderer->getPlatform();
 		m_SwapChain = vulkanRenderer->getSwapChain();
 		m_Window = window;
 		init();
 	}
 
-	void VulkanImGuiLayer::init()
-	{
+	void VulkanImGuiLayer::init() {
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGui::StyleColorsDark();
@@ -43,8 +40,7 @@ namespace Eternal {
 		ImGui_ImplVulkan_CreateFontsTexture();
 	}
 
-	VulkanImGuiLayer::~VulkanImGuiLayer()
-	{
+	VulkanImGuiLayer::~VulkanImGuiLayer() {
 		vk::Device device = m_VulkanPlatform->getLogicalDevice();
 		device.waitIdle();
 		ImGui_ImplVulkan_Shutdown();
@@ -52,15 +48,13 @@ namespace Eternal {
 		ImGui::DestroyContext();
 	}
 
-	void VulkanImGuiLayer::beginFrame()
-	{
+	void VulkanImGuiLayer::beginFrame() {
 		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 	}
 
-	void VulkanImGuiLayer::render(FrameInfo* frameInfo)
-	{
+	void VulkanImGuiLayer::render(FrameInfo* frameInfo) {
 		ImGui::Render();
 		auto commandBuffer = static_cast<VulkanFrameInfo*>(frameInfo)->commandBuffer;
 		ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);

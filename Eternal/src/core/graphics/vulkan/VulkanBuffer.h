@@ -11,29 +11,18 @@ namespace Eternal {
 		VulkanBuffer(vk::Device logicalDevice, vk::PhysicalDevice physicalDevice) :
 			m_LogicalDevice(logicalDevice), m_PhysicalDevice(physicalDevice) {
 		}
-
 		VulkanBuffer(const VulkanBuffer&) = delete;
-
 		VulkanBuffer& operator=(const VulkanBuffer&) = delete;
-
-		void create(uint32_t elementCount, uint32_t elementSize, vk::BufferUsageFlagBits usage);
-
-		void allocate(vk::MemoryPropertyFlags properties);
-
-		void map();
-
-		void unMap();
-
-		void write(void* data);
-
 		~VulkanBuffer();
 
+		void create(uint32_t elementCount, uint32_t elementSize, vk::BufferUsageFlagBits usage);
+		void allocate(vk::MemoryPropertyFlags properties);
+		void map();
+		void unMap();
+		void write(void* data);
 		bool isCurrentlyMapped() const { return m_MappedMemory != nullptr; }
-
 		void* mappedMemory() const { return m_MappedMemory; }
-
 		const uint32_t& getElementCount() const { return m_ElementCount; }
-
 		uint32_t getBufferSize() const { return m_BufferSize; }
 
 		vk::Buffer* getBuffer() {

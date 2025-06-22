@@ -25,8 +25,7 @@ namespace Eternal {
 	using VkString = const char*;
 	using VkStringArrayPtr = const char**;
 
-	class VulkanPlatform : public GraphicsPlatform, public VulkanGraphicsContext
-	{
+	class VulkanPlatform : public GraphicsPlatform, public VulkanGraphicsContext{
 	public:
 
 		struct PushConstants {
@@ -34,43 +33,26 @@ namespace Eternal {
 		};
 
 		VulkanPlatform(const Builder& builder);
-
 		~VulkanPlatform();
-
 		void initialize() override;
-
 		void shutDown() override;
-
 		SwapChain* createSwapChain(Window* window) override;
-
 		vk::Instance createInstance(const std::string& applicationName);
-
 		vk::PhysicalDevice choosePhysicalDevice(vk::Instance& instance);
-
 		uint32_t identifyGraphicsQueueFamilyIndex(vk::PhysicalDevice& device, vk::QueueFlags flags);
-
 		uint32_t identifyPresentQueueFamilyIndex(vk::PhysicalDevice& device, vk::SurfaceKHR& surface);
-
 		vk::Device createLogicalDevice(vk::PhysicalDevice& device, uint32_t graphicsQueueFamilyIndex, uint32_t presentQueueFamilyIndex);
-
 		vk::ShaderModule loadShader(const vk::Device& logicalDevice, const std::filesystem::path& path);
-
 		bool validateExtensions(VkStringArray extensions);
-
 		bool validateLayers(VkStringArray layers);
-
 		bool checkDeviceExtensionSupport(const vk::PhysicalDevice& device, const VkStringArray requestedExtensions);
-
 		bool checkDeviceIsSuitable(const vk::PhysicalDevice& device);
-
 		void logDeviceProps(const vk::PhysicalDevice& device);
 
 		static uint32_t getMemoryType(vk::PhysicalDevice physicalDevice, vk::MemoryPropertyFlags properties, uint32_t typeBits);
 
 	private:
-
 		std::string m_ApplicationName;
-
 		Timer timer;
 	};
 }

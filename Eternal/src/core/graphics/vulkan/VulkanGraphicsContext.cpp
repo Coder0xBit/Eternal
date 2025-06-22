@@ -3,13 +3,11 @@
 
 namespace Eternal {
 
-	VulkanGraphicsContext::VulkanGraphicsContext()
-	{
+	VulkanGraphicsContext::VulkanGraphicsContext() {
 
 	}
 
-	VulkanGraphicsContext::~VulkanGraphicsContext()
-	{
+	VulkanGraphicsContext::~VulkanGraphicsContext() {
 
 	}
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include <utils/Base.h>
+#include <utils/UUID.h>
 
 namespace Eternal {
 	class Resource {

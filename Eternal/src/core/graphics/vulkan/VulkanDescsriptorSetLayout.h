@@ -25,39 +25,26 @@ namespace Eternal {
 			friend class VulkanDescriptorSetLayout;
 		public:
 			Builder(vk::Device logicalDevice) noexcept;
-
 			Builder(Builder const& rhs) noexcept;
-
 			Builder(Builder&& rhs) noexcept;
-
 			~Builder() noexcept;
-
 			Builder& operator=(Builder const& rhs) noexcept;
-
 			Builder& operator=(Builder&& rhs) noexcept;
-
 			Builder& addBinding(LayoutInfo layoutInfo);
-
 			VulkanDescriptorSetLayout* build() noexcept;
 		};
 
 		VulkanDescriptorSetLayout(const Builder& builder);
-
 		VulkanDescriptorSetLayout(const VulkanDescriptorSetLayout&) = delete;
-
 		VulkanDescriptorSetLayout& operator=(const VulkanDescriptorSetLayout&) = delete;
-
 		const vk::DescriptorSetLayout& getDescriptorSetLayout() const { return m_DescriptorSetLayout; }
-
 		const VulkanDesccriptorBinding& getBindings() const { return m_Binding; }
-
 		~VulkanDescriptorSetLayout();
 
 	private:
 		vk::Device m_LogicalDevice;
-
 		VulkanDesccriptorBinding m_Binding;
-
 		vk::DescriptorSetLayout m_DescriptorSetLayout;
+
 	};
 }

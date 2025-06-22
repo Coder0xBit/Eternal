@@ -12,6 +12,8 @@
 #include <core/scene/TransformComponent.h>
 #include <core/resource/ResourceManager.h>
 #include <core/resource/Mesh.h>
+#include <core/resource/Image.h>
+#include <core/scene/MaterialComponent.h>
 
 
 void SetEngineRootDirectory() {
@@ -21,8 +23,7 @@ void SetEngineRootDirectory() {
 
 namespace Eternal {
 
-	Editor::Editor()
-	{
+	Editor::Editor() {
 		Eternal::Logger::Init();
 
 		m_Window = Eternal::Window::Builder()
@@ -37,32 +38,53 @@ namespace Eternal {
 
 		m_Scene = Memory::Allocate<Eternal::Scene>();
 
-		addEntity("watch_tower_1", "res/models/wooden_watch_tower.obj", glm::vec3(0.0f, 0.0f, -4.0f));
+		TestEntityDetails testEntity1 = {
+			"watch_tower_1",
+			"res/models/wooden_watch_tower.obj",
+			"res/models/textures/Wood_Tower_Col.jpg" ,
+			glm::vec3(0.0f, 0.0f, -4.0f)
+		};
+
+		addEntity(testEntity1);
+
+		TestEntityDetails testEntity2 = {
+			"cube",
+			"res/models/cube.obj",
+			"res/models/textures/Wood_Tower_Col.jpg" ,
+			glm::vec3(0.0f, 0.0f, -10.0f)
+		};
+
+		addEntity(testEntity2);
 
 		m_Renderer = m_Engine->createRenderer(m_Window, m_Scene);
-
-		addEntity("cube", "res/models/cube.obj", glm::vec3(0.0f, 0.0f, -10.0f));
 
 		m_IsRunning = true;
 	}
 
-	void Editor::addEntity(std::string name, std::string filePath, glm::vec3 initialPosition)
-	{
-		Mesh* mesh = ResourceManager::get().loadResource<Mesh>(filePath);
+	void Editor::addEntity(TestEntityDetails entity) {
+		Mesh* mesh = ResourceManager::get().loadResource<Mesh>(entity.filePath);
 		if (!mesh) {
-			Eternal::Logger::Error("Failed to load mesh from path: {}", filePath);
+			Eternal::Logger::Error("Failed to load mesh from path: {}", entity.filePath);
 			return;
 		}
 
 		Eternal::Logger::Info("Obj Vertices: {}", mesh->getVertices().size());
 
-		Eternal::Entity model = m_Scene->createEntity(name);
+		Eternal::Entity model = m_Scene->createEntity(entity.name);
 		model.addComponent<Eternal::RenderComponent>(mesh->getVertices(), mesh->getIndices());
-		model.addComponent<Eternal::TransformComponent>(initialPosition);
+		model.addComponent<Eternal::TransformComponent>(entity.initialPosition);
+
+		if (entity.texturePath != "") {
+			Image* texture = ResourceManager::get().loadResource<Image>(entity.texturePath);
+			if (!texture) {
+				Eternal::Logger::Error("Failed to load texture from path: {}", entity.texturePath);
+				return;
+			}
+			model.addComponent<Eternal::MaterialComponent>(texture);
+		}
 	}
 
-	void Editor::addTriangle()
-	{
+	void Editor::addTriangle() {
 		Eternal::Entity entity = m_Scene->createEntity("Triangle");
 
 		std::vector<Eternal::Vertex> vertices = {
@@ -76,8 +98,7 @@ namespace Eternal {
 		entity.addComponent<Eternal::RenderComponent>(vertices, indices);
 	}
 
-	void Editor::addCube()
-	{
+	void Editor::addCube() {
 		std::vector<Vertex> cubeVertices = {
 			{ glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(1.0f, 0.0f, 0.0f) }, // red
 			{ glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(1.0f, 0.5f, 0.0f) }, // orange
@@ -104,35 +125,27 @@ namespace Eternal {
 		cube.addComponent<Eternal::TransformComponent>(glm::vec3(0.0f, 0.0f, -10.0f));
 	}
 
-	Editor::~Editor()
-	{
+	Editor::~Editor() {
 		shutdown();
 	}
 
-	void Editor::run()
-	{
+	void Editor::run() {
 		auto vkRenderer = static_cast<VulkanRenderer*>(m_Renderer);
 
 		m_ImGuiLayer = Memory::Allocate<VulkanImGuiLayer>(vkRenderer, m_Window);
 
 		bool showDemoWindow = true;
 
-		while (m_IsRunning)
-		{
+		while (m_IsRunning) {
 			m_Window->onUpdate();
 
 			if (FrameInfo* frameInfo = m_Renderer->beginFrame()) {
 
 				m_ImGuiLayer->beginFrame();
-
 				onImGuiRender();
-
 				m_Renderer->render();
-
 				m_ImGuiLayer->render(frameInfo);
-
 				m_Renderer->endFrame();
-
 				Memory::Deallocate(frameInfo);
 			}
 
@@ -140,17 +153,14 @@ namespace Eternal {
 		}
 	}
 
-	Editor* Editor::create()
-	{
+	Editor* Editor::create() {
 		return Memory::Allocate<Editor>();
 	}
 
-	void Editor::onImGuiRender()
-	{
+	void Editor::onImGuiRender() {
 		ImGui::Begin("Debug Info");
 		ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-		for (auto e : m_Scene->getAllEntityWith<Eternal::TransformComponent>())
-		{
+		for (auto e : m_Scene->getAllEntityWith<Eternal::TransformComponent>()) {
 			Eternal::Entity entity = Eternal::Entity(e, m_Scene);
 
 			auto& nameComponent = entity.getComponent<Eternal::NameComponent>();
@@ -159,15 +169,13 @@ namespace Eternal {
 			auto& component = entity.getComponent<Eternal::TransformComponent>();
 			glm::vec3 translation = component.getTranslation();
 			std::string posLabel = "Position " + std::string(nameComponent.getName());
-			if (ImGui::DragFloat3(posLabel.c_str(), &translation.x, 0.01f))
-			{
+			if (ImGui::DragFloat3(posLabel.c_str(), &translation.x, 0.01f)) {
 				component.setTranslation(translation);
 			}
 
 			glm::vec3 rotationDegrees = glm::degrees(component.getRotation());
 			std::string rotationLabel = "Rotation " + std::string(nameComponent.getName());
-			if (ImGui::SliderFloat3(rotationLabel.c_str(), &rotationDegrees.x, 0.0f, 180.0f, "%.1f"))
-			{
+			if (ImGui::SliderFloat3(rotationLabel.c_str(), &rotationDegrees.x, 0.0f, 180.0f, "%.1f")) {
 				rotationDegrees = glm::clamp(rotationDegrees, 0.0f, 180.0f);
 				component.setRotation(glm::radians(rotationDegrees));
 			}
@@ -175,12 +183,9 @@ namespace Eternal {
 		ImGui::End();
 	}
 
-	void Editor::shutdown()
-	{
+	void Editor::shutdown() {
 		Memory::Deallocate(m_ImGuiLayer);
-
 		Memory::Deallocate(m_Engine);
-
 		Memory::Deallocate(m_Window);
 	}
 }

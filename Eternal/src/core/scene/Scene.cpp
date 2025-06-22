@@ -2,9 +2,7 @@
 #include "Entity.h"
 
 namespace Eternal {
-
-	Entity Eternal::Scene::createEntity(std::string name)
-	{
+	Entity Eternal::Scene::createEntity(std::string name) {
 		auto entityHandle = m_Registry.create();
 		Entity entity(entityHandle, this);
 		entity.addComponent<Eternal::IdComponent>();

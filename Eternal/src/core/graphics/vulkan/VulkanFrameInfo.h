@@ -6,15 +6,13 @@
 
 namespace Eternal {
 	class VulkanFrameInfo : public FrameInfo {
-	public :
+	public:
 		VulkanFrameInfo(vk::CommandBuffer commandBuffer, uint32_t imageIndex) :
-			commandBuffer(commandBuffer), imageIndex(imageIndex)
-		{
+			commandBuffer(commandBuffer), imageIndex(imageIndex) {
 
 		}
 
-		bool operator==(const VulkanFrameInfo& other) noexcept
-		{
+		bool operator==(const VulkanFrameInfo& other) noexcept {
 			return this->commandBuffer == other.commandBuffer && this->imageIndex == other.imageIndex;
 		}
 

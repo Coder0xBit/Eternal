@@ -9,8 +9,7 @@
 #include <glm/gtx/hash.hpp>
 
 namespace Eternal {
-	Engine::Engine(const Builder& builder)
-	{
+	Engine::Engine(const Builder& builder)	{
 		m_ApplicationName = builder->applicationName;
 
 		m_Backend = builder->backend;
@@ -22,16 +21,13 @@ namespace Eternal {
 			.build();
 	}
 
-	Engine::~Engine()
-	{
+	Engine::~Engine()	{
 		Memory::Deallocate(m_Renderer);
 	}
 
-	Renderer* Engine::createRenderer(Window* window, Scene* scene)
-	{
+	Renderer* Engine::createRenderer(Window* window, Scene* scene)	{
 
-		if (m_Backend == Backend::Vulkan)
-		{
+		if (m_Backend == Backend::Vulkan)	{
 			auto vulkanPlatform = dynamic_cast<VulkanPlatform*>(m_GraphicsPlatform);
 			if (vulkanPlatform)
 			{
@@ -42,23 +38,17 @@ namespace Eternal {
 			Eternal::Logger::Error("Casting issue in createRenderer(...)");
 			return nullptr;
 		}
-		else
-		{
+		else	{
 			Eternal::Logger::Error("Currently Only supported Backend is Vulkan");
 			return nullptr;
 		}
 	}
 
 	Engine::Builder::Builder() noexcept = default;
-
 	Engine::Builder::Builder(Builder const& rhs) noexcept = default;
-
 	Engine::Builder::Builder(Builder&& rhs) noexcept = default;
-
 	Engine::Builder::~Builder() noexcept = default;
-
 	Engine::Builder& Engine::Builder::operator=(Builder const& rhs) noexcept = default;
-
 	Engine::Builder& Engine::Builder::operator=(Builder&& rhs) noexcept = default;
 
 	Engine::Builder& Engine::Builder::applicationName(const std::string& applicationName) noexcept {

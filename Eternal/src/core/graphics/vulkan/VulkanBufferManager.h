@@ -48,7 +48,6 @@ namespace Eternal {
 		vk::PhysicalDevice m_PhysicalDevice;
 		vk::MemoryPropertyFlags m_BufferProperties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
 
-
 		std::unordered_map<EntityId, std::shared_ptr<VulkanBuffer>> m_VertexBuffers;
 		std::unordered_map<EntityId, std::shared_ptr<VulkanBuffer>> m_IndexBuffers;
 	};

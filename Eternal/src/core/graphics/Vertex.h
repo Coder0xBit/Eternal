@@ -6,32 +6,24 @@
 #include <vulkan/vulkan.hpp>
 
 namespace Eternal {
-	struct Vertex
-	{
+	struct Vertex {
 	public:
 		glm::vec3 position;
-
 		glm::vec3 color;
-
 		glm::vec3 normal;
-
 		glm::vec2 uv;
 
 	public:
 		Vertex() = default;
-
 		Vertex(float x, float y, float z) : position(x, y, z) {}
-
 		Vertex(glm::vec3 pos, glm::vec3 color) : position(pos), color(color) {}
-
 		Vertex(float value) : position(value, value, value) {}
 
 		bool operator==(const Vertex& other) const {
 			return position == other.position && color == other.color;
 		}
 
-		static std::vector<vk::VertexInputBindingDescription> getBindingDescription()
-		{
+		static std::vector<vk::VertexInputBindingDescription> getBindingDescription() {
 			vk::VertexInputBindingDescription bindingDesc = vk::VertexInputBindingDescription()
 				.setBinding(0)
 				.setStride(sizeof(Eternal::Vertex))
@@ -40,8 +32,7 @@ namespace Eternal {
 			return { bindingDesc };
 		}
 
-		static std::vector<vk::VertexInputAttributeDescription> getAttributeDescription()
-		{
+		static std::vector<vk::VertexInputAttributeDescription> getAttributeDescription() {
 			std::vector<vk::VertexInputAttributeDescription> attributeDescs;
 			vk::VertexInputAttributeDescription positionAttribDesc = vk::VertexInputAttributeDescription()
 				.setLocation(0)

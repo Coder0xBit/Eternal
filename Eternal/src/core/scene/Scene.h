@@ -10,7 +10,6 @@ namespace Eternal {
 	public:
 
 		Scene() = default;
-
 		~Scene() = default;
 
 		Entity createEntity(std::string name);

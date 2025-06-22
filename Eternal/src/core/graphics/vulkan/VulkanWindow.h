@@ -6,9 +6,8 @@
 #include <vulkan/vulkan.hpp>
 
 namespace Eternal {
-	class VulkanWindow : public Window
-	{
-	public :
+	class VulkanWindow : public Window {
+	public:
 		virtual ~VulkanWindow() = default;
 
 		virtual vk::SurfaceKHR createWindowSurface(vk::Instance instance) const = 0;

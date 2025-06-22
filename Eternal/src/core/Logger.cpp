@@ -7,8 +7,7 @@
 namespace Eternal {
 	std::shared_ptr<spdlog::logger> Logger::m_InternalLogger = nullptr;
 
-	void Logger::Init()
-	{
+	void Logger::Init() {
 		std::vector<spdlog::sink_ptr> logSinks;
 		logSinks.emplace_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
 

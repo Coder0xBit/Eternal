@@ -55,6 +55,9 @@ namespace Eternal {
 		VulkanPlatform* m_Platform;
 		VulkanSwapChain* m_VulkanSwapChain;
 
+		vk::Viewport m_Viewport;
+		vk::Rect2D m_Scissor;
+
 		Eternal::VulkanBufferManager* m_VulkanBufferManager;
 		Eternal::Camera* m_Camera;
 		Eternal::Window* m_Window;

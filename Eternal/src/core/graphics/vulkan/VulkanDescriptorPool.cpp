@@ -16,33 +16,28 @@ namespace Eternal {
 
 	VulkanDescriptorPool::Builder& VulkanDescriptorPool::Builder::operator=(Builder&& rhs) noexcept = default;
 
-	VulkanDescriptorPool::Builder& VulkanDescriptorPool::Builder::addPoolSize(PoolSize poolSize)
-	{
+	VulkanDescriptorPool::Builder& VulkanDescriptorPool::Builder::addPoolSize(PoolSize poolSize) {
 		ETERNAL_ASSERT(mImpl->poolSizes.size() < MAX_DESCRIPTOR_POOL_SIZE, "Pool size limit reached, Seriosuly Brah!");
 		mImpl->poolSizes.push_back(poolSize);
 		return *this;
 	}
 
-	VulkanDescriptorPool::Builder& VulkanDescriptorPool::Builder::setMaxSets(uint32_t maxSets) noexcept
-	{
+	VulkanDescriptorPool::Builder& VulkanDescriptorPool::Builder::setMaxSets(uint32_t maxSets) noexcept {
 		mImpl->maxSets = maxSets;
 		return *this;
 	}
 
-	VulkanDescriptorPool* VulkanDescriptorPool::Builder::build() noexcept
-	{
+	VulkanDescriptorPool* VulkanDescriptorPool::Builder::build() noexcept {
 		return Memory::Allocate<VulkanDescriptorPool>(*this);
 	}
 
-	VulkanDescriptorPool::VulkanDescriptorPool(const Builder& builder)
-	{
+	VulkanDescriptorPool::VulkanDescriptorPool(const Builder& builder) {
 		m_LogicalDevice = builder->logicalDevice;
 		m_MaxSets = builder->maxSets;
 
 		m_PoolSizes.reserve(m_PoolSizes.size());
 
-		for (const auto& poolSize : builder->poolSizes)
-		{
+		for (const auto& poolSize : builder->poolSizes) {
 			vk::DescriptorPoolSize descriptorPoolSize = vk::DescriptorPoolSize()
 				.setType(poolSize.type)
 				.setDescriptorCount(poolSize.descriptorCount);
@@ -56,10 +51,8 @@ namespace Eternal {
 		m_DescriptorPool = m_LogicalDevice.createDescriptorPool(descriptorPoolCreateInfo);
 	}
 
-	VulkanDescriptorPool::~VulkanDescriptorPool()
-	{
-		if (m_DescriptorPool)
-		{
+	VulkanDescriptorPool::~VulkanDescriptorPool() {
+		if (m_DescriptorPool) {
 			m_LogicalDevice.destroyDescriptorPool(m_DescriptorPool);
 			m_DescriptorPool = nullptr;
 		}
@@ -67,14 +60,12 @@ namespace Eternal {
 		m_CurrentlyAllocatedSets = 0;
 	}
 
-	void VulkanDescriptorPool::reset()
-	{
+	void VulkanDescriptorPool::reset() {
 		m_LogicalDevice.resetDescriptorPool(m_DescriptorPool, vk::DescriptorPoolResetFlags());
 		m_CurrentlyAllocatedSets = 0;
 	}
 
-	vk::DescriptorSet VulkanDescriptorPool::allocate(const VulkanDescriptorSetLayout& descriptorSetLayout)
-	{
+	vk::DescriptorSet VulkanDescriptorPool::allocate(const VulkanDescriptorSetLayout& descriptorSetLayout) {
 		auto descriptorLayout = descriptorSetLayout.getDescriptorSetLayout();
 
 		vk::DescriptorSetAllocateInfo descriptorSetAllocateInfo = vk::DescriptorSetAllocateInfo()
@@ -87,8 +78,7 @@ namespace Eternal {
 		return descriptorSet;
 	}
 
-	std::vector<vk::DescriptorSet> VulkanDescriptorPool::allocate(uint32_t descriptorSetCount, const VulkanDescriptorSetLayout& descriptorSetLayout)
-	{
+	std::vector<vk::DescriptorSet> VulkanDescriptorPool::allocate(uint32_t descriptorSetCount, const VulkanDescriptorSetLayout& descriptorSetLayout) {
 		ETERNAL_ASSERT(descriptorSetCount <= m_MaxSets, "Descriptor set count exceeds max sets");
 
 		std::vector<vk::DescriptorSetLayout> descriptorLayouts(descriptorSetCount, descriptorSetLayout.getDescriptorSetLayout());
@@ -107,16 +97,13 @@ namespace Eternal {
 		return descSets;
 	}
 
-	void VulkanDescriptorPool::free(vk::DescriptorSet* descriptorSet)
-	{
+	void VulkanDescriptorPool::free(vk::DescriptorSet* descriptorSet) {
 		m_LogicalDevice.freeDescriptorSets(m_DescriptorPool, 1, descriptorSet);
 		m_CurrentlyAllocatedSets--;
 	}
 
-	void VulkanDescriptorPool::free(const std::vector<vk::DescriptorSet>& descriptorSets)
-	{
+	void VulkanDescriptorPool::free(const std::vector<vk::DescriptorSet>& descriptorSets) {
 		m_CurrentlyAllocatedSets -= descriptorSets.size();
 		m_LogicalDevice.freeDescriptorSets(m_DescriptorPool, descriptorSets.size(), descriptorSets.data());
 	}
-
 }

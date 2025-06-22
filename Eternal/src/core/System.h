@@ -1,8 +1,7 @@
 #pragma once
 
 namespace Eternal {
-	enum class System
-	{
+	enum class System {
 		WINDOWS,
 		IOS,
 		MACOS,

@@ -2,8 +2,7 @@
 
 namespace Eternal {
 
-	VulkanDescriptorSetLayout::Builder::Builder(vk::Device logicalDevice) noexcept
-	{
+	VulkanDescriptorSetLayout::Builder::Builder(vk::Device logicalDevice) noexcept {
 		mImpl->logicalDevice = logicalDevice;
 	}
 
@@ -17,8 +16,7 @@ namespace Eternal {
 
 	VulkanDescriptorSetLayout::Builder& VulkanDescriptorSetLayout::Builder::operator=(Builder&& rhs) noexcept = default;
 
-	VulkanDescriptorSetLayout::Builder& VulkanDescriptorSetLayout::Builder::addBinding(LayoutInfo layoutInfo)
-	{
+	VulkanDescriptorSetLayout::Builder& VulkanDescriptorSetLayout::Builder::addBinding(LayoutInfo layoutInfo) {
 		ETERNAL_ASSERT(mImpl->bindings.count(layoutInfo.binding) == 0, "Binding is in use");
 		vk::DescriptorSetLayoutBinding binding = vk::DescriptorSetLayoutBinding()
 			.setBinding(layoutInfo.binding)
@@ -29,13 +27,11 @@ namespace Eternal {
 		return *this;
 	}
 
-	VulkanDescriptorSetLayout* VulkanDescriptorSetLayout::Builder::build() noexcept
-	{
+	VulkanDescriptorSetLayout* VulkanDescriptorSetLayout::Builder::build() noexcept {
 		return Memory::Allocate<VulkanDescriptorSetLayout>(*this);
 	}
 
-	VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(const Builder& builder)
-	{
+	VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(const Builder& builder) {
 		m_LogicalDevice = builder->logicalDevice;
 		m_Binding = builder->bindings;
 
@@ -51,14 +47,11 @@ namespace Eternal {
 		m_DescriptorSetLayout = m_LogicalDevice.createDescriptorSetLayout(descriptorSetLayoutCreateInfo);
 	}
 
-	VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout()
-	{
-		if (m_DescriptorSetLayout)
-		{
+	VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout() {
+		if (m_DescriptorSetLayout) {
 			m_LogicalDevice.destroyDescriptorSetLayout(m_DescriptorSetLayout);
 			m_DescriptorSetLayout = nullptr;
 		}
 		m_Binding.clear();
 	}
-
 }

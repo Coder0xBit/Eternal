@@ -2,9 +2,7 @@
 #include "Base.h"
 
 namespace Eternal {
-
-	class UUID
-	{
+	class UUID {
 	public:
 		UUID();
 		UUID(uint64_t uuid);
@@ -27,5 +25,4 @@ namespace std {
 			return (uint64_t)uuid;
 		}
 	};
-
 }

@@ -19,6 +19,7 @@ namespace Eternal
 	private:
 		std::vector<Eternal::Vertex> m_Vertices;
 		std::vector<uint32_t> m_Indices;
+
 	};
 
 }
