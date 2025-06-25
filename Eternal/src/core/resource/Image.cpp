@@ -8,7 +8,7 @@ namespace Eternal
 	Image::Image() {}
 
 	bool Image::load(const std::string& path) {
-		m_Data = stbi_load(path.c_str(), &m_Width, &m_Height, &m_Channels, 4);
+		m_Data = stbi_load(path.c_str(), &m_Width, &m_Height, &m_Channels, STBI_rgb_alpha);
 
 		if (!m_Data)
 		{

@@ -3,7 +3,7 @@
 
 #include "Resource.h"
 
-namespace Eternal{
+namespace Eternal {
 	class ResourceManager {
 	public:
 		ResourceManager(const ResourceManager&) = delete;
@@ -29,7 +29,7 @@ namespace Eternal{
 				return dynamic_cast<ResourceType*>(it->second);
 			}
 
-			ResourceType* resource = new ResourceType();
+			ResourceType* resource = Memory::Allocate<ResourceType>();
 			if (!resource->load(path)) {
 				delete resource;
 				return nullptr;

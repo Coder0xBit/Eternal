@@ -38,13 +38,9 @@ namespace Eternal {
 		m_PhysicalDevice = m_Platform->getPhysicalDevice();
 
 		createPipeline();
-
 		createCommandPool();
-
 		createCommandBuffers();
-
 		createSemaphores();
-
 		createFences();
 
 		m_VulkanBufferManager = Memory::Allocate<VulkanBufferManager>(m_LogicalDevice, m_PhysicalDevice, m_Scene);

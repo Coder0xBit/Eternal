@@ -226,12 +226,10 @@ namespace Eternal {
 					return strcmp(extension, supportedExtension.extensionName) == 0;
 				});
 
-			if (it != supportedExtensions.end())
-			{
+			if (it != supportedExtensions.end()) {
 				Eternal::Logger::Debug("{} Extension Supported", extension);
 			}
-			else
-			{
+			else {
 				Eternal::Logger::Error("{} Extension Not Supported", extension);
 				return false;
 			}
@@ -309,5 +307,32 @@ namespace Eternal {
 			break;
 		}
 		Eternal::Logger::Debug("Device Type : {}", deviceType);
+	}
+
+	vk::CommandBuffer VulkanPlatform::beginSingleCommand(vk::CommandPool commandPool) {
+		vk::CommandBufferAllocateInfo commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
+			.setCommandPool(commandPool)
+			.setLevel(vk::CommandBufferLevel::ePrimary)
+			.setCommandBufferCount(1);
+
+		vk::CommandBuffer commandBuffer = m_LogicalDevice.allocateCommandBuffers(commandBufferAllocateInfo)[0];
+
+		vk::CommandBufferBeginInfo beginInfo = vk::CommandBufferBeginInfo()
+			.setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit)
+			.setPInheritanceInfo(nullptr);
+	}
+
+	void VulkanPlatform::endSingleCommand(vk::CommandPool commandPool, vk::CommandBuffer commandBuffer, vk::Queue queue) {
+		commandBuffer.end();
+		vk::SubmitInfo submitInfo = vk::SubmitInfo()
+			.setCommandBuffers(commandBuffer);
+		queue.submit(submitInfo, nullptr);
+		queue.waitIdle();
+		m_LogicalDevice.freeCommandBuffers(commandPool, commandBuffer);
+	}
+	void VulkanPlatform::executeOneCommand(vk::CommandPool commandPool, vk::Queue queue, const std::function<void(vk::CommandBuffer)>& function) {
+		vk::CommandBuffer commandBuffer = beginSingleCommand(commandPool);
+		function(commandBuffer);
+		endSingleCommand(commandPool, commandBuffer, queue);
 	}
 }

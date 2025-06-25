@@ -107,11 +107,8 @@ namespace Eternal {
 		m_SwapChain = m_LogicalDevice.createSwapchainKHR(swapChainCreateInfo);
 
 		createImageViews();
-
 		createDepthImageView();
-
 		createRenderPass();
-
 		createFrameBuffers();
 	}
 
@@ -256,14 +253,6 @@ namespace Eternal {
 			.setSubresourceRange({ vk::ImageAspectFlagBits::eDepth,0, 1, 0, 1 });
 
 		m_DepthImageView = m_LogicalDevice.createImageView(imageViewCreateInfo);
-	}
-
-	uint32_t VulkanSwapChain::getMemoryType(vk::MemoryPropertyFlags properties, uint32_t type_bits) {
-		vk::PhysicalDeviceMemoryProperties prop = m_PhysicalDevice.getMemoryProperties();
-		for (uint32_t i = 0; i < prop.memoryTypeCount; i++)
-			if ((prop.memoryTypes[i].propertyFlags & properties) == properties && type_bits & (1 << i))
-				return i;
-		return 0xFFFFFFFF;
 	}
 
 	void VulkanSwapChain::createRenderPass() {

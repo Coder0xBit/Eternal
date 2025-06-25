@@ -25,7 +25,7 @@ namespace Eternal {
 	using VkString = const char*;
 	using VkStringArrayPtr = const char**;
 
-	class VulkanPlatform : public GraphicsPlatform, public VulkanGraphicsContext{
+	class VulkanPlatform : public GraphicsPlatform, public VulkanGraphicsContext {
 	public:
 
 		struct PushConstants {
@@ -48,6 +48,10 @@ namespace Eternal {
 		bool checkDeviceExtensionSupport(const vk::PhysicalDevice& device, const VkStringArray requestedExtensions);
 		bool checkDeviceIsSuitable(const vk::PhysicalDevice& device);
 		void logDeviceProps(const vk::PhysicalDevice& device);
+
+		vk::CommandBuffer beginSingleCommand(vk::CommandPool commandPool);
+		void endSingleCommand(vk::CommandPool commandPool, vk::CommandBuffer commandBuffer, vk::Queue queue);
+		void executeOneCommand(vk::CommandPool commandPool, vk::Queue queue, const std::function<void(vk::CommandBuffer)>& function);
 
 		static uint32_t getMemoryType(vk::PhysicalDevice physicalDevice, vk::MemoryPropertyFlags properties, uint32_t typeBits);
 

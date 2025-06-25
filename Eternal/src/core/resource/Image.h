@@ -12,6 +12,10 @@ namespace Eternal {
 		bool load(const std::string& path) override;
 		unsigned char* getData() const { return m_Data; }
 		GLFWimage getGLFWImage();
+		int getWidth() const { return m_Width; }
+		int getHeight() const { return m_Height; }
+		int getPixelCount() const { return m_Width * m_Height; }
+		int getChannels() const { return m_Channels; }
 		virtual ~Image();
 
 	private:
@@ -19,5 +23,6 @@ namespace Eternal {
 		int m_Height = 0;
 		int m_Channels = 0;
 		unsigned char* m_Data = nullptr;
+		
 	};
 }

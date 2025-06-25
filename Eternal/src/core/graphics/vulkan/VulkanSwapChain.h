@@ -50,7 +50,6 @@ namespace Eternal {
 		void createDepthImageView();
 		void createRenderPass();
 		void createFrameBuffers();
-		uint32_t getMemoryType(vk::MemoryPropertyFlags properties, uint32_t type_bits);
 
 		bool m_ShouldRecreate = false;
 		vk::Instance m_VkInstance = nullptr;
