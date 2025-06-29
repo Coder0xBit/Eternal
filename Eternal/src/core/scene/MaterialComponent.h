@@ -13,6 +13,8 @@ namespace Eternal {
 			m_AlbedoTexture = albedoTexture;
 		}
 
+		const Image* getAlbedoTexture() const { return m_AlbedoTexture; }
+
 	private:
 		Image* m_AlbedoTexture = nullptr;
 	};

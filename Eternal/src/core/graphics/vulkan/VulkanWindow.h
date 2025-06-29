@@ -9,9 +9,7 @@ namespace Eternal {
 	class VulkanWindow : public Window {
 	public:
 		virtual ~VulkanWindow() = default;
-
 		virtual vk::SurfaceKHR createWindowSurface(vk::Instance instance) const = 0;
-
 		virtual vk::Extent2D getExtent() const = 0;
 	};
 }

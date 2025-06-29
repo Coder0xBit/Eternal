@@ -49,6 +49,11 @@ namespace Eternal {
 		bool checkDeviceIsSuitable(const vk::PhysicalDevice& device);
 		void logDeviceProps(const vk::PhysicalDevice& device);
 
+		vk::CommandPool createCommandPool(vk::CommandPoolCreateFlags commandPoolCreateFlagBits);
+		std::vector<vk::CommandBuffer> allocateCommandBuffers(vk::CommandPool commandPool, vk::CommandBufferLevel level, uint32_t count);
+		vk::CommandBuffer allocateCommandBuffer(vk::CommandPool commandPool, vk::CommandBufferLevel level);
+		void destroyCommandPool(vk::CommandPool commandPool);
+
 		vk::CommandBuffer beginSingleCommand(vk::CommandPool commandPool);
 		void endSingleCommand(vk::CommandPool commandPool, vk::CommandBuffer commandBuffer, vk::Queue queue);
 		void executeOneCommand(vk::CommandPool commandPool, vk::Queue queue, const std::function<void(vk::CommandBuffer)>& function);

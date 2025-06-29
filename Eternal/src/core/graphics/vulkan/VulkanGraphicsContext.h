@@ -10,8 +10,8 @@ namespace Eternal {
 	class VulkanGraphicsContext : public GraphicsContext
 	{
 	public:
-		VulkanGraphicsContext();
-		~VulkanGraphicsContext();
+		VulkanGraphicsContext() = default;
+		~VulkanGraphicsContext() = default;
 		vk::Instance getVkInstance() { return m_VkInstance; }
 		vk::PhysicalDevice getPhysicalDevice() { return m_PhysicalDevice; }
 		vk::Device getLogicalDevice() { return m_LogicalDevice; }

@@ -309,6 +309,32 @@ namespace Eternal {
 		Eternal::Logger::Debug("Device Type : {}", deviceType);
 	}
 
+	vk::CommandPool VulkanPlatform::createCommandPool(vk::CommandPoolCreateFlags commandPoolCreateFlagBits) {
+		vk::CommandPoolCreateInfo commandPoolCreateInfo = vk::CommandPoolCreateInfo()
+			.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer)
+			.setQueueFamilyIndex(m_GraphicsQueueIndex);
+
+		return m_LogicalDevice.createCommandPool(commandPoolCreateInfo);
+	}
+
+	std::vector<vk::CommandBuffer> VulkanPlatform::allocateCommandBuffers(vk::CommandPool commandPool, vk::CommandBufferLevel level, uint32_t count) {
+		vk::CommandBufferAllocateInfo commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
+			.setCommandPool(commandPool)
+			.setLevel(level)
+			.setCommandBufferCount(count);
+
+		return m_LogicalDevice.allocateCommandBuffers(commandBufferAllocateInfo);
+	}
+
+	vk::CommandBuffer VulkanPlatform::allocateCommandBuffer(vk::CommandPool commandPool, vk::CommandBufferLevel level) {
+		auto commandBuffer = allocateCommandBuffers(commandPool, level, 1);
+		return commandBuffer.front();
+	}
+
+	void VulkanPlatform::destroyCommandPool(vk::CommandPool commandPool) {
+		m_LogicalDevice.destroyCommandPool(commandPool);
+	}
+
 	vk::CommandBuffer VulkanPlatform::beginSingleCommand(vk::CommandPool commandPool) {
 		vk::CommandBufferAllocateInfo commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
 			.setCommandPool(commandPool)
@@ -320,16 +346,21 @@ namespace Eternal {
 		vk::CommandBufferBeginInfo beginInfo = vk::CommandBufferBeginInfo()
 			.setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit)
 			.setPInheritanceInfo(nullptr);
+
+		commandBuffer.begin(beginInfo);
+		return commandBuffer;
 	}
 
 	void VulkanPlatform::endSingleCommand(vk::CommandPool commandPool, vk::CommandBuffer commandBuffer, vk::Queue queue) {
 		commandBuffer.end();
 		vk::SubmitInfo submitInfo = vk::SubmitInfo()
 			.setCommandBuffers(commandBuffer);
+
 		queue.submit(submitInfo, nullptr);
 		queue.waitIdle();
 		m_LogicalDevice.freeCommandBuffers(commandPool, commandBuffer);
 	}
+
 	void VulkanPlatform::executeOneCommand(vk::CommandPool commandPool, vk::Queue queue, const std::function<void(vk::CommandBuffer)>& function) {
 		vk::CommandBuffer commandBuffer = beginSingleCommand(commandPool);
 		function(commandBuffer);

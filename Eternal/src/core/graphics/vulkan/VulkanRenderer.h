@@ -10,6 +10,7 @@
 #include "VulkanUtils.h"
 #include "VulkanDescriptorPool.h"
 #include "VulkanDescsriptorSetLayout.h"
+#include "VulkanTextureManager.h"
 #include "VulkanPipeline.h"
 
 namespace Eternal {
@@ -59,6 +60,7 @@ namespace Eternal {
 		vk::Rect2D m_Scissor;
 
 		Eternal::VulkanBufferManager* m_VulkanBufferManager;
+		Eternal::VulkanTextureManager* m_VulkanTextureManager;
 		Eternal::Camera* m_Camera;
 		Eternal::Window* m_Window;
 

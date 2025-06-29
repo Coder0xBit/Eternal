@@ -7,15 +7,30 @@
 
 namespace Eternal {
 	class VulkanTexture {
+	public:
+		struct LayoutTransitionInfo {
+			vk::ImageMemoryBarrier imageMemoryBarrier;
+			vk::PipelineStageFlags sourceStage;
+			vk::PipelineStageFlags destinationStage;
+		};
+
 		VulkanTexture(vk::Device device, vk::PhysicalDevice physicalDevice, const Eternal::Image* imageResource);
 		~VulkanTexture() = default;
 
+		std::shared_ptr<VulkanBuffer> getStagingBuffer() { return m_StagingBuffer; }
+
+		vk::Format getFormat() { return m_Format; }
+		const vk::Image& getImage() { return m_Image; }
+		int getWidth() { return m_Width; }
+		int getHeight() { return m_Height; }
+		vk::BufferImageCopy getRegionForCopy();
+
 		void create();
+		LayoutTransitionInfo getLayoutTransitionInfo(vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
 
 	private:
-
 		const Eternal::Image* m_ImageResource;
-		std::shared_ptr<VulkanBuffer> m_Buffer;
+		std::shared_ptr<VulkanBuffer> m_StagingBuffer;
 
 		vk::Device m_Device;
 		vk::PhysicalDevice m_PhysicalDevice;

@@ -7,13 +7,9 @@ namespace Eternal {
 	}
 
 	VulkanDescriptorSetLayout::Builder::Builder(Builder const& rhs) noexcept = default;
-
 	VulkanDescriptorSetLayout::Builder::Builder(Builder&& rhs) noexcept = default;
-
 	VulkanDescriptorSetLayout::Builder::~Builder() noexcept = default;
-
 	VulkanDescriptorSetLayout::Builder& VulkanDescriptorSetLayout::Builder::operator=(Builder const& rhs) noexcept = default;
-
 	VulkanDescriptorSetLayout::Builder& VulkanDescriptorSetLayout::Builder::operator=(Builder&& rhs) noexcept = default;
 
 	VulkanDescriptorSetLayout::Builder& VulkanDescriptorSetLayout::Builder::addBinding(LayoutInfo layoutInfo) {

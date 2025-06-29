@@ -44,6 +44,7 @@ namespace Eternal {
 		createFences();
 
 		m_VulkanBufferManager = Memory::Allocate<VulkanBufferManager>(m_LogicalDevice, m_PhysicalDevice, m_Scene);
+		m_VulkanTextureManager = Memory::Allocate<VulkanTextureManager>(m_Platform, m_Scene);
 	}
 
 	VulkanRenderer::~VulkanRenderer() {
@@ -61,7 +62,7 @@ namespace Eternal {
 			m_LogicalDevice.destroyFence(fence);
 		}
 
-		m_LogicalDevice.destroyCommandPool(m_CommandPool);
+		m_Platform->destroyCommandPool(m_CommandPool);
 
 		Memory::Deallocate(m_VulkanPipeline);
 
@@ -74,6 +75,8 @@ namespace Eternal {
 		//Memory::Deallocate(m_DescriptorSetLayout);
 
 		//Memory::Deallocate(m_DescriptorPool);
+
+		Memory::Deallocate(m_VulkanTextureManager);
 
 		Memory::Deallocate(m_VulkanBufferManager);
 
@@ -178,22 +181,11 @@ namespace Eternal {
 	}
 
 	void VulkanRenderer::createCommandPool() {
-		auto graphicsQueueIndex = m_Platform->getGraphicsQueueIndex();
-
-		vk::CommandPoolCreateInfo commandPoolCreateInfo = vk::CommandPoolCreateInfo()
-			.setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer)
-			.setQueueFamilyIndex(graphicsQueueIndex);
-
-		m_CommandPool = m_LogicalDevice.createCommandPool(commandPoolCreateInfo);
+		m_CommandPool = m_Platform->createCommandPool(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
 	}
 
 	void VulkanRenderer::createCommandBuffers() {
-		vk::CommandBufferAllocateInfo commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
-			.setCommandPool(m_CommandPool)
-			.setLevel(vk::CommandBufferLevel::ePrimary)
-			.setCommandBufferCount(MAX_FRAMES_IN_FLIGHT);
-
-		m_CommandBuffers = m_LogicalDevice.allocateCommandBuffers(commandBufferAllocateInfo);
+		m_CommandBuffers = m_Platform->allocateCommandBuffers(m_CommandPool, vk::CommandBufferLevel::ePrimary, MAX_FRAMES_IN_FLIGHT);
 	}
 
 	void VulkanRenderer::createSemaphores() {
@@ -211,10 +203,8 @@ namespace Eternal {
 	void VulkanRenderer::createFences() {
 		m_InFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
 
-		for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-		{
+		for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 			vk::FenceCreateInfo fenceCreateInfo = vk::FenceCreateInfo().setFlags(vk::FenceCreateFlagBits::eSignaled);
-
 			m_InFlightFences[i] = m_LogicalDevice.createFence(fenceCreateInfo);
 		}
 	}
@@ -242,8 +232,7 @@ namespace Eternal {
 
 		m_VulkanSwapChain->acquire(m_ImageAvailableSemaphores[m_CurrentFrame], &m_CurrentImageIndex);
 
-		if (m_VulkanSwapChain->shouldRecreate() || m_Window->isResized())
-		{
+		if (m_VulkanSwapChain->shouldRecreate() || m_Window->isResized()) {
 			handleWindowResize();
 			return nullptr;
 		}
@@ -328,8 +317,7 @@ namespace Eternal {
 
 		m_VulkanSwapChain->present(m_RenderFinishedSemaphores[m_CurrentFrame], m_CurrentImageIndex);
 
-		if (m_VulkanSwapChain->shouldRecreate() || m_Window->isResized())
-		{
+		if (m_VulkanSwapChain->shouldRecreate() || m_Window->isResized()) {
 			handleWindowResize();
 			return;
 		}

@@ -132,7 +132,6 @@
     <ClCompile Include="src\core\graphics\vulkan\VulkanBufferManager.cpp" />
     <ClCompile Include="src\core\graphics\vulkan\VulkanDescriptorPool.cpp" />
     <ClCompile Include="src\core\graphics\vulkan\VulkanDescsriptorSetLayout.cpp" />
-    <ClCompile Include="src\core\graphics\vulkan\VulkanGraphicsContext.cpp" />
     <ClCompile Include="src\core\graphics\vulkan\VulkanImGuiLayer.cpp" />
     <ClCompile Include="src\core\graphics\vulkan\VulkanPipeline.cpp" />
     <ClCompile Include="src\core\graphics\vulkan\VulkanPlatform.cpp" />
