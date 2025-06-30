@@ -15,10 +15,9 @@ namespace Eternal {
 		};
 
 		VulkanTexture(vk::Device device, vk::PhysicalDevice physicalDevice, const Eternal::Image* imageResource);
-		~VulkanTexture() = default;
+		~VulkanTexture();
 
 		std::shared_ptr<VulkanBuffer> getStagingBuffer() { return m_StagingBuffer; }
-
 		vk::Format getFormat() { return m_Format; }
 		const vk::Image& getImage() { return m_Image; }
 		int getWidth() { return m_Width; }
@@ -26,11 +25,20 @@ namespace Eternal {
 		vk::BufferImageCopy getRegionForCopy();
 
 		void create();
+		void recordUploadCommand(vk::CommandBuffer commandBuffer);
 		LayoutTransitionInfo getLayoutTransitionInfo(vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
 
 	private:
 		const Eternal::Image* m_ImageResource;
 		std::shared_ptr<VulkanBuffer> m_StagingBuffer;
+
+		vk::MemoryPropertyFlags m_BufferProperties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+
+		void prepareStagingBuffer();
+		void createImage();
+		void allocateMemory();
+		void createImageView();
+		void createSampler();
 
 		vk::Device m_Device;
 		vk::PhysicalDevice m_PhysicalDevice;

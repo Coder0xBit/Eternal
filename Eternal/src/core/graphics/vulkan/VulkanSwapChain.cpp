@@ -190,13 +190,6 @@ namespace Eternal {
 		m_SwapChainImageViews.resize(m_SwapChainImages.size());
 
 		for (uint32_t i = 0; i < m_SwapChainImages.size(); i++) {
-			vk::ComponentMapping componentMapping = vk::ComponentMapping(
-				vk::ComponentSwizzle::eIdentity,
-				vk::ComponentSwizzle::eIdentity,
-				vk::ComponentSwizzle::eIdentity,
-				vk::ComponentSwizzle::eIdentity
-			);
-
 			vk::ImageSubresourceRange imageSubResourceRange = vk::ImageSubresourceRange()
 				.setAspectMask(vk::ImageAspectFlagBits::eColor)
 				.setBaseMipLevel(0)
@@ -208,7 +201,7 @@ namespace Eternal {
 				.setImage(m_SwapChainImages[i])
 				.setViewType(vk::ImageViewType::e2D)
 				.setFormat(m_SwapChainDetails.surfaceFormat.format)
-				.setComponents(componentMapping)
+				.setComponents(vk::ComponentMapping())
 				.setSubresourceRange(imageSubResourceRange);
 
 			m_SwapChainImageViews[i] = m_LogicalDevice.createImageView(imageViewCreateInfo);

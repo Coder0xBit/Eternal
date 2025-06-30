@@ -13,6 +13,21 @@ namespace Eternal {
 		create();
 	}
 
+	VulkanTexture::~VulkanTexture() {
+		if (m_ImageView) {
+			m_Device.destroyImageView(m_ImageView);
+		}
+		if (m_Image) {
+			m_Device.destroyImage(m_Image);
+		}
+		if (m_Memory) {
+			m_Device.freeMemory(m_Memory);
+		}
+		if (m_Sampler) {
+			m_Device.destroySampler(m_Sampler);
+		}
+	}
+
 	vk::BufferImageCopy VulkanTexture::getRegionForCopy() {
 		vk::ImageSubresourceLayers subresourceRange = vk::ImageSubresourceLayers()
 			.setAspectMask(vk::ImageAspectFlagBits::eColor)
@@ -31,19 +46,19 @@ namespace Eternal {
 		return region;
 	}
 
-	void VulkanTexture::create() {
+	void VulkanTexture::prepareStagingBuffer() {
 		int pixelCount = m_ImageResource->getPixelCount();
 		int channel = m_ImageResource->getChannels();
 
-		vk::MemoryPropertyFlags bufferProperties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-
 		m_StagingBuffer = std::make_shared<VulkanBuffer>(m_Device, m_PhysicalDevice);
 		m_StagingBuffer->create(pixelCount, channel, vk::BufferUsageFlagBits::eTransferSrc);
-		m_StagingBuffer->allocate(bufferProperties);
+		m_StagingBuffer->allocate(m_BufferProperties);
 		m_StagingBuffer->map();
 		m_StagingBuffer->write(m_ImageResource->getData());
 		m_StagingBuffer->unMap();
+	}
 
+	void VulkanTexture::createImage() {
 		vk::ImageCreateInfo imageCreateInfo;
 		imageCreateInfo.imageType = vk::ImageType::e2D;
 		imageCreateInfo.extent.width = m_Width;
@@ -59,7 +74,9 @@ namespace Eternal {
 		imageCreateInfo.sharingMode = vk::SharingMode::eExclusive;
 
 		m_Image = m_Device.createImage(imageCreateInfo);
+	}
 
+	void VulkanTexture::allocateMemory() {
 		vk::MemoryRequirements memoryRequirements = m_Device.getImageMemoryRequirements(m_Image);
 
 		vk::MemoryAllocateInfo memoryAllocateInfo;
@@ -68,6 +85,72 @@ namespace Eternal {
 
 		m_Memory = m_Device.allocateMemory(memoryAllocateInfo);
 		m_Device.bindImageMemory(m_Image, m_Memory, 0);
+	}
+
+	void VulkanTexture::createImageView() {
+		vk::ImageSubresourceRange imageSubResourceRange = vk::ImageSubresourceRange()
+			.setAspectMask(vk::ImageAspectFlagBits::eColor)
+			.setBaseMipLevel(0)
+			.setLevelCount(1)
+			.setBaseArrayLayer(0)
+			.setLayerCount(1);
+
+		vk::ImageViewCreateInfo imageViewCreateInfo = vk::ImageViewCreateInfo()
+			.setImage(m_Image)
+			.setViewType(vk::ImageViewType::e2D)
+			.setFormat(m_Format)
+			.setComponents(vk::ComponentMapping())
+			.setSubresourceRange(imageSubResourceRange);
+
+		m_ImageView = m_Device.createImageView(imageViewCreateInfo);
+	}
+
+	void VulkanTexture::createSampler() {
+
+		vk::PhysicalDeviceProperties props = m_PhysicalDevice.getProperties();
+
+		vk::SamplerCreateInfo samplerInfo = vk::SamplerCreateInfo()
+			.setMagFilter(vk::Filter::eLinear)
+			.setMinFilter(vk::Filter::eLinear)
+			.setAddressModeU(vk::SamplerAddressMode::eRepeat)
+			.setAddressModeV(vk::SamplerAddressMode::eRepeat)
+			.setAddressModeW(vk::SamplerAddressMode::eRepeat)
+			.setAnisotropyEnable(VK_TRUE)
+			.setMaxAnisotropy(props.limits.maxSamplerAnisotropy)
+			.setBorderColor(vk::BorderColor::eIntOpaqueBlack)
+			.setUnnormalizedCoordinates(VK_FALSE)
+			.setCompareEnable(VK_FALSE)
+			.setCompareOp(vk::CompareOp::eAlways)
+			.setMipmapMode(vk::SamplerMipmapMode::eLinear);
+
+		m_Sampler = m_Device.createSampler(samplerInfo);
+	}
+
+	void VulkanTexture::create() {
+		prepareStagingBuffer();
+		createImage();
+		allocateMemory();
+		createImageView();
+		createSampler();
+	}
+
+	void VulkanTexture::recordUploadCommand(vk::CommandBuffer commandBuffer) {
+		{
+			VulkanTexture::LayoutTransitionInfo layoutTransitionInfo = getLayoutTransitionInfo(m_Format, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+			commandBuffer.pipelineBarrier(layoutTransitionInfo.sourceStage, layoutTransitionInfo.destinationStage, {}, {}, {}, { layoutTransitionInfo.imageMemoryBarrier });
+		}
+
+		{
+			vk::BufferImageCopy region = getRegionForCopy();
+			auto stagingBuffer = m_StagingBuffer->getBuffer();
+			commandBuffer.copyBufferToImage(*stagingBuffer, m_Image, vk::ImageLayout::eTransferDstOptimal, region);
+		}
+
+		{
+			VulkanTexture::LayoutTransitionInfo layoutTransitionInfo =
+				getLayoutTransitionInfo(m_Format, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
+			commandBuffer.pipelineBarrier(layoutTransitionInfo.sourceStage, layoutTransitionInfo.destinationStage, {}, {}, {}, { layoutTransitionInfo.imageMemoryBarrier });
+		}
 	}
 
 	VulkanTexture::LayoutTransitionInfo VulkanTexture::getLayoutTransitionInfo(vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout) {

@@ -20,7 +20,6 @@ namespace Eternal {
 				continue;
 
 			auto& component = entity.getComponent<Eternal::MaterialComponent>();
-
 			addTexture(entityUUID, component);
 		}
 	}
@@ -35,31 +34,16 @@ namespace Eternal {
 			std::make_shared<VulkanTexture>(m_Device, m_PhysicalDevice, albedoTextureImage);
 
 		initializeTexture(vulkanTexture);
+
+		m_Textures[entityId] = vulkanTexture;
 	}
 
 	void VulkanTextureManager::initializeTexture(std::shared_ptr<VulkanTexture> vulkanTexture) {
 		vk::Queue graphicsQueue = m_VulkanPlatform->getGraphicsQueue();
-		vk::Format imageFormat = vulkanTexture->getFormat();
-
-		vk::CommandBuffer commandBuffer = m_VulkanPlatform->beginSingleCommand(m_CommandPool);
-
-		{
-			VulkanTexture::LayoutTransitionInfo layoutTransitionInfo = vulkanTexture->getLayoutTransitionInfo(imageFormat, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
-			commandBuffer.pipelineBarrier(layoutTransitionInfo.sourceStage, layoutTransitionInfo.destinationStage, {}, {}, {}, { layoutTransitionInfo.imageMemoryBarrier });
-		}
-
-		{
-			vk::BufferImageCopy region = vulkanTexture->getRegionForCopy();
-			auto stagingBuffer = vulkanTexture->getStagingBuffer()->getBuffer();
-			commandBuffer.copyBufferToImage(*stagingBuffer, vulkanTexture->getImage(), vk::ImageLayout::eTransferDstOptimal, region);
-		}
-
-		{
-			VulkanTexture::LayoutTransitionInfo layoutTransitionInfo = vulkanTexture->getLayoutTransitionInfo(imageFormat, vk::ImageLayout::eTransferDstOptimal, vk::ImageLayout::eShaderReadOnlyOptimal);
-			commandBuffer.pipelineBarrier(layoutTransitionInfo.sourceStage, layoutTransitionInfo.destinationStage, {}, {}, {}, { layoutTransitionInfo.imageMemoryBarrier });
-		}
-
-		m_VulkanPlatform->endSingleCommand(m_CommandPool, commandBuffer, graphicsQueue);
+		m_VulkanPlatform->executeOneCommand(m_CommandPool, graphicsQueue,
+			[&](vk::CommandBuffer commandBuffer) {
+				vulkanTexture->recordUploadCommand(commandBuffer);
+			});
 	}
 
 	void VulkanTextureManager::createCommandPool() {

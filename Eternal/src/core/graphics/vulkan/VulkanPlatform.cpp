@@ -124,6 +124,7 @@ namespace Eternal {
 		}
 
 		vk::PhysicalDeviceFeatures deviceFeature = vk::PhysicalDeviceFeatures();
+		deviceFeature.setSamplerAnisotropy(true);
 
 		vk::DeviceCreateInfo deviceCreateInfo = vk::DeviceCreateInfo()
 			.setFlags(vk::DeviceCreateFlags())
