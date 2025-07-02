@@ -16,6 +16,12 @@ namespace Eternal
 			return false;
 		}
 
+		if (m_Channels < DESIRED_IMAGE_CHANNELS)
+		{
+			Eternal::Logger::Warn("Image loaded from path {} has less than 4 channels, reverting the channels to {}", path, DESIRED_IMAGE_CHANNELS);
+			m_Channels = DESIRED_IMAGE_CHANNELS;
+		}
+
 		return true;
 	}
 

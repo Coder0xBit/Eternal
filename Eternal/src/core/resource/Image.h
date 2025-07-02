@@ -4,6 +4,9 @@
 #include <GLFW/glfw3.h>
 
 namespace Eternal {
+
+	constexpr uint32_t DESIRED_IMAGE_CHANNELS = 4; // RGBA				
+
 	class Image : public Resource {
 	public:
 		Image();
@@ -23,6 +26,6 @@ namespace Eternal {
 		int m_Height = 0;
 		int m_Channels = 0;
 		unsigned char* m_Data = nullptr;
-		
+
 	};
 }

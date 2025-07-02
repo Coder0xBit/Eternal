@@ -10,6 +10,7 @@ namespace Eternal {
 
 		m_Width = imageResource->getWidth();
 		m_Height = imageResource->getHeight();
+
 		create();
 	}
 
@@ -106,9 +107,7 @@ namespace Eternal {
 	}
 
 	void VulkanTexture::createSampler() {
-
 		vk::PhysicalDeviceProperties props = m_PhysicalDevice.getProperties();
-
 		vk::SamplerCreateInfo samplerInfo = vk::SamplerCreateInfo()
 			.setMagFilter(vk::Filter::eLinear)
 			.setMinFilter(vk::Filter::eLinear)
@@ -136,7 +135,8 @@ namespace Eternal {
 
 	void VulkanTexture::recordUploadCommand(vk::CommandBuffer commandBuffer) {
 		{
-			VulkanTexture::LayoutTransitionInfo layoutTransitionInfo = getLayoutTransitionInfo(m_Format, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
+			VulkanTexture::LayoutTransitionInfo layoutTransitionInfo =
+				getLayoutTransitionInfo(m_Format, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
 			commandBuffer.pipelineBarrier(layoutTransitionInfo.sourceStage, layoutTransitionInfo.destinationStage, {}, {}, {}, { layoutTransitionInfo.imageMemoryBarrier });
 		}
 
@@ -165,7 +165,7 @@ namespace Eternal {
 			.setOldLayout(oldLayout)
 			.setNewLayout(newLayout)
 			.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-			.setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+			.setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
 			.setImage(m_Image)
 			.setSubresourceRange(subresourceRange);
 

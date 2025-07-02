@@ -9,6 +9,7 @@ namespace Eternal {
 		m_Device = m_VulkanPlatform->getLogicalDevice();
 		m_PhysicalDevice = m_VulkanPlatform->getPhysicalDevice();
 		createCommandPool();
+		initialize();
 	}
 
 	void VulkanTextureManager::initialize() {
