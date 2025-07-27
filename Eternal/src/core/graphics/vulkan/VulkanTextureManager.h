@@ -18,6 +18,14 @@ namespace Eternal {
 
 		void addTexture(EntityId entityId, const MaterialComponent& materialComponent);
 
+		std::shared_ptr<VulkanTexture> getTexture(EntityId entityId) const {
+			auto it = m_Textures.find(entityId);
+			if (it != m_Textures.end()) {
+				return it->second;
+			}
+			return nullptr;
+		}
+
 	private:
 		void initialize();
 		void initializeTexture(std::shared_ptr<VulkanTexture> vulkanTexture);

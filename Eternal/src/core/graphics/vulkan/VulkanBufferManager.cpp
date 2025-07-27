@@ -32,6 +32,18 @@ namespace Eternal {
 
 			addBuffer(entityUUID, component);
 		}
+
+		for (auto& e : m_Scene->getAllEntityWith<Eternal::TransformComponent>()) {
+			Eternal::Entity entity = Eternal::Entity(e, m_Scene);
+			EntityId entityUUID = entity.getUUID();
+
+			if (m_UniformBuffers.count(entityUUID) >= 1 )
+				continue;
+
+			auto& component = entity.getComponent<Eternal::TransformComponent>();
+
+			addUniformBuffer(entityUUID, component);
+		}
 	}
 
 	void VulkanBufferManager::addBuffer(EntityId entityId, const RenderComponent& renderComponent) {
@@ -50,6 +62,14 @@ namespace Eternal {
 		indexBuffer->write((void*)(renderComponent.getIndices().data()));
 
 		m_IndexBuffers[entityId] = indexBuffer;
+	}
+
+	void VulkanBufferManager::addUniformBuffer(EntityId entityId, const TransformComponent& transformComponent) {
+		auto uniformBuffer = std::make_shared<VulkanBuffer>(m_Device, m_PhysicalDevice);
+		uniformBuffer->create(1, sizeof(UniformBuffer), vk::BufferUsageFlagBits::eUniformBuffer);
+		uniformBuffer->allocate(m_UniformBufferProperties);
+		uniformBuffer->map();
+		m_UniformBuffers[entityId] = uniformBuffer;
 	}
 }
 

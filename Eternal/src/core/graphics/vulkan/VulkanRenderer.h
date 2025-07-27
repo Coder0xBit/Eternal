@@ -15,18 +15,16 @@
 
 namespace Eternal {
 
+	constexpr uint32_t e_MaxEntities = 100;
+
 	class VulkanRenderer : public Renderer {
 
 	public:
+
 		struct PushConstants {
 			glm::mat4 transform{ 1.f };
 			glm::mat4 normalMatrix{ 1.f };
 			glm::mat4 modelMatrix{ 1.0f };
-		};
-
-		struct UniformBuffer {
-			alignas(16) glm::mat4 transform{ 1.f };
-			alignas(16) glm::mat4 normalMatrix{ 1.f };
 		};
 
 		VulkanRenderer(VulkanPlatform* platform, Window* window, Scene* scene);
@@ -41,7 +39,6 @@ namespace Eternal {
 
 		void bindScene();
 		void createPipeline();
-		void createUniformBuffers();
 		void initializeDescriptors();
 		void createCommandPool();
 		void createCommandBuffers();
@@ -52,17 +49,17 @@ namespace Eternal {
 		void endRecoding(vk::CommandBuffer commandBuffer);
 		void updateUniformBuffers();
 
-		Scene* m_Scene;
-		VulkanPlatform* m_Platform;
-		VulkanSwapChain* m_VulkanSwapChain;
+		Scene* m_Scene = nullptr;
+		VulkanPlatform* m_Platform = nullptr;
+		VulkanSwapChain* m_VulkanSwapChain = nullptr;
 
 		vk::Viewport m_Viewport;
 		vk::Rect2D m_Scissor;
 
-		Eternal::VulkanBufferManager* m_VulkanBufferManager;
-		Eternal::VulkanTextureManager* m_VulkanTextureManager;
-		Eternal::Camera* m_Camera;
-		Eternal::Window* m_Window;
+		Eternal::VulkanBufferManager* m_VulkanBufferManager = nullptr;
+		Eternal::VulkanTextureManager* m_VulkanTextureManager = nullptr;
+		Eternal::Camera* m_Camera = nullptr;
+		Eternal::Window* m_Window = nullptr;
 
 		std::vector<vk::Semaphore> m_ImageAvailableSemaphores;
 		std::vector<vk::Semaphore> m_RenderFinishedSemaphores;
@@ -87,6 +84,6 @@ namespace Eternal {
 		std::vector<std::shared_ptr<VulkanBuffer>> m_UniformBuffers;
 		VulkanDescriptorPool* m_DescriptorPool = nullptr;
 		VulkanDescriptorSetLayout* m_DescriptorSetLayout = nullptr;
-		std::vector<vk::DescriptorSet> m_DescriptorSets;
+		std::unordered_map<uint32_t, vk::DescriptorSet> m_DescriptorSets;
 	};
 }

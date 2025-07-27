@@ -37,14 +37,14 @@ namespace Eternal {
 
 		m_PhysicalDevice = m_Platform->getPhysicalDevice();
 
+		m_VulkanBufferManager = Memory::Allocate<VulkanBufferManager>(m_LogicalDevice, m_PhysicalDevice, m_Scene);
+		m_VulkanTextureManager = Memory::Allocate<VulkanTextureManager>(m_Platform, m_Scene);
+
 		createPipeline();
 		createCommandPool();
 		createCommandBuffers();
 		createSemaphores();
 		createFences();
-
-		m_VulkanBufferManager = Memory::Allocate<VulkanBufferManager>(m_LogicalDevice, m_PhysicalDevice, m_Scene);
-		m_VulkanTextureManager = Memory::Allocate<VulkanTextureManager>(m_Platform, m_Scene);
 	}
 
 	VulkanRenderer::~VulkanRenderer() {
@@ -72,9 +72,11 @@ namespace Eternal {
 
 		//m_UniformBuffers.clear();
 
-		//Memory::Deallocate(m_DescriptorSetLayout);
+		m_DescriptorSets.clear();
 
-		//Memory::Deallocate(m_DescriptorPool);
+		Memory::Deallocate(m_DescriptorSetLayout);
+
+		Memory::Deallocate(m_DescriptorPool);
 
 		Memory::Deallocate(m_VulkanTextureManager);
 
@@ -91,11 +93,14 @@ namespace Eternal {
 		m_Scene->onComponentAdded<Eternal::RenderComponent>([this](Eternal::Entity entity, Eternal::RenderComponent& component) {
 			m_VulkanBufferManager->addBuffer(entity.getUUID(), component);
 			});
+
+		m_Scene->onComponentAdded<Eternal::TransformComponent>([this](Eternal::Entity entity, Eternal::TransformComponent& component) {
+			m_VulkanBufferManager->addUniformBuffer(entity.getUUID(), component);
+			});
 	}
 
 	void VulkanRenderer::createPipeline() {
-		//createUniformBuffers();
-		//initializeDescriptors();
+		initializeDescriptors();
 
 		vk::PushConstantRange pushConstantRange = vk::PushConstantRange()
 			.setOffset(0)
@@ -103,7 +108,8 @@ namespace Eternal {
 			.setStageFlags(vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
 
 		vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo()
-			.setSetLayoutCount(0)
+			.setSetLayoutCount(1)
+			.setPSetLayouts(&(m_DescriptorSetLayout->getDescriptorSetLayout()))
 			.setPushConstantRanges(pushConstantRange);
 
 		m_PipelineLayout = m_LogicalDevice.createPipelineLayout(pipelineLayoutCreateInfo);
@@ -122,61 +128,70 @@ namespace Eternal {
 		m_LogicalDevice.destroyShaderModule(fragmentShaderModule);
 	}
 
-	void VulkanRenderer::createUniformBuffers() {
-		vk::MemoryPropertyFlags bufferProperties = vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-
-		m_UniformBuffers.resize(MAX_FRAMES_IN_FLIGHT);
-
-		for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
-		{
-			auto buffer = std::make_shared<VulkanBuffer>(m_Platform->getLogicalDevice(), m_Platform->getPhysicalDevice());
-			buffer->create(1, sizeof(UniformBuffer), vk::BufferUsageFlagBits::eUniformBuffer);
-			buffer->allocate(bufferProperties);
-			buffer->map();
-			m_UniformBuffers[i] = buffer;
-		}
-	}
-
 	void VulkanRenderer::updateUniformBuffers() {
-		for (auto& e : m_Scene->getAllEntityWith<Eternal::TransformComponent>()) {
-			Eternal::Entity entity = Eternal::Entity(e, m_Scene);
-			auto& component = entity.getComponent<Eternal::TransformComponent>();
 
-			UniformBuffer uniformBuffer = {};
-			glm::mat4 modelMatrix = m_Camera->getProjection() * component.mat4();
-			uniformBuffer.transform = modelMatrix;
-			uniformBuffer.normalMatrix = component.mat4();
-			m_UniformBuffers[m_CurrentFrame]->write(&uniformBuffer);
-		}
 	}
 
 	void VulkanRenderer::initializeDescriptors() {
 		m_DescriptorSetLayout = VulkanDescriptorSetLayout::Builder(m_LogicalDevice)
 			.addBinding({ 0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex })
+			.addBinding({ 1, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment })
 			.build();
 
 		m_DescriptorPool = VulkanDescriptorPool::Builder(m_LogicalDevice)
-			.addPoolSize({ vk::DescriptorType::eUniformBuffer, 1 })
-			.setMaxSets(4)
+			.addPoolSize({ vk::DescriptorType::eUniformBuffer, e_MaxEntities })
+			.setMaxSets(e_MaxEntities)
 			.build();
 
-		m_DescriptorSets = m_DescriptorPool->allocate(MAX_FRAMES_IN_FLIGHT, *m_DescriptorSetLayout);
+		for (auto& [e, transform] : m_Scene->getAllEntityWith<Eternal::TransformComponent>().each()) {
+			Eternal::Entity entity = Eternal::Entity(e, m_Scene);
+			uint32_t entityId = entity.getUUID();
 
-		for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+			vk::DescriptorSet descriptorSet = m_DescriptorPool->allocate(*m_DescriptorSetLayout);
+			m_DescriptorSets[entityId] = descriptorSet;
+
+			auto buffer = m_VulkanBufferManager->getUniformBuffer(entityId);
+			if (!buffer) {
+				Eternal::Logger::Error("Uniform buffer for entity {} not found", entity.getName());
+				continue;
+			}
+
 			vk::DescriptorBufferInfo bufferInfo = vk::DescriptorBufferInfo()
-				.setBuffer(*(m_UniformBuffers[i]->getBuffer()))
+				.setBuffer(*((buffer)->getBuffer()))
 				.setOffset(0)
-				.setRange(sizeof(UniformBuffer));
+				.setRange(sizeof(VulkanBufferManager::UniformBuffer));
 
-			vk::WriteDescriptorSet writeDescriptorSet = vk::WriteDescriptorSet()
-				.setDstSet(m_DescriptorSets[i])
+			auto texture = m_VulkanTextureManager->getTexture(entityId);
+			if(texture == nullptr) {
+				Eternal::Logger::Error("Texture for entity {} not found", entity.getName());
+				continue;
+			}
+
+			vk::DescriptorImageInfo imageInfo = vk::DescriptorImageInfo()
+				.setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+				.setImageView(texture->getImageView())
+				.setSampler(texture->getSampler());
+
+			vk::WriteDescriptorSet uniformWriter = vk::WriteDescriptorSet()
+				.setDstSet(descriptorSet)
 				.setDstBinding(0)
 				.setDstArrayElement(0)
 				.setDescriptorType(vk::DescriptorType::eUniformBuffer)
 				.setDescriptorCount(1)
 				.setPBufferInfo(&bufferInfo);
 
-			m_LogicalDevice.updateDescriptorSets(writeDescriptorSet, nullptr);
+			vk::WriteDescriptorSet samplerWriter = vk::WriteDescriptorSet()
+				.setDstSet(descriptorSet)
+				.setDstBinding(1)
+				.setDstArrayElement(0)
+				.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
+				.setDescriptorCount(1)
+				.setImageInfo(imageInfo);	
+
+			std::vector<vk::WriteDescriptorSet> writeDescriptorSets = { uniformWriter, samplerWriter };
+
+			m_LogicalDevice.updateDescriptorSets(writeDescriptorSets, nullptr);
+
 		}
 	}
 
@@ -262,7 +277,21 @@ namespace Eternal {
 			m_PushConstants.normalMatrix = normal;
 			m_PushConstants.modelMatrix = model;
 
-			m_CurrentCommandBuffer.pushConstants(m_PipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(PushConstants), &m_PushConstants);
+			VulkanBufferManager::UniformBuffer uniformBufferData;
+			uniformBufferData.transform = projection * model;
+			uniformBufferData.normalMatrix = normal;
+			uniformBufferData.modelMatrix = model;
+			std::shared_ptr<VulkanBuffer> uniformBuffer = m_VulkanBufferManager->getUniformBuffer(entity.getUUID());
+
+			if (uniformBuffer) {
+				uniformBuffer->write(&uniformBufferData);
+			}
+
+			auto descriptorSet = m_DescriptorSets[entity.getUUID()];
+			m_CurrentCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+
+
+			//m_CurrentCommandBuffer.pushConstants(m_PipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(PushConstants), &m_PushConstants);
 
 			std::shared_ptr<VulkanBuffer> vertexBuffer = m_VulkanBufferManager->getVertexBuffer(entity.getUUID());
 			if (vertexBuffer) {

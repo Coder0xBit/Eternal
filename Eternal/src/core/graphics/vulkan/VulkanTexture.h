@@ -23,6 +23,8 @@ namespace Eternal {
 		int getWidth() { return m_Width; }
 		int getHeight() { return m_Height; }
 		vk::BufferImageCopy getRegionForCopy();
+		vk::ImageView getImageView() { return m_ImageView; }
+		vk::Sampler getSampler() { return m_Sampler; }
 
 		void create();
 		void recordUploadCommand(vk::CommandBuffer commandBuffer);

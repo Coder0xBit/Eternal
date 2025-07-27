@@ -36,6 +36,11 @@ namespace Eternal {
 		}
 
 		template<typename T>
+		T* tryGetComponent() {
+			return m_Scene->m_Registry.try_get<T>(m_EntityHandle);
+		}
+
+		template<typename T>
 		void removeComponent() {
 			m_Scene->m_Registry.remove<T>(m_EntityHandle);
 		}
