@@ -107,10 +107,14 @@ namespace Eternal {
 			.setSize(sizeof(PushConstants))
 			.setStageFlags(vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
 
+		//vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo()
+		//	.setSetLayoutCount(1)
+		//	.setPSetLayouts(&(m_DescriptorSetLayout->getDescriptorSetLayout()))
+		//	.setPushConstantRanges(pushConstantRange);
+
 		vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo()
 			.setSetLayoutCount(1)
-			.setPSetLayouts(&(m_DescriptorSetLayout->getDescriptorSetLayout()))
-			.setPushConstantRanges(pushConstantRange);
+			.setPSetLayouts(&(m_DescriptorSetLayout->getDescriptorSetLayout()));
 
 		m_PipelineLayout = m_LogicalDevice.createPipelineLayout(pipelineLayoutCreateInfo);
 
@@ -162,7 +166,7 @@ namespace Eternal {
 				.setRange(sizeof(VulkanBufferManager::UniformBuffer));
 
 			auto texture = m_VulkanTextureManager->getTexture(entityId);
-			if(texture == nullptr) {
+			if (texture == nullptr) {
 				Eternal::Logger::Error("Texture for entity {} not found", entity.getName());
 				continue;
 			}
@@ -186,7 +190,7 @@ namespace Eternal {
 				.setDstArrayElement(0)
 				.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
 				.setDescriptorCount(1)
-				.setImageInfo(imageInfo);	
+				.setImageInfo(imageInfo);
 
 			std::vector<vk::WriteDescriptorSet> writeDescriptorSets = { uniformWriter, samplerWriter };
 

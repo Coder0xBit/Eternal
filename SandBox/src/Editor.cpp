@@ -47,14 +47,14 @@ namespace Eternal {
 
 		addEntity(testEntity1);
 
-		TestEntityDetails testEntity2 = {
-			"cube",
-			"res/models/cube.obj",
-			"res/models/textures/Wood_Tower_Col.jpg" ,
-			glm::vec3(0.0f, 0.0f, -10.0f)
-		};
+		//TestEntityDetails testEntity2 = {
+		//	"cube",
+		//	"res/models/cube.obj",
+		//	"res/models/textures/Wood_Tower_Col.jpg" ,
+		//	glm::vec3(0.0f, 0.0f, -10.0f)
+		//};
 
-		addEntity(testEntity2);
+		//addEntity(testEntity2);
 
 		m_Renderer = m_Engine->createRenderer(m_Window, m_Scene);
 

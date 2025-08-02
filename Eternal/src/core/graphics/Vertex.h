@@ -20,7 +20,7 @@ namespace Eternal {
 		Vertex(float value) : position(value, value, value) {}
 
 		bool operator==(const Vertex& other) const {
-			return position == other.position && color == other.color;
+			return position == other.position && color == other.color && normal == other.normal && uv == other.uv;
 		}
 
 		static std::vector<vk::VertexInputBindingDescription> getBindingDescription() {

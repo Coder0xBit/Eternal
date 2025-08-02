@@ -10,7 +10,11 @@ namespace std {
 		size_t operator()(Eternal::Vertex const& vertex) const
 		{
 			size_t seed = 0;
-			Eternal::hashCombine(seed, vertex.position.x, vertex.position.y, vertex.position.z, vertex.color.x, vertex.color.y, vertex.color.z);
+			Eternal::hashCombine(seed,
+				vertex.position.x, vertex.position.y, vertex.position.z,
+				vertex.color.x, vertex.color.y, vertex.color.z,
+				vertex.normal.x, vertex.normal.y, vertex.normal.z,
+				vertex.uv.x, vertex.uv.y);
 			return seed;
 		}
 	};
@@ -43,11 +47,16 @@ namespace Eternal {
 						attrib.vertices[3 * index.vertex_index + 2],
 					};
 
-					vertex.color = {
-						attrib.colors[3 * index.vertex_index + 0],
-						attrib.colors[3 * index.vertex_index + 1],
-						attrib.colors[3 * index.vertex_index + 2],
-					};
+					if (attrib.colors.empty()) {
+						vertex.color = { 1.0f, 1.0f, 1.0f };
+					}
+					else {
+						vertex.color = {
+							attrib.colors[3 * index.vertex_index + 0],
+							attrib.colors[3 * index.vertex_index + 1],
+							attrib.colors[3 * index.vertex_index + 2],
+						};
+					}
 				}
 
 				if (index.normal_index >= 0) {

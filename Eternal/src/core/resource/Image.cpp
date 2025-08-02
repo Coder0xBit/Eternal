@@ -8,7 +8,7 @@ namespace Eternal
 	Image::Image() {}
 
 	bool Image::load(const std::string& path) {
-		stbi_set_flip_vertically_on_load(true);
+		/*stbi_set_flip_vertically_on_load(true);*/
 		m_Data = stbi_load(path.c_str(), &m_Width, &m_Height, &m_Channels, STBI_rgb_alpha);
 
 		if (!m_Data)
