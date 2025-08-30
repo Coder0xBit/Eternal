@@ -269,7 +269,7 @@ namespace Eternal {
 	void VulkanRenderer::render() {
 		VulkanSwapChain::SwapChainDetails swapChainDetails = m_VulkanSwapChain->getSwapChainDetails();
 
-		for (auto& [e, transform] : m_Scene->getAllEntityWith<Eternal::TransformComponent>().each()) {
+		for (auto [e, transform] : m_Scene->getAllEntityWith<Eternal::TransformComponent>().each()) {
 			Eternal::Entity entity = Eternal::Entity(e, m_Scene);
 
 			glm::mat4 projection = m_Camera->getProjection();
