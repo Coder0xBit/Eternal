@@ -4,6 +4,7 @@
 #include <core/scene/Scene.h>
 
 #include "ImGuiApplication.h"
+#include "core/graphics/Camera.hpp"
 
 namespace Eternal {
 
@@ -33,6 +34,7 @@ namespace Eternal {
 		Engine* m_Engine = nullptr;
 		Eternal::Scene* m_Scene = nullptr;
 		Eternal::Renderer* m_Renderer = nullptr;
+		Eternal::Camera* m_EditorCamera = nullptr;
 		Window* m_Window = nullptr;
 		SwapChain* m_SwapChain = nullptr;
 		ImGuiLayer* m_ImGuiLayer = nullptr;

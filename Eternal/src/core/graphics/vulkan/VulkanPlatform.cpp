@@ -15,11 +15,11 @@ namespace Eternal {
 	VulkanPlatform::VulkanPlatform(const Builder& builder) {
 		m_ApplicationName = builder->applicationName;
 
-		initialize();
+		VulkanPlatform::initialize();
 	}
 
 	VulkanPlatform::~VulkanPlatform() {
-		shutDown();
+		VulkanPlatform::shutDown();
 	}
 
 	void VulkanPlatform::initialize() {

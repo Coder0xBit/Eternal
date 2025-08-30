@@ -28,8 +28,8 @@ set(SHADER_OUTPUT_DIR ${CMAKE_CURRENT_SOURCE_DIR}/res/shader/bin)
 file(MAKE_DIRECTORY ${SHADER_OUTPUT_DIR})
 
 add_custom_target(Shaders ALL
-        COMMAND ${GLSLC_EXECUTABLE} ${SHADER_DIR}/shader.vert -o ${SHADER_OUTPUT_DIR}/vert.spv
-        COMMAND ${GLSLC_EXECUTABLE} ${SHADER_DIR}/shader.frag -o ${SHADER_OUTPUT_DIR}/frag.spv
+        COMMAND ${GLSLC_EXECUTABLE} -fshader-stage=vertex ${SHADER_DIR}/vert.glsl -o ${SHADER_OUTPUT_DIR}/vert.spv
+        COMMAND ${GLSLC_EXECUTABLE} -fshader-stage=fragment ${SHADER_DIR}/frag.glsl -o ${SHADER_OUTPUT_DIR}/frag.spv
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         COMMENT "Building SPIR-V shaders"
 )

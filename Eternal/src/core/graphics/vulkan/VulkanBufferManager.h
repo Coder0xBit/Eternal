@@ -17,9 +17,9 @@ namespace Eternal {
 		using VulkanEntityData = std::unordered_map<EntityId, std::shared_ptr<VulkanBuffer>>;
 
 		struct UniformBuffer {
-			alignas(16) glm::mat4 transform{ 1.0f };
-			alignas(16) glm::mat4 normalMatrix{ 1.0f };
-			alignas(16) glm::mat4 modelMatrix{ 1.0f };
+			alignas(16) glm::mat4 projection{ 1.0f };
+			alignas(16) glm::mat4 view{ 1.0f };
+			alignas(16) glm::mat4 model{ 1.0f };
 		};
 
 		VulkanBufferManager(vk::Device device, vk::PhysicalDevice physicalDevice, Scene* scene);

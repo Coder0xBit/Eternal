@@ -1,40 +1,50 @@
 #pragma once
-#include <utils/Base.h>	
+#include <utils/Base.h>
 #include <core/graphics/Vertex.h>
 #include <core/Window.h>
 #include <core/graphics/SwapChain.h>
 #include <core/graphics/Backend.h>
 
 namespace Eternal {
-	class GraphicsPlatform {
-	public:
-		virtual ~GraphicsPlatform() = default;
-		virtual void initialize() = 0;
-		virtual void shutDown() = 0;
-		virtual SwapChain* createSwapChain(Window* window) = 0;
+    class GraphicsPlatform {
+    public:
+        virtual ~GraphicsPlatform() = default;
 
-		struct BuilderDetails {
-			std::vector<Eternal::Vertex> vertices;
-			std::string applicationName;
-			Backend backend = Backend::Vulkan;
-		};
+        virtual void initialize() = 0;
 
-		class Builder : public utils::PrivateImplementation<BuilderDetails> {
-			friend class GraphicsPlatform;
-			friend class VulkanPlatform;
+        virtual void shutDown() = 0;
 
-		public:
-			Builder() noexcept;
-			Builder(Builder const& rhs) noexcept;
-			Builder(Builder&& rhs) noexcept;
-			~Builder() noexcept;
-			Builder& operator=(Builder const& rhs) noexcept;
-			Builder& operator=(Builder&& rhs) noexcept;
-			Builder& applicationName(const std::string& applicationName) noexcept;
-			Builder& backend(Backend backend) noexcept;
-			GraphicsPlatform* build() noexcept;
-		};
+        virtual SwapChain* createSwapChain(Window* window) = 0;
 
-		static GraphicsPlatform* create(const Builder& builder);
-	};
+        struct BuilderDetails {
+            std::string applicationName;
+            Backend backend = Backend::Vulkan;
+        };
+
+        class Builder : public utils::PrivateImplementation<BuilderDetails> {
+            friend class GraphicsPlatform;
+            friend class VulkanPlatform;
+
+        public:
+            Builder() noexcept;
+
+            Builder(Builder const& rhs) noexcept;
+
+            Builder(Builder&& rhs) noexcept;
+
+            ~Builder() noexcept;
+
+            Builder& operator=(Builder const& rhs) noexcept;
+
+            Builder& operator=(Builder&& rhs) noexcept;
+
+            Builder& applicationName(const std::string& applicationName) noexcept;
+
+            Builder& backend(Backend backend) noexcept;
+
+            GraphicsPlatform* build() const noexcept;
+        };
+
+        static GraphicsPlatform* create(const Builder& builder);
+    };
 }

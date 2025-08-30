@@ -27,7 +27,7 @@ namespace Eternal {
 			}
 		);
 
-		Eternal::Logger::Info("Current Working Path {} , Accessing Window Icon", std::filesystem::current_path().string());
+		Logger::Info("Current Working Path {} , Accessing Window Icon", std::filesystem::current_path().string());
 		setWindowIcon(WINDOW_ICON_PATH, m_Window);
 
 		Eternal::Logger::Info("Window Created");
@@ -95,6 +95,6 @@ namespace Eternal {
 	}
 
 	WindowsWindow::~WindowsWindow() {
-		shutDown();
+		WindowsWindow::shutDown();
 	}
 }
