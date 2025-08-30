@@ -12,6 +12,7 @@ namespace Eternal {
 	class VulkanTextureManager {
 	public:
 		using EntityId = uint32_t;
+		using VulkanTextureContainer = std::unordered_map<EntityId, std::shared_ptr<VulkanTexture>>;
 
 		VulkanTextureManager(Eternal::VulkanPlatform* vulkanPlatform, Scene* scene);
 		~VulkanTextureManager();
@@ -26,6 +27,8 @@ namespace Eternal {
 			return nullptr;
 		}
 
+		const VulkanTextureContainer& getTextures() const { return m_Textures; }
+
 	private:
 		void initialize();
 		void initializeTexture(std::shared_ptr<VulkanTexture> vulkanTexture);
@@ -37,7 +40,7 @@ namespace Eternal {
 		Scene* m_Scene = nullptr;
 		vk::Device m_Device = nullptr;
 		vk::PhysicalDevice m_PhysicalDevice = nullptr;
-		std::unordered_map<EntityId, std::shared_ptr<VulkanTexture>> m_Textures;
+		VulkanTextureContainer m_Textures;
 
 	};
 }

@@ -72,9 +72,11 @@ namespace Eternal {
 
 		//m_UniformBuffers.clear();
 
-		m_DescriptorSets.clear();
+		m_UniformDescriptorSets.clear();
+		m_MaterialDescriptorSets.clear();
 
-		Memory::Deallocate(m_DescriptorSetLayout);
+		Memory::Deallocate(m_UniformBufferDescriptorSetLayout);
+		Memory::Deallocate(m_MaterialDescriptorSetLayout);
 
 		Memory::Deallocate(m_DescriptorPool);
 
@@ -107,14 +109,18 @@ namespace Eternal {
 			.setSize(sizeof(PushConstants))
 			.setStageFlags(vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
 
+		std::array<vk::DescriptorSetLayout, 2> setLayouts = {
+			m_UniformBufferDescriptorSetLayout->getDescriptorSetLayout() ,
+			m_MaterialDescriptorSetLayout->getDescriptorSetLayout()
+		};
+
 		//vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo()
 		//	.setSetLayoutCount(1)
 		//	.setPSetLayouts(&(m_DescriptorSetLayout->getDescriptorSetLayout()))
 		//	.setPushConstantRanges(pushConstantRange);
 
 		vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo()
-			.setSetLayoutCount(1)
-			.setPSetLayouts(&(m_DescriptorSetLayout->getDescriptorSetLayout()));
+			.setSetLayouts(setLayouts);
 
 		m_PipelineLayout = m_LogicalDevice.createPipelineLayout(pipelineLayoutCreateInfo);
 
@@ -137,65 +143,58 @@ namespace Eternal {
 	}
 
 	void VulkanRenderer::initializeDescriptors() {
-		m_DescriptorSetLayout = VulkanDescriptorSetLayout::Builder(m_LogicalDevice)
+		m_UniformBufferDescriptorSetLayout = VulkanDescriptorSetLayout::Builder(m_LogicalDevice)
 			.addBinding({ 0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex })
-			.addBinding({ 1, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment })
+			.build();
+
+		m_MaterialDescriptorSetLayout = VulkanDescriptorSetLayout::Builder(m_LogicalDevice)
+			.addBinding({ 0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment })
 			.build();
 
 		m_DescriptorPool = VulkanDescriptorPool::Builder(m_LogicalDevice)
 			.addPoolSize({ vk::DescriptorType::eUniformBuffer, e_MaxEntities })
+			.addPoolSize({ vk::DescriptorType::eCombinedImageSampler, e_MaxEntities })
 			.setMaxSets(e_MaxEntities)
 			.build();
 
-		for (auto& [e, transform] : m_Scene->getAllEntityWith<Eternal::TransformComponent>().each()) {
-			Eternal::Entity entity = Eternal::Entity(e, m_Scene);
-			uint32_t entityId = entity.getUUID();
-
-			vk::DescriptorSet descriptorSet = m_DescriptorPool->allocate(*m_DescriptorSetLayout);
-			m_DescriptorSets[entityId] = descriptorSet;
-
-			auto buffer = m_VulkanBufferManager->getUniformBuffer(entityId);
-			if (!buffer) {
-				Eternal::Logger::Error("Uniform buffer for entity {} not found", entity.getName());
-				continue;
-			}
+		auto uniformBuffers = m_VulkanBufferManager->getUniformBuffers();
+		for (auto& [entityId, uniformBuffer] : uniformBuffers) {
+			vk::DescriptorSet descriptorSet = m_DescriptorPool->allocate(*m_UniformBufferDescriptorSetLayout);
+			m_UniformDescriptorSets[entityId] = descriptorSet;
 
 			vk::DescriptorBufferInfo bufferInfo = vk::DescriptorBufferInfo()
-				.setBuffer(*((buffer)->getBuffer()))
+				.setBuffer(*uniformBuffer->getBuffer())
 				.setOffset(0)
 				.setRange(sizeof(VulkanBufferManager::UniformBuffer));
 
-			auto texture = m_VulkanTextureManager->getTexture(entityId);
-			if (texture == nullptr) {
-				Eternal::Logger::Error("Texture for entity {} not found", entity.getName());
-				continue;
-			}
-
-			vk::DescriptorImageInfo imageInfo = vk::DescriptorImageInfo()
-				.setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
-				.setImageView(texture->getImageView())
-				.setSampler(texture->getSampler());
-
-			vk::WriteDescriptorSet uniformWriter = vk::WriteDescriptorSet()
+			vk::WriteDescriptorSet writeDescriptorSet = vk::WriteDescriptorSet()
 				.setDstSet(descriptorSet)
 				.setDstBinding(0)
 				.setDstArrayElement(0)
 				.setDescriptorType(vk::DescriptorType::eUniformBuffer)
 				.setDescriptorCount(1)
 				.setPBufferInfo(&bufferInfo);
+			m_LogicalDevice.updateDescriptorSets(writeDescriptorSet, nullptr);
+		}
 
-			vk::WriteDescriptorSet samplerWriter = vk::WriteDescriptorSet()
+		auto textures = m_VulkanTextureManager->getTextures();
+		for (auto& [entityId, texture] : textures) {
+			vk::DescriptorSet descriptorSet = m_DescriptorPool->allocate(*m_MaterialDescriptorSetLayout);
+			m_MaterialDescriptorSets[entityId] = descriptorSet;
+
+			vk::DescriptorImageInfo imageInfo = vk::DescriptorImageInfo()
+				.setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
+				.setImageView(texture->getImageView())
+				.setSampler(texture->getSampler());
+
+			vk::WriteDescriptorSet writeDescriptorSet = vk::WriteDescriptorSet()
 				.setDstSet(descriptorSet)
-				.setDstBinding(1)
+				.setDstBinding(0)
 				.setDstArrayElement(0)
 				.setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
 				.setDescriptorCount(1)
-				.setImageInfo(imageInfo);
-
-			std::vector<vk::WriteDescriptorSet> writeDescriptorSets = { uniformWriter, samplerWriter };
-
-			m_LogicalDevice.updateDescriptorSets(writeDescriptorSets, nullptr);
-
+				.setPImageInfo(&imageInfo);
+			m_LogicalDevice.updateDescriptorSets(writeDescriptorSet, nullptr);
 		}
 	}
 
@@ -291,10 +290,11 @@ namespace Eternal {
 				uniformBuffer->write(&uniformBufferData);
 			}
 
-			auto descriptorSet = m_DescriptorSets[entity.getUUID()];
+			auto descriptorSet = m_UniformDescriptorSets[entity.getUUID()];
 			m_CurrentCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
 
-
+			auto materialDescriptorSet = m_MaterialDescriptorSets[entity.getUUID()];
+			m_CurrentCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 1, 1, &materialDescriptorSet, 0, nullptr);
 			//m_CurrentCommandBuffer.pushConstants(m_PipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(PushConstants), &m_PushConstants);
 
 			std::shared_ptr<VulkanBuffer> vertexBuffer = m_VulkanBufferManager->getVertexBuffer(entity.getUUID());

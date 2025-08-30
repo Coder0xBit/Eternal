@@ -83,7 +83,9 @@ namespace Eternal {
 
 		std::vector<std::shared_ptr<VulkanBuffer>> m_UniformBuffers;
 		VulkanDescriptorPool* m_DescriptorPool = nullptr;
-		VulkanDescriptorSetLayout* m_DescriptorSetLayout = nullptr;
-		std::unordered_map<uint32_t, vk::DescriptorSet> m_DescriptorSets;
+		VulkanDescriptorSetLayout* m_UniformBufferDescriptorSetLayout = nullptr;
+		VulkanDescriptorSetLayout* m_MaterialDescriptorSetLayout = nullptr;
+		std::unordered_map<uint32_t, vk::DescriptorSet> m_UniformDescriptorSets;
+		std::unordered_map<uint32_t, vk::DescriptorSet> m_MaterialDescriptorSets;
 	};
 }
