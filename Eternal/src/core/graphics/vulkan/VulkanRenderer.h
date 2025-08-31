@@ -14,6 +14,7 @@
 #include "VulkanPipeline.h"
 
 namespace Eternal {
+    class ImGuiOverlay;
     constexpr uint32_t e_MaxEntities = 100;
 
     class VulkanRenderer : public Renderer {
@@ -32,7 +33,9 @@ namespace Eternal {
 
         VulkanPlatform* getPlatform() const { return m_Platform; }
 
-        VulkanSwapChain* getSwapChain() const { return m_VulkanSwapChain; }
+        SwapChain* getSwapChain() const override { return m_VulkanSwapChain; }
+
+        void onEvent(Eternal::Event& event) override;
 
         FrameInfo* beginFrame() override;
 
@@ -64,8 +67,6 @@ namespace Eternal {
         void endRecoding(vk::CommandBuffer commandBuffer);
 
         void updateUniformBuffers();
-
-        void updateCamera();
 
         Scene* m_Scene = nullptr;
         VulkanPlatform* m_Platform = nullptr;

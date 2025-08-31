@@ -1,5 +1,7 @@
 #include "Camera.hpp"
 
+#include "core/event/EventDispatcher.h"
+
 namespace Eternal {
     void Eternal::Camera::setOrthographicProjection(float left, float right, float top, float bottom, float nearPlane,
                                                     float farPlane) {
@@ -20,14 +22,22 @@ namespace Eternal {
         m_Projection = projection;
     }
 
-    void Camera::onUpdate(GLFWwindow* window) {
-        processMouseMovement(window);
-        processKeyboad(window);
+    void Camera::onEvent(Event& event) {
+        EventDispatcher dispatcher(event);
+        dispatcher.dispatch<Eternal::WindowResizeEvent>(ETERNAL_BIND_EVENT_FN(Camera::onWindowResize));
+        dispatcher.dispatch<Eternal::MouseMovedEvent>(ETERNAL_BIND_EVENT_FN(Camera::onMouseMove));
+        dispatcher.dispatch<Eternal::KeyPressedEvent>(ETERNAL_BIND_EVENT_FN(Camera::onKeyPress));
     }
 
-    void Camera::processMouseMovement(GLFWwindow* window) {
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
+    bool Camera::onWindowResize(const Eternal::WindowResizeEvent& event) {
+        float aspectRatio = static_cast<float>(event.getWidth()) / static_cast<float>(event.getHeight());
+        setPerspectiveProjection(glm::radians(50.f), aspectRatio, 0.1f, 1000.f);
+        return true;
+    }
+
+    bool Camera::onMouseMove(const Eternal::MouseMovedEvent& event) {
+        double xpos = event.GetX();
+        double ypos = event.GetY();
 
         if (m_FirstMouse) {
             m_LastX = xpos;
@@ -48,23 +58,25 @@ namespace Eternal {
 
         if (m_Pitch > 89.0f) m_Pitch = 89.0f;
         if (m_Pitch < -89.0f) m_Pitch = -89.0f;
+        return true;
     }
 
-    void Camera::processKeyboad(GLFWwindow* window) {
+    bool Camera::onKeyPress(const Eternal::KeyPressedEvent& event) {
         float velocity = 0.1f;
 
-        // Forward vector from yaw/pitch
         glm::mat4 rotation = getRotation();
-        glm::vec3 forward  = glm::normalize(glm::vec3(rotation * glm::vec4(0, 0, -1, 0)));
-        glm::vec3 right    = glm::normalize(glm::vec3(rotation * glm::vec4(1, 0, 0, 0)));
+        glm::vec3 forward = glm::normalize(glm::vec3(rotation * glm::vec4(0, 0, -1, 0)));
+        glm::vec3 right = glm::normalize(glm::vec3(rotation * glm::vec4(1, 0, 0, 0)));
 
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        if (event.getKeyCode() == Key::W)
             m_Position += forward * velocity;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        if (event.getKeyCode() == Key::S)
             m_Position -= forward * velocity;
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        if (event.getKeyCode() == Key::A)
             m_Position -= right * velocity;
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        if (event.getKeyCode() == Key::D)
             m_Position += right * velocity;
+
+        return true;
     }
 }

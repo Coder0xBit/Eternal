@@ -1,43 +1,41 @@
 #include <core/Engine.h>
-#include <core/ImGuiLayer.h>
+#include <core/ImGuiOverlay.h>
 #include <core/Window.h>
 #include <core/scene/Scene.h>
 
-#include "ImGuiApplication.h"
+#include "Application.h"
+#include "core/event/KeyEvents.h"
 #include "core/graphics/Camera.hpp"
 
 namespace Eternal {
+    class Editor : public Application {
+    public:
+        Editor();
 
-	struct TestEntityDetails {
-		std::string name = "test_entity";
-		std::string filePath = "res/models/cube.obj";
-		std::string texturePath = "";
-		glm::vec3 initialPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-	};
+        ~Editor() override;
 
-	class Editor : public ImGuiApplication {
-	public:
-		Editor();
-		~Editor();
+        static Editor* create();
 
-		static Editor* create();
+        void run() override;
 
-		void onImGuiRender() override;
-		void run() override;
-		void shutdown() override;
+        void shutdown() override;
 
-	private:
-		void addEntity(TestEntityDetails testEntity);
-		void addTriangle();
-		void addCube();
+    private:
+        void onImGuiRender() const;
 
-		Engine* m_Engine = nullptr;
-		Eternal::Scene* m_Scene = nullptr;
-		Eternal::Renderer* m_Renderer = nullptr;
-		Eternal::Camera* m_EditorCamera = nullptr;
-		Window* m_Window = nullptr;
-		SwapChain* m_SwapChain = nullptr;
-		ImGuiLayer* m_ImGuiLayer = nullptr;
+        void setupScene() const;
 
-	};
+        bool onEvent(Event& event) const;
+
+        bool onKeyPressed(Eternal::KeyPressedEvent& event) const;
+
+        Engine* m_Engine = nullptr;
+        Eternal::Scene* m_Scene = nullptr;
+        Eternal::Renderer* m_Renderer = nullptr;
+        Window* m_Window = nullptr;
+        SwapChain* m_SwapChain = nullptr;
+        ImGuiOverlay* m_ImGuiOverlay = nullptr;
+
+        Backend m_Backend = Backend::Vulkan;
+    };
 }

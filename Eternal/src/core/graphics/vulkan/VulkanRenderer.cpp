@@ -9,6 +9,8 @@
 #include <core/scene/TransformComponent.h>
 #include <core/scene/RenderComponent.h>
 
+#include "VulkanImGuiOverlay.h"
+
 namespace Eternal {
     VulkanRenderer::VulkanRenderer(const Builder& builder) {
         m_Platform = dynamic_cast<VulkanPlatform*>(builder->platform);
@@ -159,11 +161,6 @@ namespace Eternal {
     void VulkanRenderer::updateUniformBuffers() {
     }
 
-    void VulkanRenderer::updateCamera() {
-        GLFWwindow* window = static_cast<GLFWwindow*>(m_Window->getNativeWindow());
-        m_Camera->onUpdate(window);
-    }
-
     void VulkanRenderer::initializeDescriptors() {
         m_UniformBufferDescriptorSetLayout = VulkanDescriptorSetLayout::Builder(m_LogicalDevice)
                 .addBinding({0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex})
@@ -254,7 +251,6 @@ namespace Eternal {
         if (m_Window->isMinimized())
             return;
 
-        m_Window->setWindowResized(false);
         m_VulkanSwapChain->setShouldRecreate(false);
 
         m_LogicalDevice.waitForFences(1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT16_MAX);
@@ -262,9 +258,10 @@ namespace Eternal {
 
         m_VulkanSwapChain->recreate();
         m_RenderPass = m_VulkanSwapChain->getRenderPass();
+    }
 
-        float aspectRatio = m_Window->getAspectRatio();
-        m_Camera->setPerspectiveProjection(glm::radians(50.f), aspectRatio, 0.1f, 1000.f);
+    void VulkanRenderer::onEvent(Eternal::Event& event) {
+        m_Camera->onEvent(event);
     }
 
     FrameInfo* VulkanRenderer::beginFrame() {
@@ -273,7 +270,7 @@ namespace Eternal {
 
         m_VulkanSwapChain->acquire(m_ImageAvailableSemaphores[m_CurrentFrame], &m_CurrentImageIndex);
 
-        if (m_VulkanSwapChain->shouldRecreate() || m_Window->isResized()) {
+        if (m_VulkanSwapChain->shouldRecreate()) {
             handleWindowResize();
             return nullptr;
         }
@@ -290,8 +287,6 @@ namespace Eternal {
     }
 
     void VulkanRenderer::render() {
-        updateCamera();
-
         VulkanSwapChain::SwapChainDetails swapChainDetails = m_VulkanSwapChain->getSwapChainDetails();
 
         for (auto [e, transform]: m_Scene->getAllEntityWith<Eternal::TransformComponent>().each()) {
@@ -369,7 +364,7 @@ namespace Eternal {
 
         m_VulkanSwapChain->present(m_RenderFinishedSemaphores[m_CurrentFrame], m_CurrentImageIndex);
 
-        if (m_VulkanSwapChain->shouldRecreate() || m_Window->isResized()) {
+        if (m_VulkanSwapChain->shouldRecreate()) {
             handleWindowResize();
             return;
         }

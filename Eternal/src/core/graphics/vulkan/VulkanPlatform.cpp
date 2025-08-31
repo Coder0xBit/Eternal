@@ -30,15 +30,15 @@ namespace Eternal {
 
 	vk::Instance VulkanPlatform::createInstance(const std::string& applicationName) {
 		uint32_t version = 0;
-		vkEnumerateInstanceVersion(&version);
+		vkEnumerateInstanceVersion(&m_Version);
 
-		Eternal::Logger::Info("Vulkan Variant {}", VK_API_VERSION_VARIANT(version));
-		Eternal::Logger::Info("Vulkan Major {}", VK_API_VERSION_MAJOR(version));
-		Eternal::Logger::Info("Vulkan Minor {}", VK_API_VERSION_MINOR(version));
-		Eternal::Logger::Info("Vulkan Patch {}", VK_API_VERSION_PATCH(version));
+		Eternal::Logger::Info("Vulkan Variant {}", VK_API_VERSION_VARIANT(m_Version));
+		Eternal::Logger::Info("Vulkan Major {}", VK_API_VERSION_MAJOR(m_Version));
+		Eternal::Logger::Info("Vulkan Minor {}", VK_API_VERSION_MINOR(m_Version));
+		Eternal::Logger::Info("Vulkan Patch {}", VK_API_VERSION_PATCH(m_Version));
 
-		// Removing Patch 
-		version &= ~(0xFFFU);
+		// Removing Patch
+		version = m_Version & ~(0xFFFU);
 
 		vk::ApplicationInfo applicationInfo = vk::ApplicationInfo()
 			.setPApplicationName(applicationName.c_str())
@@ -63,7 +63,7 @@ namespace Eternal {
 		VkStringArray layers;
 #if ETERNAL_FLAG_ENABLED(ETERNAL_VULKAN_DEBUG_VALIDATION)
 		layers.push_back("VK_LAYER_KHRONOS_validation");
-#endif 
+#endif
 
 		if (!validateExtensions(extensions)) {
 			Eternal::Logger::Error("validation failed for extensions");

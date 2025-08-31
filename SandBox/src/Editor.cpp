@@ -1,19 +1,14 @@
 #include "Editor.h"
 #include "imgui/imgui.h"
-#include "imgui/backends/imgui_impl_glfw.h"
-#include "imgui/backends/imgui_impl_vulkan.h"
 
-#include <core/graphics/vulkan/VulkanImGuiLayer.h>
-#include <core/graphics/vulkan/VulkanGraphicsContext.h>
+#include <core/graphics/vulkan/VulkanImGuiOverlay.h>
 #include <core/graphics/vulkan/VulkanPlatform.h>
 #include <core/graphics/vulkan/VulkanRenderer.h>
 #include <core/scene/Entity.h>
-#include <core/scene/RenderComponent.h>
 #include <core/scene/TransformComponent.h>
-#include <core/resource/ResourceManager.h>
-#include <core/resource/Mesh.h>
-#include <core/resource/Image.h>
-#include <core/scene/MaterialComponent.h>
+
+#include "core/event/EventDispatcher.h"
+#include "core/event/KeyEvents.h"
 
 
 void SetEngineRootDirectory() {
@@ -33,129 +28,30 @@ namespace Eternal {
 
         m_Engine = Eternal::Engine::Builder()
                 .applicationName("Eternal Application")
+                .backend(m_Backend)
                 .build();
 
         m_Scene = Memory::Allocate<Eternal::Scene>();
-
-        TestEntityDetails testEntity1 = {
-            "watch_tower_1",
-            "res/models/wooden_watch_tower.obj",
-            "res/models/textures/Wood_Tower_Col.jpg",
-            glm::vec3(0.0f, 0.0f, 0.0f)
-        };
-
-        addEntity(testEntity1);
-
-        //TestEntityDetails testEntity2 = {
-        //	"cube",
-        //	"res/models/cube.obj",
-        //	"res/models/textures/Wood_Tower_Col.jpg" ,
-        //	glm::vec3(0.0f, 0.0f, -10.0f)
-        //};
-
-        //addEntity(testEntity2);
+        setupScene();
 
         m_Renderer = m_Engine->createRenderer(m_Window, m_Scene);
 
-        m_EditorCamera = Memory::Allocate<Eternal::Camera>();
+        m_ImGuiOverlay = Eternal::ImGuiOverlay::Builder()
+                .backend(m_Backend)
+                .platform(m_Engine->getPlatform())
+                .window(m_Window)
+                .swapChain(m_Renderer->getSwapChain())
+                .build();
 
         m_IsRunning = true;
     }
 
-    void Editor::addEntity(TestEntityDetails entity) {
-        Mesh* mesh = ResourceManager::get().loadResource<Mesh>(entity.filePath);
-        if (!mesh) {
-            Eternal::Logger::Error("Failed to load mesh from path: {}", entity.filePath);
-            return;
-        }
-
-        Eternal::Logger::Info("Obj Vertices: {}", mesh->getVertices().size());
-
-        Eternal::Entity model = m_Scene->createEntity(entity.name);
-        model.addComponent<Eternal::RenderComponent>(mesh->getVertices(), mesh->getIndices());
-        model.addComponent<Eternal::TransformComponent>(entity.initialPosition);
-
-        if (entity.texturePath != "") {
-            Image* texture = ResourceManager::get().loadResource<Image>(entity.texturePath);
-            if (!texture) {
-                Eternal::Logger::Error("Failed to load texture from path: {}", entity.texturePath);
-                return;
-            }
-            model.addComponent<Eternal::MaterialComponent>(texture);
-        }
+    bool Editor::onEvent(Event& event) const {
+        m_Renderer->onEvent(event);
+        return true;
     }
 
-    void Editor::addTriangle() {
-        Eternal::Entity entity = m_Scene->createEntity("Triangle");
-
-        std::vector<Eternal::Vertex> vertices = {
-            {0.0f, 0.5f, 0.0f},
-            {-0.5f, -0.5f, 0.0f},
-            {0.5f, -0.5f, 0.0f}
-        };
-
-        std::vector<uint32_t> indices = {1, 0, 2};
-
-        entity.addComponent<Eternal::RenderComponent>(vertices, indices);
-    }
-
-    void Editor::addCube() {
-        std::vector<Vertex> cubeVertices = {
-            {glm::vec3(-0.5f, -0.5f, 0.5f), glm::vec3(1.0f, 0.0f, 0.0f)}, // red
-            {glm::vec3(-0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 0.5f, 0.0f)}, // orange
-            {glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(1.0f, 1.0f, 0.0f)}, // yellow
-            {glm::vec3(0.5f, -0.5f, 0.5f), glm::vec3(0.0f, 1.0f, 0.0f)}, // green
-
-            {glm::vec3(0.5f, -0.5f, -0.5f), glm::vec3(0.0f, 1.0f, 1.0f)}, // cyan
-            {glm::vec3(0.5f, 0.5f, -0.5f), glm::vec3(0.0f, 0.0f, 1.0f)}, // blue
-            {glm::vec3(-0.5f, 0.5f, -0.5f), glm::vec3(1.0f, 0.0f, 1.0f)}, // magenta
-            {glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(0.5f, 0.0f, 0.5f)} // purple
-        };
-
-        std::vector<uint32_t> cubeIndices = {
-            0, 1, 2, 2, 3, 0, // Front
-            3, 2, 5, 5, 4, 3, // Right
-            4, 5, 6, 6, 7, 4, // Back
-            7, 6, 1, 1, 0, 7, // Side
-            1, 6, 5, 5, 2, 1, // Top
-            7, 0, 3, 3, 4, 7, // Bottom
-        };
-
-        Eternal::Entity cube = m_Scene->createEntity("Cube");
-        cube.addComponent<Eternal::RenderComponent>(cubeVertices, cubeIndices);
-        cube.addComponent<Eternal::TransformComponent>(glm::vec3(0.0f, 0.0f, -10.0f));
-    }
-
-    Editor::~Editor() {
-        Editor::shutdown();
-    }
-
-    void Editor::run() {
-        auto vkRenderer = dynamic_cast<VulkanRenderer*>(m_Renderer);
-
-        m_ImGuiLayer = Memory::Allocate<VulkanImGuiLayer>(vkRenderer, m_Window);
-
-        while (m_IsRunning) {
-            m_Window->onUpdate();
-
-            if (FrameInfo* frameInfo = m_Renderer->beginFrame()) {
-                m_ImGuiLayer->beginFrame();
-                onImGuiRender();
-                m_Renderer->render();
-                m_ImGuiLayer->render(frameInfo);
-                m_Renderer->endFrame();
-                Memory::Deallocate(frameInfo);
-            }
-
-            m_IsRunning = !m_Window->shouldClose();
-        }
-    }
-
-    Editor* Editor::create() {
-        return Memory::Allocate<Editor>();
-    }
-
-    void Editor::onImGuiRender() {
+    void Editor::onImGuiRender() const {
         ImGui::Begin("Debug Info");
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
         for (auto e: m_Scene->getAllEntityWith<Eternal::TransformComponent>()) {
@@ -181,8 +77,46 @@ namespace Eternal {
         ImGui::End();
     }
 
+    void Editor::setupScene() const {
+        TestEntityDetails testEntity1 = {
+            "watch_tower_1",
+            "res/models/wooden_watch_tower.obj",
+            "res/models/textures/Wood_Tower_Col.jpg",
+            glm::vec3(0.0f, 0.0f, 0.0f)
+        };
+
+        m_Scene->addEntity(testEntity1);
+    }
+
+    void Editor::run() {
+        m_Window->setEventCallBack(ETERNAL_BIND_EVENT_FN(Editor::onEvent));
+
+        while (m_IsRunning) {
+            m_Window->onUpdate();
+
+            if (FrameInfo* frameInfo = m_Renderer->beginFrame()) {
+                m_ImGuiOverlay->beginFrame();
+                onImGuiRender();
+                m_Renderer->render();
+                m_ImGuiOverlay->render(frameInfo);
+                m_Renderer->endFrame();
+                Memory::Deallocate(frameInfo);
+            }
+
+            m_IsRunning = !m_Window->shouldClose();
+        }
+    }
+
+    Editor* Editor::create() {
+        return Memory::Allocate<Editor>();
+    }
+
+    Editor::~Editor() {
+        Editor::shutdown();
+    }
+
     void Editor::shutdown() {
-        Memory::Deallocate(m_ImGuiLayer);
+        Memory::Deallocate(m_ImGuiOverlay);
         Memory::Deallocate(m_Engine);
         Memory::Deallocate(m_Window);
     }

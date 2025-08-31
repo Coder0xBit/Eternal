@@ -1,38 +1,30 @@
 #pragma once
-#include <core/graphics/SwapChain.h>
 #include <core/graphics/FrameInfo.h>
 
-#include <utils/Base.h>
-
-#include "Backend.h"
-#include "GraphicsPlatform.h"
-#include "core/scene/Scene.h"
+#include "Window.h"
+#include "graphics/Backend.h"
+#include "graphics/GraphicsPlatform.h"
 
 namespace Eternal {
-    class Renderer {
+    class ImGuiOverlay {
     public:
-        virtual FrameInfo* beginFrame() = 0;
+        virtual void beginFrame() = 0;
 
-        virtual void render() = 0;
+        virtual void render(FrameInfo* frameInfo) = 0;
 
-        virtual void endFrame() = 0;
-
-        virtual ~Renderer() = default;
-
-        virtual SwapChain* getSwapChain() const = 0;
-
-        virtual void onEvent(Eternal::Event& event) = 0;
+        virtual ~ImGuiOverlay() = default;
 
         struct BuilderDetails {
             Backend backend = Vulkan;
             GraphicsPlatform* platform = nullptr;
             Window* window = nullptr;
-            Scene* scene = nullptr;
+            SwapChain* swapChain = nullptr;
         };
 
+
         class Builder : public utils::PrivateImplementation<BuilderDetails> {
-            friend class Renderer;
-            friend class VulkanRenderer;
+            friend class ImGuiOverlay;
+            friend class VulkanImGuiOverlay;
 
         public:
             Builder() noexcept;
@@ -53,11 +45,11 @@ namespace Eternal {
 
             Builder& window(Window* window) noexcept;
 
-            Builder& scene(Scene* scene) noexcept;
+            Builder& swapChain(SwapChain* swapChain) noexcept;
 
-            Renderer* build() const noexcept;
+            ImGuiOverlay* build() const noexcept;
         };
 
-        static Renderer* create(Builder const& builder);
+        static ImGuiOverlay* create(const Builder& builder);
     };
 }

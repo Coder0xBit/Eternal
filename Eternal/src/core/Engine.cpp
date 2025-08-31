@@ -1,12 +1,9 @@
 #include <core/Engine.h>
 #include <core/graphics/vulkan/VulkanPlatform.h>
-#include <core/graphics/Vertex.h>
 #include <core/graphics/vulkan/VulkanRenderer.h>
 #include <core/scene/Scene.h>
 
-#include <set>
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/hash.hpp>
 
 namespace Eternal {
     Engine::Engine(const Builder& builder) {

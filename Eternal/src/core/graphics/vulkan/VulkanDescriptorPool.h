@@ -1,4 +1,4 @@
-#pragma once 
+#pragma once
 
 #include <core/graphics/vulkan/VulkanUtils.h>
 #include <core/graphics/vulkan/VulkanDescsriptorSetLayout.h>
@@ -48,6 +48,8 @@ namespace Eternal {
 
 		void free(vk::DescriptorSet* descriptorSet);
 		void free(const std::vector<vk::DescriptorSet>& descriptorSets);
+
+		const std::vector<vk::DescriptorPoolSize>& getPoolSizes() const { return m_PoolSizes; }
 
 	private:
 		vk::Device m_LogicalDevice;

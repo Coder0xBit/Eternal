@@ -1,100 +1,130 @@
 #include "WindowsWindow.h"
 
+#include "event/KeyEvents.h"
+#include "event/MouseEvents.h"
+#include "event/WindowEvent.h"
 #include "resource/ResourceManager.h"
 #include "resource/Image.h"
 
 namespace Eternal {
+    WindowsWindow::WindowsWindow(const Builder& builder) {
+        m_Data.title = builder->title;
+        m_Data.height = builder->height;
+        m_Data.width = builder->width;
 
-	WindowsWindow::WindowsWindow(const Builder& builder) :
-		m_Title(builder->title),
-		m_Height(builder->height),
-		m_Width(builder->width) {
-		glfwInit();
+        glfwInit();
 
-		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-		m_Window = glfwCreateWindow(m_Width, m_Height, m_Title.c_str(), nullptr, nullptr);
-		ETERNAL_ASSERT(m_Window != nullptr, "Failed to create GLFW window");
+        m_Window = glfwCreateWindow(m_Data.width, m_Data.height, m_Data.title.c_str(), nullptr, nullptr);
+        ETERNAL_ASSERT(m_Window != nullptr, "Failed to create GLFW window");
 
-		glfwSetWindowUserPointer(m_Window, this);
+        glfwSetWindowUserPointer(m_Window, &m_Data);
 
-		glfwSetFramebufferSizeCallback(m_Window,
-			[](GLFWwindow* window, int width, int height) {
-				auto app = static_cast<WindowsWindow*>(glfwGetWindowUserPointer(window));
-				app->onWindowResize(window, width, height);
-			}
-		);
+        glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
+            const WindowData& windowData = *(static_cast<WindowData*>(glfwGetWindowUserPointer(window)));\
+            WindowResizeEvent event(width, height);
+            windowData.eventCallback(event);
+        });
 
-		Logger::Info("Current Working Path {} , Accessing Window Icon", std::filesystem::current_path().string());
-		setWindowIcon(WINDOW_ICON_PATH, m_Window);
+        glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+            const WindowData& windowData = *(static_cast<WindowData*>(glfwGetWindowUserPointer(window)));
+            switch (action) {
+                case GLFW_PRESS: {
+                    KeyPressedEvent event(key, 0);
+                    windowData.eventCallback(event);
+                    break;
+                }
+                case GLFW_RELEASE: {
+                    KeyReleasedEvent event(key);
+                    windowData.eventCallback(event);
+                    break;
+                }
+                case GLFW_REPEAT: {
+                    KeyPressedEvent event(key, true);
+                    windowData.eventCallback(event);
+                    break;
+                }
+                default: break;
+            }
+        });
 
-		Eternal::Logger::Info("Window Created");
-	}
+        glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xpos, double ypos) {
+            WindowData& windowData = *(static_cast<WindowData*>(glfwGetWindowUserPointer(window)));
+            MouseMovedEvent event(xpos, ypos);
+            windowData.eventCallback(event);
+        });
 
-	void WindowsWindow::onUpdate() {
-		glfwPollEvents();
-	}
+        Logger::Info("Current Working Path {} , Accessing Window Icon", std::filesystem::current_path().string());
+        setWindowIcon(WINDOW_ICON_PATH, m_Window);
 
-	bool WindowsWindow::shouldClose() const {
-		return glfwWindowShouldClose(m_Window);
-	}
+        Eternal::Logger::Info("Window Created");
+    }
 
-	void WindowsWindow::shutDown() const {
-		if (m_Window != nullptr) {
-			glfwDestroyWindow(m_Window);
-		}
-		else {
-			Eternal::Logger::Error("mWindow Pointer is null");
-		}
+    void WindowsWindow::onUpdate() {
+        glfwPollEvents();
+    }
 
-		glfwTerminate();
+    bool WindowsWindow::shouldClose() const {
+        return glfwWindowShouldClose(m_Window);
+    }
 
-		Eternal::Logger::Info("Window Destroyed");
-	}
+    void WindowsWindow::shutDown() const {
+        if (m_Window != nullptr) {
+            glfwDestroyWindow(m_Window);
+        } else {
+            Eternal::Logger::Error("mWindow Pointer is null");
+        }
 
-	vk::SurfaceKHR WindowsWindow::createWindowSurface(vk::Instance instance) const {
-		ETERNAL_ASSERT(m_Window != nullptr, "Window is null");
+        glfwTerminate();
 
-		vk::SurfaceKHR surface = nullptr;
-		if (glfwCreateWindowSurface(instance, m_Window, nullptr, reinterpret_cast<VkSurfaceKHR*>(&surface)) != VK_SUCCESS) {
-			Eternal::Logger::Error("Failed to create window surface");
-			return nullptr;
-		}
-		return surface;
-	}
+        Eternal::Logger::Info("Window Destroyed");
+    }
 
-	vk::Extent2D WindowsWindow::getExtent() const {
-		ETERNAL_ASSERT(m_Window != nullptr, "Window is null");
-		int width = 0, height = 0;
-		glfwGetFramebufferSize(m_Window, &width, &height);
-		return { static_cast<uint32_t>(width),static_cast<uint32_t>(height) };
-	}
+    vk::SurfaceKHR WindowsWindow::createWindowSurface(vk::Instance instance) const {
+        ETERNAL_ASSERT(m_Window != nullptr, "Window is null");
 
-	void WindowsWindow::setWindowIcon(const std::filesystem::path& path, GLFWwindow* window) {
-		if (window == nullptr) {
-			Eternal::Logger::Error("Trying to set icon on null window (GLFW)");
-			return;
-		}
+        vk::SurfaceKHR surface = nullptr;
+        if (glfwCreateWindowSurface(instance, m_Window, nullptr, reinterpret_cast<VkSurfaceKHR*>(&surface)) !=
+            VK_SUCCESS) {
+            Eternal::Logger::Error("Failed to create window surface");
+            return nullptr;
+        }
+        return surface;
+    }
 
-		Image* image = ResourceManager::get().loadResource<Image>(path.string());
-		GLFWimage icon = image->getGLFWImage();
-		glfwSetWindowIcon(window, 1, &icon);
-	}
+    vk::Extent2D WindowsWindow::getExtent() const {
+        ETERNAL_ASSERT(m_Window != nullptr, "Window is null");
+        int width = 0, height = 0;
+        glfwGetFramebufferSize(m_Window, &width, &height);
+        return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
+    }
 
-	void WindowsWindow::onWindowResize(GLFWwindow* window, int width, int height) {
-		m_Height = height;
-		m_Width = width;
+    void WindowsWindow::setWindowIcon(const std::filesystem::path& path, GLFWwindow* window) {
+        if (window == nullptr) {
+            Eternal::Logger::Error("Trying to set icon on null window (GLFW)");
+            return;
+        }
 
-		if (m_WindowResizeCallback) {
-			m_WindowResizeCallback(m_Width, m_Height);
-		}
+        Image* image = ResourceManager::get().loadResource<Image>(path.string());
+        GLFWimage icon = image->getGLFWImage();
+        glfwSetWindowIcon(window, 1, &icon);
+    }
 
-		m_IsWindowResized = true;
-	}
+    void WindowsWindow::onWindowResize(GLFWwindow* window, int width, int height) {
+        m_Data.height = height;
+        m_Data.width = width;
 
-	WindowsWindow::~WindowsWindow() {
-		WindowsWindow::shutDown();
-	}
+        // if (m_WindowResizeCallback) {
+        // 	m_WindowResizeCallback(m_Width, m_Height);
+        // }
+
+        m_IsWindowResized = true;
+    }
+
+    WindowsWindow::~WindowsWindow() {
+        WindowsWindow::shutDown();
+    }
 }

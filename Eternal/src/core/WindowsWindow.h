@@ -18,9 +18,9 @@ namespace Eternal {
 
         void onUpdate() override;
 
-        virtual uint32_t getHeight() const override { return m_Height; }
+        virtual uint32_t getHeight() const override { return m_Data.height; }
 
-        virtual uint32_t getWidth() const override { return m_Width; }
+        virtual uint32_t getWidth() const override { return m_Data.width; }
 
         virtual void* getNativeWindow() const override { return m_Window; }
 
@@ -28,10 +28,14 @@ namespace Eternal {
 
         virtual void shutDown() const override;
 
-        bool isMinimized() const override { return m_Width == 0 || m_Height == 0; }
+        bool isMinimized() const override { return m_Data.height == 0 || m_Data.width == 0; }
 
         virtual float getAspectRatio() const override {
-            return static_cast<float>(m_Width) / static_cast<float>(m_Height);
+            return static_cast<float>(m_Data.width) / static_cast<float>(m_Data.height);
+        }
+
+        virtual void setEventCallBack(const EventCallback& callback) override {
+            m_Data.eventCallback = callback;
         }
 
         virtual vk::SurfaceKHR createWindowSurface(vk::Instance instance) const override;
@@ -44,8 +48,16 @@ namespace Eternal {
         void onWindowResize(GLFWwindow* window, int width, int height);
 
         GLFWwindow* m_Window = nullptr;
-        std::string m_Title = "";
-        uint32_t m_Height = 0;
-        uint32_t m_Width = 0;
+
+        struct WindowData {
+            std::string title;
+            uint32_t height = 0;
+            uint32_t width = 0;
+            bool VSync;
+
+            EventCallback eventCallback;
+        };
+
+        WindowData m_Data;
     };
 }

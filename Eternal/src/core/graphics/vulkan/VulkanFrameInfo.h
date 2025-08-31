@@ -12,7 +12,7 @@ namespace Eternal {
 
 		}
 
-		bool operator==(const VulkanFrameInfo& other) noexcept {
+		bool operator==(const VulkanFrameInfo& other) const noexcept {
 			return this->commandBuffer == other.commandBuffer && this->imageIndex == other.imageIndex;
 		}
 

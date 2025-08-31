@@ -35,6 +35,9 @@
         } \
     } while (0)
 
+#define ETERNAL_BIND_EVENT_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
+
+
 namespace Eternal {
 	constexpr uint32_t const INVALID_VK_INDEX = 0xFFFFFFFF;
 

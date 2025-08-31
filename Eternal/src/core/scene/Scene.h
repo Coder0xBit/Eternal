@@ -6,6 +6,13 @@
 namespace Eternal {
     class Entity;
 
+    struct TestEntityDetails {
+        std::string name = "test_entity";
+        std::string filePath = "res/models/cube.obj";
+        std::string texturePath = "";
+        glm::vec3 initialPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+    };
+
     class Scene {
     public:
         Scene() = default;
@@ -13,6 +20,8 @@ namespace Eternal {
         ~Scene() = default;
 
         Entity createEntity(std::string name);
+
+        void addEntity(TestEntityDetails testEntity);
 
         template<typename... Components>
         auto getAllEntityWith() {

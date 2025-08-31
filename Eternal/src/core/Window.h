@@ -1,5 +1,6 @@
 #pragma once
 #include <utils/Base.h>
+#include "event/Event.h"
 #include <vulkan/vulkan.hpp>
 
 namespace Eternal {
@@ -8,7 +9,7 @@ namespace Eternal {
 	{
 	public:
 
-		using ResizeCallback = std::function<void(int, int)>;
+		using EventCallback = std::function<void(Event&)>;
 
 		virtual ~Window() = default;
 		virtual void onUpdate() = 0;
@@ -19,18 +20,7 @@ namespace Eternal {
 		virtual bool shouldClose() const = 0;
 		virtual void shutDown() const = 0;
 		virtual bool isMinimized() const = 0;
-
-		void setWindowResizeCallback(ResizeCallback callback) noexcept {
-			m_WindowResizeCallback = callback;
-		}
-
-		void setWindowResized(bool resized) noexcept {
-			m_IsWindowResized = resized;
-		}
-
-		bool isResized() const noexcept {
-			return m_IsWindowResized;
-		}
+		virtual void setEventCallBack(const EventCallback& callback) = 0;
 
 		struct BuilderDetails {
 			std::string title = "";
@@ -59,6 +49,5 @@ namespace Eternal {
 	protected:
 
 		bool m_IsWindowResized = false;
-		ResizeCallback m_WindowResizeCallback;
 	};
 }

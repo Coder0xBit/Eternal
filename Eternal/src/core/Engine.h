@@ -41,7 +41,7 @@ namespace Eternal {
 		~Engine();
 		Renderer* createRenderer(Window* window, Scene* scene);
 		Renderer* getRenderer() { return m_Renderer; }
-		Eternal::GraphicsPlatform* getPlatform() { return m_GraphicsPlatform; }
+		Eternal::GraphicsPlatform* getPlatform() const { return m_GraphicsPlatform; }
 
 	private:
 		Renderer* m_Renderer;

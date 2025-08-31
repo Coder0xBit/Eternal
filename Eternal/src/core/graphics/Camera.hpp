@@ -7,6 +7,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include "core/event/Event.h"
+#include "core/event/KeyEvents.h"
+#include "core/event/MouseEvents.h"
+#include "core/event/WindowEvent.h"
 #include "core/scene/NameComponent.h"
 #include "core/scene/TransformComponent.h"
 #include "GLFW/glfw3.h"
@@ -50,12 +54,15 @@ namespace Eternal {
 
         void setYaw(float yaw) { m_Yaw = yaw; }
 
-        void onUpdate(GLFWwindow* window);
+        void onEvent(Event& event);
 
     private:
-        void processMouseMovement(GLFWwindow* window);
 
-        void processKeyboad(GLFWwindow* window);
+        bool onWindowResize(const Eternal::WindowResizeEvent& event);
+
+        bool onMouseMove(const Eternal::MouseMovedEvent& event);
+
+        bool onKeyPress(const Eternal::KeyPressedEvent& event);
 
         glm::mat4 m_Projection{1.0f};
         glm::vec3 m_Position = {0.0f, 0.0f, 0.0f};

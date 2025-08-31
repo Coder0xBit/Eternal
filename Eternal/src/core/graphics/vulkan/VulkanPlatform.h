@@ -63,5 +63,6 @@ namespace Eternal {
 	private:
 		std::string m_ApplicationName;
 		Timer timer;
+		uint32_t m_Version = 0;
 	};
 }
