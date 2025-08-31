@@ -1,4 +1,4 @@
-#include "Editor.h"
+#include "Viewer.h"
 #include "imgui/imgui.h"
 
 #include <core/graphics/vulkan/VulkanImGuiOverlay.h>
@@ -17,7 +17,7 @@ void SetEngineRootDirectory() {
 }
 
 namespace Eternal {
-    Editor::Editor() {
+    Viewer::Viewer() {
         Eternal::Logger::Init();
 
         m_Window = Eternal::Window::Builder()
@@ -46,12 +46,12 @@ namespace Eternal {
         m_IsRunning = true;
     }
 
-    bool Editor::onEvent(Event& event) const {
+    bool Viewer::onEvent(Event& event) const {
         m_Renderer->onEvent(event);
         return true;
     }
 
-    void Editor::onImGuiRender() const {
+    void Viewer::onImGuiRender() const {
         ImGui::Begin("Debug Info");
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
         for (auto e: m_Scene->getAllEntityWith<Eternal::TransformComponent>()) {
@@ -77,7 +77,7 @@ namespace Eternal {
         ImGui::End();
     }
 
-    void Editor::setupScene() const {
+    void Viewer::setupScene() const {
         TestEntityDetails testEntity1 = {
             "watch_tower_1",
             "res/models/wooden_watch_tower.obj",
@@ -88,8 +88,8 @@ namespace Eternal {
         m_Scene->addEntity(testEntity1);
     }
 
-    void Editor::run() {
-        m_Window->setEventCallBack(ETERNAL_BIND_EVENT_FN(Editor::onEvent));
+    void Viewer::run() {
+        m_Window->setEventCallBack(ETERNAL_BIND_EVENT_FN(Viewer::onEvent));
 
         while (m_IsRunning) {
             m_Window->onUpdate();
@@ -107,15 +107,15 @@ namespace Eternal {
         }
     }
 
-    Editor* Editor::create() {
-        return Memory::Allocate<Editor>();
+    Viewer* Viewer::create() {
+        return Memory::Allocate<Viewer>();
     }
 
-    Editor::~Editor() {
-        Editor::shutdown();
+    Viewer::~Viewer() {
+        Viewer::shutdown();
     }
 
-    void Editor::shutdown() {
+    void Viewer::shutdown() {
         Memory::Deallocate(m_ImGuiOverlay);
         Memory::Deallocate(m_Engine);
         Memory::Deallocate(m_Window);

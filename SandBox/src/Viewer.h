@@ -1,3 +1,4 @@
+#pragma once
 #include <core/Engine.h>
 #include <core/ImGuiOverlay.h>
 #include <core/Window.h>
@@ -8,13 +9,13 @@
 #include "core/graphics/Camera.hpp"
 
 namespace Eternal {
-    class Editor : public Application {
+    class Viewer : public Application {
     public:
-        Editor();
+        Viewer();
 
-        ~Editor() override;
+        ~Viewer() override;
 
-        static Editor* create();
+        static Viewer* create();
 
         void run() override;
 

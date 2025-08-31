@@ -1,7 +1,7 @@
-#include "Editor.h"
+#include "Viewer.h"
 
 int main() {
-	Eternal::Editor* app = Eternal::Editor::create();
+	Eternal::Viewer* app = Eternal::Viewer::create();
 	app->run();
 	delete app;
 
