@@ -5,6 +5,7 @@
 #include <core/graphics/Renderer.h>
 #include <core/scene/Scene.h>
 
+#include "VulkanBufferManager.h"
 #include "VulkanPlatform.h"
 #include "VulkanFrameInfo.h"
 #include "VulkanUtils.h"
@@ -35,11 +36,9 @@ namespace Eternal {
 
         SwapChain* getSwapChain() const override { return m_VulkanSwapChain; }
 
-        void onEvent(Eternal::Event& event) override;
+        bool beginFrame() override;
 
-        FrameInfo* beginFrame() override;
-
-        void render() override;
+        void render(Eternal::Camera* camera) override;
 
         void endFrame() override;
 
@@ -77,7 +76,6 @@ namespace Eternal {
 
         Eternal::VulkanBufferManager* m_VulkanBufferManager = nullptr;
         Eternal::VulkanTextureManager* m_VulkanTextureManager = nullptr;
-        Eternal::Camera* m_Camera = nullptr;
         Eternal::Window* m_Window = nullptr;
 
         std::vector<vk::Semaphore> m_ImageAvailableSemaphores;
@@ -106,5 +104,7 @@ namespace Eternal {
         VulkanDescriptorSetLayout* m_MaterialDescriptorSetLayout = nullptr;
         std::unordered_map<uint32_t, vk::DescriptorSet> m_UniformDescriptorSets;
         std::unordered_map<uint32_t, vk::DescriptorSet> m_MaterialDescriptorSets;
+
+        Eternal::Timer* m_Timer = nullptr;
     };
 }

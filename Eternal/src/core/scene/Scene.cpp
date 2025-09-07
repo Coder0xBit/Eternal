@@ -16,7 +16,7 @@ namespace Eternal {
     }
 
     void Eternal::Scene::addEntity(TestEntityDetails entity) {
-        Mesh* mesh = ResourceManager::get().loadResource<Mesh>(entity.filePath);
+        const Mesh* mesh = ResourceManager::get().loadResource<Mesh>(entity.filePath);
         if (!mesh) {
             Eternal::Logger::Error("Failed to load mesh from path: {}", entity.filePath);
             return;
@@ -28,7 +28,7 @@ namespace Eternal {
         model.addComponent<Eternal::RenderComponent>(mesh->getVertices(), mesh->getIndices());
         model.addComponent<Eternal::TransformComponent>(entity.initialPosition);
 
-        if (entity.texturePath != "") {
+        if (!entity.texturePath.empty()) {
             Image* texture = ResourceManager::get().loadResource<Image>(entity.texturePath);
             if (!texture) {
                 Eternal::Logger::Error("Failed to load texture from path: {}", entity.texturePath);

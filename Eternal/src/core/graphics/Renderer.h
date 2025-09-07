@@ -11,17 +11,15 @@
 namespace Eternal {
     class Renderer {
     public:
-        virtual FrameInfo* beginFrame() = 0;
+        virtual bool beginFrame() = 0;
 
-        virtual void render() = 0;
+        virtual void render(Eternal::Camera* camera) = 0;
 
         virtual void endFrame() = 0;
 
         virtual ~Renderer() = default;
 
         virtual SwapChain* getSwapChain() const = 0;
-
-        virtual void onEvent(Eternal::Event& event) = 0;
 
         struct BuilderDetails {
             Backend backend = Vulkan;

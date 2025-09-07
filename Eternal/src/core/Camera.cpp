@@ -3,6 +3,9 @@
 #include "core/event/EventDispatcher.h"
 
 namespace Eternal {
+    Camera::Camera(Eternal::InputDispatcher* inputDispatcher) : m_InputDispatcher(inputDispatcher) {
+    }
+
     void Eternal::Camera::setOrthographicProjection(float left, float right, float top, float bottom, float nearPlane,
                                                     float farPlane) {
         m_Projection = glm::mat4{1.0f};
@@ -26,7 +29,23 @@ namespace Eternal {
         EventDispatcher dispatcher(event);
         dispatcher.dispatch<Eternal::WindowResizeEvent>(ETERNAL_BIND_EVENT_FN(Camera::onWindowResize));
         dispatcher.dispatch<Eternal::MouseMovedEvent>(ETERNAL_BIND_EVENT_FN(Camera::onMouseMove));
-        dispatcher.dispatch<Eternal::KeyPressedEvent>(ETERNAL_BIND_EVENT_FN(Camera::onKeyPress));
+    }
+
+    void Camera::onUpdate(const Eternal::Timestep& timeStep) {
+        float velocity = 10.0f * timeStep.seconds();
+
+        glm::mat4 rotation = getRotation();
+        glm::vec3 forward = glm::normalize(glm::vec3(rotation * glm::vec4(0, 0, -1, 0)));
+        glm::vec3 right = glm::normalize(glm::vec3(rotation * glm::vec4(1, 0, 0, 0)));
+
+        if (m_InputDispatcher->isKeyPressed(Key::W))
+            m_Position += forward * velocity;
+        if (m_InputDispatcher->isKeyPressed(Key::S))
+            m_Position -= forward * velocity;
+        if (m_InputDispatcher->isKeyPressed(Key::A))
+            m_Position -= right * velocity;
+        if (m_InputDispatcher->isKeyPressed(Key::D))
+            m_Position += right * velocity;
     }
 
     bool Camera::onWindowResize(const Eternal::WindowResizeEvent& event) {
@@ -58,25 +77,6 @@ namespace Eternal {
 
         if (m_Pitch > 89.0f) m_Pitch = 89.0f;
         if (m_Pitch < -89.0f) m_Pitch = -89.0f;
-        return true;
-    }
-
-    bool Camera::onKeyPress(const Eternal::KeyPressedEvent& event) {
-        float velocity = 0.1f;
-
-        glm::mat4 rotation = getRotation();
-        glm::vec3 forward = glm::normalize(glm::vec3(rotation * glm::vec4(0, 0, -1, 0)));
-        glm::vec3 right = glm::normalize(glm::vec3(rotation * glm::vec4(1, 0, 0, 0)));
-
-        if (event.getKeyCode() == Key::W)
-            m_Position += forward * velocity;
-        if (event.getKeyCode() == Key::S)
-            m_Position -= forward * velocity;
-        if (event.getKeyCode() == Key::A)
-            m_Position -= right * velocity;
-        if (event.getKeyCode() == Key::D)
-            m_Position += right * velocity;
-
         return true;
     }
 }

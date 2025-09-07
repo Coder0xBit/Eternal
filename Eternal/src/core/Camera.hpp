@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include "InputDispatcher.h"
 #include "core/event/Event.h"
 #include "core/event/KeyEvents.h"
 #include "core/event/MouseEvents.h"
@@ -14,11 +15,14 @@
 #include "core/scene/NameComponent.h"
 #include "core/scene/TransformComponent.h"
 #include "GLFW/glfw3.h"
+#include "graphics/Timer.h"
 
 namespace Eternal {
     class Camera {
     public:
         Camera() = default;
+
+        Camera(Eternal::InputDispatcher* inputDispatcher);
 
         ~Camera() = default;
 
@@ -56,13 +60,14 @@ namespace Eternal {
 
         void onEvent(Event& event);
 
-    private:
+        void onUpdate(const Eternal::Timestep& timeStep);
 
+    private:
         bool onWindowResize(const Eternal::WindowResizeEvent& event);
 
         bool onMouseMove(const Eternal::MouseMovedEvent& event);
 
-        bool onKeyPress(const Eternal::KeyPressedEvent& event);
+        Eternal::InputDispatcher* m_InputDispatcher = nullptr;
 
         glm::mat4 m_Projection{1.0f};
         glm::vec3 m_Position = {0.0f, 0.0f, 0.0f};
@@ -70,7 +75,7 @@ namespace Eternal {
 
         float m_Yaw = 1.0f;
         float m_Pitch = 0.0f;
-        float m_AspectRatio;
+        float m_AspectRatio = 0.0f;
         float m_MouseSensitivity = 0.002f;
 
         // mouse state

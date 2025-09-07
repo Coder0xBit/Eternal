@@ -2,7 +2,6 @@
 #include <utils/Base.h>
 #include <vulkan/vulkan.hpp>
 #include <core/graphics/SwapChain.h>
-
 namespace Eternal {
 
 	class VulkanSwapChain : public SwapChain {

@@ -9,6 +9,7 @@
 #include <core/scene/TransformComponent.h>
 #include <core/scene/RenderComponent.h>
 
+#include "VulkanBufferManager.h"
 #include "VulkanImGuiOverlay.h"
 
 namespace Eternal {
@@ -35,10 +36,6 @@ namespace Eternal {
 
     void VulkanRenderer::initialize() {
         bindScene();
-
-        m_Camera = Memory::Allocate<Camera>();
-        float aspectRatio = m_Window->getAspectRatio();
-        m_Camera->setPerspectiveProjection(glm::radians(50.f), aspectRatio, 0.1f, 1000.f);
 
         auto swapchain = m_Platform->createSwapChain(m_Window);
         m_VulkanSwapChain = dynamic_cast<VulkanSwapChain*>(swapchain);
@@ -106,7 +103,6 @@ namespace Eternal {
 
         Memory::Deallocate(m_Platform);
 
-        Memory::Deallocate(m_Camera);
     }
 
     void VulkanRenderer::bindScene() {
@@ -260,19 +256,15 @@ namespace Eternal {
         m_RenderPass = m_VulkanSwapChain->getRenderPass();
     }
 
-    void VulkanRenderer::onEvent(Eternal::Event& event) {
-        m_Camera->onEvent(event);
-    }
-
-    FrameInfo* VulkanRenderer::beginFrame() {
+   bool VulkanRenderer::beginFrame() {
         if (m_Window->isMinimized())
-            return nullptr;
+            return false;
 
         m_VulkanSwapChain->acquire(m_ImageAvailableSemaphores[m_CurrentFrame], &m_CurrentImageIndex);
 
         if (m_VulkanSwapChain->shouldRecreate()) {
             handleWindowResize();
-            return nullptr;
+            return false;
         }
 
         m_LogicalDevice.waitForFences(1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT16_MAX);
@@ -283,18 +275,20 @@ namespace Eternal {
 
         beginRecording(m_CurrentCommandBuffer);
 
-        return Memory::Allocate<VulkanFrameInfo>(m_CurrentCommandBuffer, m_CurrentImageIndex);
+        return true;
     }
 
-    void VulkanRenderer::render() {
+    void VulkanRenderer::render(Eternal::Camera* camera) {
+        vk::CommandBuffer commandBuffer = m_CurrentCommandBuffer;
+
         VulkanSwapChain::SwapChainDetails swapChainDetails = m_VulkanSwapChain->getSwapChainDetails();
 
         for (auto [e, transform]: m_Scene->getAllEntityWith<Eternal::TransformComponent>().each()) {
             Eternal::Entity entity = Eternal::Entity(e, m_Scene);
 
             VulkanBufferManager::UniformBuffer uniformBufferData;
-            uniformBufferData.projection = m_Camera->getProjection();
-            uniformBufferData.view = m_Camera->getView();
+            uniformBufferData.projection = camera->getProjection();
+            uniformBufferData.view = camera->getView();
             uniformBufferData.model = transform.mat4();
             std::shared_ptr<VulkanBuffer> uniformBuffer = m_VulkanBufferManager->getUniformBuffer(entity.getUUID());
 
@@ -303,23 +297,23 @@ namespace Eternal {
             }
 
             auto descriptorSet = m_UniformDescriptorSets[entity.getUUID()];
-            m_CurrentCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, 1,
-                                                      &descriptorSet, 0, nullptr);
+            commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, 1,
+                                             &descriptorSet, 0, nullptr);
 
             auto materialDescriptorSet = m_MaterialDescriptorSets[entity.getUUID()];
-            m_CurrentCommandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 1, 1,
-                                                      &materialDescriptorSet, 0, nullptr);
+            commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 1, 1,
+                                             &materialDescriptorSet, 0, nullptr);
             //m_CurrentCommandBuffer.pushConstants(m_PipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(PushConstants), &m_PushConstants);
 
             std::shared_ptr<VulkanBuffer> vertexBuffer = m_VulkanBufferManager->getVertexBuffer(entity.getUUID());
             if (vertexBuffer) {
                 vk::DeviceSize offset = vk::DeviceSize(0);
-                m_CurrentCommandBuffer.bindVertexBuffers(0, 1, vertexBuffer->getBuffer(), &offset);
+                commandBuffer.bindVertexBuffers(0, 1, vertexBuffer->getBuffer(), &offset);
             }
 
             std::shared_ptr<VulkanBuffer> indexBuffer = m_VulkanBufferManager->getIndexBuffer(entity.getUUID());
             if (indexBuffer) {
-                m_CurrentCommandBuffer.bindIndexBuffer(*(indexBuffer->getBuffer()), 0, vk::IndexType::eUint32);
+                commandBuffer.bindIndexBuffer(*(indexBuffer->getBuffer()), 0, vk::IndexType::eUint32);
             }
 
             vk::Viewport viewport = vk::Viewport()
@@ -330,22 +324,24 @@ namespace Eternal {
                     .setMinDepth(0.0f)
                     .setMaxDepth(1.0f);
 
-            m_CurrentCommandBuffer.setViewport(0, 1, &viewport);
+            commandBuffer.setViewport(0, 1, &viewport);
 
             vk::Rect2D scissor = vk::Rect2D()
                     .setOffset({0, 0})
                     .setExtent(swapChainDetails.extent);
 
-            m_CurrentCommandBuffer.setScissor(0, 1, &scissor);
+            commandBuffer.setScissor(0, 1, &scissor);
 
             if (indexBuffer) {
-                m_CurrentCommandBuffer.drawIndexed(indexBuffer->getElementCount(), 1, 0, 0, 0);
+                commandBuffer.drawIndexed(indexBuffer->getElementCount(), 1, 0, 0, 0);
             }
         }
     }
 
     void VulkanRenderer::endFrame() {
-        endRecoding(m_CurrentCommandBuffer);
+        vk::CommandBuffer commandBuffer = m_CurrentCommandBuffer;
+
+        endRecoding(commandBuffer);
 
         vk::PipelineStageFlags waitStages[] = {vk::PipelineStageFlagBits::eColorAttachmentOutput};
 
@@ -354,7 +350,7 @@ namespace Eternal {
                 .setPWaitSemaphores(&m_ImageAvailableSemaphores[m_CurrentFrame])
                 .setPWaitDstStageMask(waitStages)
                 .setCommandBufferCount(1)
-                .setPCommandBuffers(&m_CurrentCommandBuffer)
+                .setPCommandBuffers(&commandBuffer)
                 .setSignalSemaphoreCount(1)
                 .setPSignalSemaphores(&m_RenderFinishedSemaphores[m_CurrentFrame]);
 

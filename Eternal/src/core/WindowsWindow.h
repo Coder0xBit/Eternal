@@ -44,8 +44,9 @@ namespace Eternal {
 
         void setWindowIcon(const std::filesystem::path& path, GLFWwindow* window);
 
+        virtual bool isKeyPressed(Eternal::KeyCode keycode) const override;
+
     private:
-        void onWindowResize(GLFWwindow* window, int width, int height);
 
         GLFWwindow* m_Window = nullptr;
 

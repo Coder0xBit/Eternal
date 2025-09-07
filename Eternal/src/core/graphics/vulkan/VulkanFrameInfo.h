@@ -5,20 +5,19 @@
 
 
 namespace Eternal {
-	class VulkanFrameInfo : public FrameInfo {
-	public:
-		VulkanFrameInfo(vk::CommandBuffer commandBuffer, uint32_t imageIndex) :
-			commandBuffer(commandBuffer), imageIndex(imageIndex) {
+    class VulkanFrameInfo : public FrameInfo {
+    public :
+        VulkanFrameInfo() = default;
 
-		}
+        VulkanFrameInfo(vk::CommandBuffer cmdBuffer, uint32_t imgIndex, Eternal::Camera* cam) {
+            this->camera = cam;
+            this->imageIndex = imgIndex;
+            this->commandBuffer = cmdBuffer;
+        }
 
-		bool operator==(const VulkanFrameInfo& other) const noexcept {
-			return this->commandBuffer == other.commandBuffer && this->imageIndex == other.imageIndex;
-		}
+        ~VulkanFrameInfo() override = default;
 
-		vk::CommandBuffer commandBuffer;
-		uint32_t imageIndex;
-
-	};
+        vk::CommandBuffer commandBuffer;
+        uint32_t imageIndex = INVALID_VK_INDEX;
+    };
 }
-

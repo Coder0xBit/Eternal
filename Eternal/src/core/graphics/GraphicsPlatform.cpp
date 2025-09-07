@@ -1,5 +1,5 @@
 #include "GraphicsPlatform.h"
-#include <core/graphics/vulkan/VulkanPlatform.h>
+#include "vulkan/VulkanPlatform.h"
 
 namespace Eternal {
     GraphicsPlatform* GraphicsPlatform::create(const Builder& builder) {

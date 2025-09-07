@@ -2,22 +2,17 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 
-#include <core/graphics/GraphicsPlatform.h>
 #include <utils/Base.h>
-#include <core/graphics/vulkan/VulkanWindow.h>
-#include <core/graphics/Timer.h>
-#include <core/graphics/vulkan/VulkanSwapChain.h>
 #include <core/graphics/vulkan/VulkanGraphicsContext.h>
-#include <core/graphics/Vertex.h>
-#include <core/graphics/vulkan/VulkanBufferManager.h>
-#include <core/graphics/Camera.hpp>
-#include <core/graphics/vulkan/VulkanDescsriptorSetLayout.h>
+#include "core/Camera.hpp"
 
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <fstream>
 #include <filesystem>
+
+#include "core/graphics/GraphicsPlatform.h"
 
 namespace Eternal {
 
@@ -33,7 +28,7 @@ namespace Eternal {
 		};
 
 		VulkanPlatform(const Builder& builder);
-		~VulkanPlatform();
+		~VulkanPlatform() override;
 		void initialize() override;
 		void shutDown() override;
 		SwapChain* createSwapChain(Window* window) override;
@@ -62,7 +57,6 @@ namespace Eternal {
 
 	private:
 		std::string m_ApplicationName;
-		Timer timer;
 		uint32_t m_Version = 0;
 	};
 }

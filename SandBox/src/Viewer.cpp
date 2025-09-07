@@ -26,6 +26,8 @@ namespace Eternal {
                 .width(1200)
                 .build();
 
+        m_InputDispatcher = Memory::Allocate<InputDispatcher>(m_Window);
+
         m_Engine = Eternal::Engine::Builder()
                 .applicationName("Eternal Application")
                 .backend(m_Backend)
@@ -43,16 +45,23 @@ namespace Eternal {
                 .swapChain(m_Renderer->getSwapChain())
                 .build();
 
+        m_Timer = Memory::Allocate<Eternal::Timer>();
+
+        m_Camera = Memory::Allocate<Camera>(m_InputDispatcher);
+        float aspectRatio = m_Window->getAspectRatio();
+        m_Camera->setPerspectiveProjection(glm::radians(50.f), aspectRatio, 0.1f, 1000.f);
+
         m_IsRunning = true;
     }
 
     bool Viewer::onEvent(Event& event) const {
-        m_Renderer->onEvent(event);
+        m_Camera->onEvent(event);
         return true;
     }
 
-    void Viewer::onImGuiRender() const {
+    void Viewer::onImGuiRender(Eternal::Timestep& ts) const {
         ImGui::Begin("Debug Info");
+        ImGui::Text("Time: %.6f", ts);
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
         for (auto e: m_Scene->getAllEntityWith<Eternal::TransformComponent>()) {
             Eternal::Entity entity = Eternal::Entity(e, m_Scene);
@@ -90,17 +99,15 @@ namespace Eternal {
 
     void Viewer::run() {
         m_Window->setEventCallBack(ETERNAL_BIND_EVENT_FN(Viewer::onEvent));
-
+        m_Timer->start();
         while (m_IsRunning) {
+            auto timeStep = m_Timer->tick();
             m_Window->onUpdate();
+            m_Camera->onUpdate(timeStep);
 
-            if (FrameInfo* frameInfo = m_Renderer->beginFrame()) {
-                m_ImGuiOverlay->beginFrame();
-                onImGuiRender();
-                m_Renderer->render();
-                m_ImGuiOverlay->render(frameInfo);
+            if (m_Renderer->beginFrame()) {
+                m_Renderer->render(m_Camera);
                 m_Renderer->endFrame();
-                Memory::Deallocate(frameInfo);
             }
 
             m_IsRunning = !m_Window->shouldClose();
@@ -116,8 +123,10 @@ namespace Eternal {
     }
 
     void Viewer::shutdown() {
+        Memory::Deallocate(m_Timer);
         Memory::Deallocate(m_ImGuiOverlay);
         Memory::Deallocate(m_Engine);
         Memory::Deallocate(m_Window);
+        Memory::Deallocate(m_Camera);
     }
 }

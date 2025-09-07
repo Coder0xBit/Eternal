@@ -113,15 +113,9 @@ namespace Eternal {
         glfwSetWindowIcon(window, 1, &icon);
     }
 
-    void WindowsWindow::onWindowResize(GLFWwindow* window, int width, int height) {
-        m_Data.height = height;
-        m_Data.width = width;
-
-        // if (m_WindowResizeCallback) {
-        // 	m_WindowResizeCallback(m_Width, m_Height);
-        // }
-
-        m_IsWindowResized = true;
+    bool WindowsWindow::isKeyPressed(Eternal::KeyCode keycode) const {
+        auto state = glfwGetKey(m_Window, keycode);
+        return state == GLFW_PRESS;
     }
 
     WindowsWindow::~WindowsWindow() {
