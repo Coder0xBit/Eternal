@@ -37,6 +37,7 @@ namespace Eternal {
         glm::mat4 rotation = getRotation();
         glm::vec3 forward = glm::normalize(glm::vec3(rotation * glm::vec4(0, 0, -1, 0)));
         glm::vec3 right = glm::normalize(glm::vec3(rotation * glm::vec4(1, 0, 0, 0)));
+        glm::vec3 up = glm::normalize(glm::vec3(rotation * glm::vec4(0, 1, 0, 0)));
 
         if (m_InputDispatcher->isKeyPressed(Key::W))
             m_Position += forward * velocity;
@@ -46,6 +47,10 @@ namespace Eternal {
             m_Position -= right * velocity;
         if (m_InputDispatcher->isKeyPressed(Key::D))
             m_Position += right * velocity;
+        if (m_InputDispatcher->isKeyPressed(Key::Space))
+            m_Position += up * velocity;
+        if (m_InputDispatcher->isKeyPressed(Key::LeftShift))
+            m_Position -= up * velocity;
     }
 
     bool Camera::onWindowResize(const Eternal::WindowResizeEvent& event) {
@@ -65,7 +70,7 @@ namespace Eternal {
         }
 
         float xoffset = static_cast<float>(xpos - m_LastX);
-        float yoffset = static_cast<float>(m_LastY - ypos); // reversed since y-coordinates go bottom to top
+        float yoffset = static_cast<float>(m_LastY - ypos);
         m_LastX = xpos;
         m_LastY = ypos;
 
@@ -75,8 +80,9 @@ namespace Eternal {
         m_Yaw += xoffset;
         m_Pitch += yoffset;
 
-        if (m_Pitch > 89.0f) m_Pitch = 89.0f;
-        if (m_Pitch < -89.0f) m_Pitch = -89.0f;
+        float pitch = glm::degrees(m_Pitch);
+        if (pitch > 89.0f) m_Pitch = glm::radians(89.0f);
+        if (pitch < -89.0f) m_Pitch = glm::radians(-89.0f);
         return true;
     }
 }

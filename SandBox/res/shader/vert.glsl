@@ -13,9 +13,6 @@ layout(set = 0 , binding = 0) uniform Uniform {
   mat4 model;
 } uniformBuffer;
 
-const vec3 LIGHT_POS = vec3(0.0, 0.0, -7.0);
-const float AMBIENT = 0.2;
-
 void main() {
   fragUv = uv;
   gl_Position = uniformBuffer.projection * uniformBuffer.view * uniformBuffer.model * vec4(position, 1.0);

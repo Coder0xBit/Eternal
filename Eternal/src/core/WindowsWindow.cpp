@@ -18,10 +18,13 @@ namespace Eternal {
 
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
+
         m_Window = glfwCreateWindow(m_Data.width, m_Data.height, m_Data.title.c_str(), nullptr, nullptr);
         ETERNAL_ASSERT(m_Window != nullptr, "Failed to create GLFW window");
 
         glfwSetWindowUserPointer(m_Window, &m_Data);
+
+        glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
             const WindowData& windowData = *(static_cast<WindowData*>(glfwGetWindowUserPointer(window)));\

@@ -50,11 +50,11 @@ namespace Eternal {
 
         void setPosition(glm::vec3 position) { m_Position = position; }
 
-        float& getPitch() { return m_Pitch; }
+        float getPitch() const { return m_Pitch; }
 
         void setPitch(float pitch) { m_Pitch = pitch; }
 
-        float& getYaw() { return m_Yaw; }
+        float getYaw() const { return m_Yaw; }
 
         void setYaw(float yaw) { m_Yaw = yaw; }
 
