@@ -7,8 +7,7 @@ namespace std {
 	template <>
 	struct hash<Eternal::Vertex>
 	{
-		size_t operator()(Eternal::Vertex const& vertex) const
-		{
+		size_t operator()(Eternal::Vertex const& vertex) const noexcept {
 			size_t seed = 0;
 			Eternal::hashCombine(seed,
 				vertex.position.x, vertex.position.y, vertex.position.z,

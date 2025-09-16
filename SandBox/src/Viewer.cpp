@@ -95,6 +95,18 @@ namespace Eternal {
         };
 
         m_Scene->addEntity(testEntity1);
+
+        std::vector<Eternal::Vertex> triVertices = {
+            {{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}}, // 0: top (red)
+            {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}}, // 1: bottom-left (green)
+            {{0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}}, // 2: bottom-right (blue)
+        };
+
+        std::vector<uint32_t> triIndices = {0, 1, 2};
+
+        Eternal::Entity model = m_Scene->createEntity("triangle");
+        model.addComponent<Eternal::RenderComponent>(triVertices, triIndices);
+        model.addComponent<Eternal::TransformComponent>(glm::vec3(0.0f, 10.0f, 0.0f));
     }
 
     void Viewer::run() {

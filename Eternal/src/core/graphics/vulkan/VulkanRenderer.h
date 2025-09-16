@@ -13,9 +13,11 @@
 #include "VulkanDescsriptorSetLayout.h"
 #include "VulkanTextureManager.h"
 #include "VulkanPipeline.h"
+#include "VulkanPipelineCache.h"
 
 namespace Eternal {
     class ImGuiOverlay;
+
     constexpr uint32_t e_MaxEntities = 100;
 
     class VulkanRenderer : public Renderer {
@@ -93,10 +95,7 @@ namespace Eternal {
         vk::Device m_LogicalDevice = nullptr;
         vk::PhysicalDevice m_PhysicalDevice = nullptr;
         PushConstants m_PushConstants;
-        vk::PipelineLayout m_PipelineLayout = nullptr;
         vk::RenderPass m_RenderPass = nullptr;
-
-        VulkanPipeline* m_VulkanPipeline = nullptr;
 
         std::vector<std::shared_ptr<VulkanBuffer> > m_UniformBuffers;
         VulkanDescriptorPool* m_DescriptorPool = nullptr;
@@ -105,6 +104,9 @@ namespace Eternal {
         std::unordered_map<uint32_t, vk::DescriptorSet> m_UniformDescriptorSets;
         std::unordered_map<uint32_t, vk::DescriptorSet> m_MaterialDescriptorSets;
 
+        vk::PipelineLayout m_UBOPipelineLayout = nullptr;
+        vk::PipelineLayout m_MaterialUBOPipelineLayout = nullptr;
+        Eternal::VulkanPipelineCache* m_PipelineCache = nullptr;
         Eternal::Timer* m_Timer = nullptr;
     };
 }

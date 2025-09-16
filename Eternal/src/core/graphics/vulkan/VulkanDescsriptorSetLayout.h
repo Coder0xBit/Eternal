@@ -45,6 +45,5 @@ namespace Eternal {
 		vk::Device m_LogicalDevice;
 		VulkanDesccriptorBinding m_Binding;
 		vk::DescriptorSetLayout m_DescriptorSetLayout;
-
 	};
 }

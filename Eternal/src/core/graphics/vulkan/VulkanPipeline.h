@@ -9,8 +9,6 @@ namespace Eternal {
 
 	class VulkanPipeline {
 	public:
-		static constexpr uint32_t const SHADER_MODULE_COUNT = 2;
-
 		struct PipelineCreationRequirements {
 			vk::PipelineCreateFlags flags = vk::PipelineCreateFlags();
 			vk::PipelineBindPoint bindPoint = vk::PipelineBindPoint::eGraphics;

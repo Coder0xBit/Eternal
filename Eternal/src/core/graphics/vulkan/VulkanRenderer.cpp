@@ -11,6 +11,7 @@
 
 #include "VulkanBufferManager.h"
 #include "VulkanImGuiOverlay.h"
+#include "VulkanPipelineCache.h"
 
 namespace Eternal {
     VulkanRenderer::VulkanRenderer(const Builder& builder) {
@@ -55,6 +56,7 @@ namespace Eternal {
         m_VulkanBufferManager = Memory::Allocate<VulkanBufferManager>(m_LogicalDevice, m_PhysicalDevice, m_Scene);
         m_VulkanTextureManager = Memory::Allocate<VulkanTextureManager>(m_Platform, m_Scene);
 
+        m_PipelineCache = Memory::Allocate<VulkanPipelineCache>(m_Platform);
         createPipeline();
         createCommandPool();
         createCommandBuffers();
@@ -79,9 +81,11 @@ namespace Eternal {
 
         m_Platform->destroyCommandPool(m_CommandPool);
 
-        Memory::Deallocate(m_VulkanPipeline);
+        m_LogicalDevice.destroyPipelineLayout(m_MaterialUBOPipelineLayout);
 
-        m_LogicalDevice.destroyPipelineLayout(m_PipelineLayout);
+        m_LogicalDevice.destroyPipelineLayout(m_UBOPipelineLayout);
+
+        Memory::Deallocate(m_PipelineCache);
 
         Memory::Deallocate(m_VulkanSwapChain);
 
@@ -102,7 +106,6 @@ namespace Eternal {
         m_LogicalDevice.destroy();
 
         Memory::Deallocate(m_Platform);
-
     }
 
     void VulkanRenderer::bindScene() {
@@ -118,46 +121,6 @@ namespace Eternal {
     }
 
     void VulkanRenderer::createPipeline() {
-        initializeDescriptors();
-
-        vk::PushConstantRange pushConstantRange = vk::PushConstantRange()
-                .setOffset(0)
-                .setSize(sizeof(PushConstants))
-                .setStageFlags(vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment);
-
-        std::array<vk::DescriptorSetLayout, 2> setLayouts = {
-            m_UniformBufferDescriptorSetLayout->getDescriptorSetLayout(),
-            m_MaterialDescriptorSetLayout->getDescriptorSetLayout()
-        };
-
-        //vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo()
-        //	.setSetLayoutCount(1)
-        //	.setPSetLayouts(&(m_DescriptorSetLayout->getDescriptorSetLayout()))
-        //	.setPushConstantRanges(pushConstantRange);
-
-        vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo()
-                .setSetLayouts(setLayouts);
-
-        m_PipelineLayout = m_LogicalDevice.createPipelineLayout(pipelineLayoutCreateInfo);
-
-        vk::ShaderModule vertexShaderModule = m_Platform->loadShader(m_LogicalDevice, "res/shader/bin/vert.spv");
-        vk::ShaderModule fragmentShaderModule = m_Platform->loadShader(m_LogicalDevice, "res/shader/bin/frag.spv");
-
-        m_VulkanPipeline = Memory::Allocate<VulkanPipeline>(m_LogicalDevice);
-        m_VulkanPipeline->bindLayout(m_PipelineLayout);
-        m_VulkanPipeline->bindRenderPass(m_RenderPass);
-        m_VulkanPipeline->bindVertexShader(vertexShaderModule);
-        m_VulkanPipeline->bindFragmentShader(fragmentShaderModule);
-        m_VulkanPipeline->create();
-
-        m_LogicalDevice.destroyShaderModule(vertexShaderModule);
-        m_LogicalDevice.destroyShaderModule(fragmentShaderModule);
-    }
-
-    void VulkanRenderer::updateUniformBuffers() {
-    }
-
-    void VulkanRenderer::initializeDescriptors() {
         m_UniformBufferDescriptorSetLayout = VulkanDescriptorSetLayout::Builder(m_LogicalDevice)
                 .addBinding({0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex})
                 .build();
@@ -172,6 +135,25 @@ namespace Eternal {
                 .setMaxSets(e_MaxEntities)
                 .build();
 
+        std::vector<vk::DescriptorSetLayout> setLayouts;
+        setLayouts.emplace_back(m_UniformBufferDescriptorSetLayout->getDescriptorSetLayout());
+        vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo()
+                .setSetLayouts(setLayouts);
+
+        m_UBOPipelineLayout = m_LogicalDevice.createPipelineLayout(pipelineLayoutCreateInfo);
+
+        setLayouts.emplace_back(m_MaterialDescriptorSetLayout->getDescriptorSetLayout());
+        pipelineLayoutCreateInfo.setSetLayouts(setLayouts);
+
+        m_MaterialUBOPipelineLayout = m_LogicalDevice.createPipelineLayout(pipelineLayoutCreateInfo);
+
+        initializeDescriptors();
+    }
+
+    void VulkanRenderer::updateUniformBuffers() {
+    }
+
+    void VulkanRenderer::initializeDescriptors() {
         auto uniformBuffers = m_VulkanBufferManager->getUniformBuffers();
         for (auto& [entityId, uniformBuffer]: uniformBuffers) {
             vk::DescriptorSet descriptorSet = m_DescriptorPool->allocate(*m_UniformBufferDescriptorSetLayout);
@@ -256,7 +238,7 @@ namespace Eternal {
         m_RenderPass = m_VulkanSwapChain->getRenderPass();
     }
 
-   bool VulkanRenderer::beginFrame() {
+    bool VulkanRenderer::beginFrame() {
         if (m_Window->isMinimized())
             return false;
 
@@ -283,13 +265,32 @@ namespace Eternal {
 
         VulkanSwapChain::SwapChainDetails swapChainDetails = m_VulkanSwapChain->getSwapChainDetails();
 
-        for (auto [e, transform]: m_Scene->getAllEntityWith<Eternal::TransformComponent>().each()) {
+        for (const auto& [e, renderComponent]: m_Scene->getAllEntityWith<Eternal::RenderComponent>().each()) {
             Eternal::Entity entity = Eternal::Entity(e, m_Scene);
 
+            auto transform = entity.getComponent<Eternal::TransformComponent>();
+            auto material = entity.tryGetComponent<Eternal::MaterialComponent>();
             VulkanBufferManager::UniformBuffer uniformBufferData;
             uniformBufferData.projection = camera->getProjection();
             uniformBufferData.view = camera->getView();
             uniformBufferData.model = transform.mat4();
+
+            vk::PipelineLayout pipelineLayout;
+            if (material != nullptr) {
+                pipelineLayout = m_MaterialUBOPipelineLayout;
+            } else {
+                pipelineLayout = m_UBOPipelineLayout;
+            }
+
+            PipelineKey pipelineKey = {
+                .hasMaterial = material != nullptr,
+                .pipelineLayout = pipelineLayout,
+                .renderPass = m_VulkanSwapChain->getRenderPass()
+            };
+
+            vk::Pipeline pipeline = m_PipelineCache->getOrCreate(pipelineKey);
+            commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
+
             std::shared_ptr<VulkanBuffer> uniformBuffer = m_VulkanBufferManager->getUniformBuffer(entity.getUUID());
 
             if (uniformBuffer) {
@@ -297,12 +298,14 @@ namespace Eternal {
             }
 
             auto descriptorSet = m_UniformDescriptorSets[entity.getUUID()];
-            commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 0, 1,
+            commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 0, 1,
                                              &descriptorSet, 0, nullptr);
 
-            auto materialDescriptorSet = m_MaterialDescriptorSets[entity.getUUID()];
-            commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, m_PipelineLayout, 1, 1,
-                                             &materialDescriptorSet, 0, nullptr);
+            if (material) {
+                auto materialDescriptorSet = m_MaterialDescriptorSets[entity.getUUID()];
+                commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 1, 1,
+                                                 &materialDescriptorSet, 0, nullptr);
+            }
             //m_CurrentCommandBuffer.pushConstants(m_PipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(PushConstants), &m_PushConstants);
 
             std::shared_ptr<VulkanBuffer> vertexBuffer = m_VulkanBufferManager->getVertexBuffer(entity.getUUID());
@@ -319,8 +322,8 @@ namespace Eternal {
             vk::Viewport viewport = vk::Viewport()
                     .setX(0.0f)
                     .setY(0.0f)
-                    .setWidth((float) swapChainDetails.extent.width)
-                    .setHeight((float) swapChainDetails.extent.height)
+                    .setWidth(static_cast<float>(swapChainDetails.extent.width))
+                    .setHeight(static_cast<float>(swapChainDetails.extent.height))
                     .setMinDepth(0.0f)
                     .setMaxDepth(1.0f);
 
@@ -392,8 +395,6 @@ namespace Eternal {
                 .setClearValues(clearValues);
 
         commandBuffer.beginRenderPass(renderPassBeginInfo, vk::SubpassContents::eInline);
-
-        m_VulkanPipeline->bind(commandBuffer);
     }
 
     void VulkanRenderer::endRecoding(vk::CommandBuffer commandBuffer) {

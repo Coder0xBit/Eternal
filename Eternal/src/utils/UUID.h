@@ -2,27 +2,27 @@
 #include "Base.h"
 
 namespace Eternal {
-	class UUID {
-	public:
-		UUID();
-		UUID(uint64_t uuid);
-		UUID(const UUID&) = default;
+    class UUID {
+    public:
+        UUID();
+        UUID(uint64_t uuid);
+        UUID(const UUID&) = default;
 
-		operator uint64_t() const { return m_UUID; }
-	private:
-		uint64_t m_UUID;
-	};
+        operator uint64_t() const { return m_UUID; }
+
+    private:
+        uint64_t m_UUID;
+    };
 }
 
 namespace std {
-	template <typename T> struct hash;
+    template<typename T>
+    struct hash;
 
-	template<>
-	struct hash<Eternal::UUID>
-	{
-		std::size_t operator()(const Eternal::UUID& uuid) const
-		{
-			return (uint64_t)uuid;
-		}
-	};
+    template<>
+    struct hash<Eternal::UUID> {
+        std::size_t operator()(const Eternal::UUID& uuid) const noexcept {
+            return uuid;
+        }
+    };
 }
