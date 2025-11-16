@@ -1,7 +1,7 @@
 #pragma once
-#include "entt/entt.hpp"
 #include "utils/Base.h"
 #include "TransformComponent.h"
+#include "entt/entt.hpp"
 
 namespace Eternal {
     class Entity;
@@ -29,10 +29,10 @@ namespace Eternal {
         }
 
         template<typename T>
-        void onComponentAdded(std::function<void(Entity, T&)> callback) {
+        void onComponentAdded(std::function<void(Entity&, T&)> callback) {
             auto typeIndex = std::type_index(typeid(T));
 
-            auto callbackFunction = [callback](Entity entity, void* component) {
+            auto callbackFunction = [callback](Entity& entity, void* component) {
                 callback(entity, *static_cast<T*>(component));
             };
 
@@ -41,7 +41,7 @@ namespace Eternal {
 
     private:
         template<typename T>
-        void notifyObservers(Entity entity, T& component) {
+        void notifyObservers(Entity& entity, T& component) {
             auto it = m_ComponentAddedObservers.find(std::type_index(typeid(T)));
             if (it != m_ComponentAddedObservers.end()) {
                 for (const auto& observer: it->second) {
@@ -52,7 +52,7 @@ namespace Eternal {
 
         entt::registry m_Registry;
 
-        using ObserverFunction = std::function<void(Entity, void*)>;
+        using ObserverFunction = std::function<void(Entity&, void*)>;
         std::unordered_map<std::type_index, std::vector<ObserverFunction> > m_ComponentAddedObservers;
 
         friend class Entity;

@@ -4,37 +4,40 @@
 #include "VulkanPipeline.h"
 #include "VulkanPipelineKey.h"
 #include "VulkanPlatform.h"
+#include "core/scene/MaterialComponent.h"
 
 namespace Eternal {
     struct PipelineKey {
-        bool hasMaterial = false;
+        uint32_t pipelineLayoutMask = 0;
         vk::PipelineLayout pipelineLayout = nullptr;
         vk::RenderPass renderPass = nullptr;
+        MaterialComponent* material = nullptr;
         bool operator==(const PipelineKey& other) const = default;
     };
 
     struct PipelineKeyHasher {
         std::size_t operator()(const Eternal::PipelineKey& key) const noexcept {
             std::size_t seed = 0;
-            Eternal::hashCombine(seed, key.hasMaterial);
+            Eternal::hashCombine(seed, key.pipelineLayoutMask);
+            Eternal::hashCombine(seed, key.material);
             Eternal::hashCombine(seed, static_cast<VkPipelineLayout>(key.pipelineLayout));
             Eternal::hashCombine(seed, static_cast<VkRenderPass>(key.renderPass));
             return seed;
         }
     };
 
+
     class VulkanPipelineCache {
     public :
-        VulkanPipelineCache(VulkanPlatform* vulkanPlatform) : m_Platform(vulkanPlatform) {
-        }
+        using PipelineContainer = std::unordered_map<PipelineKey, std::shared_ptr<VulkanPipeline>, PipelineKeyHasher>;
 
+        VulkanPipelineCache(VulkanPlatform* platform);
         ~VulkanPipelineCache();
 
         vk::Pipeline getOrCreate(PipelineKey pipelineKey);
 
     private :
         VulkanPlatform* m_Platform = nullptr;
-
-        std::unordered_map<PipelineKey, std::shared_ptr<VulkanPipeline>, PipelineKeyHasher> m_PipelineCache;
+        PipelineContainer m_PipelineCache;
     };
 }

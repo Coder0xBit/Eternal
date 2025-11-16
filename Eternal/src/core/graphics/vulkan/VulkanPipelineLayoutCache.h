@@ -1,35 +1,40 @@
 #pragma once
+#include "VulkanDescriptorPool.h"
 #include "VulkanPlatform.h"
-#include "glm/fwd.hpp"
 
 namespace Eternal {
-    enum class DescriptorSetBindingPoints : uint8_t {
-        UBO = 0,
-        MATERIAL = 1 << 0,
+    struct PipelineLayoutCacheKey {
+        uint32_t pipelineLayoutMask = 0;
+        bool operator==(const PipelineLayoutCacheKey& other) const = default;
     };
 
-    struct PipelineLayoutKey {
-        uint8_t layoutMask = 0;
-    };
-
-    struct PipelineLayoutKeyHasher {
-        std::size_t operator()(const Eternal::PipelineLayoutKey& key) const noexcept {
+    struct PipelineLayoutCacheKeyHasher {
+        std::size_t operator()(const Eternal::PipelineLayoutCacheKey& key) const noexcept {
             std::size_t seed = 0;
-            Eternal::hashCombine(seed, key.layoutMask);
+            Eternal::hashCombine(seed, key.pipelineLayoutMask);
             return seed;
         }
     };
 
-
     class VulkanPipelineLayoutCache {
-    public :
-        VulkanPipelineLayoutCache(VulkanPlatform* vulkanPlatform) : m_Platform(vulkanPlatform) {
-        }
+    public:
+        using PipelineLayoutContainer = std::unordered_map<PipelineLayoutCacheKey, vk::PipelineLayout,
+            PipelineLayoutCacheKeyHasher>;
+        VulkanPipelineLayoutCache(VulkanDescriptorPool* descriptorPool, VulkanPlatform* platform);
 
-        vk::PipelineLayout getOrCreate(PipelineLayoutKey layoutKey);
+        ~VulkanPipelineLayoutCache();
 
-    private:
+        vk::PipelineLayout getOrCreatePipelineLayout(PipelineLayoutCacheKey pipelineLayoutCacheKey);
+
+        VulkanDescriptorSetLayout* getUboDescriptorSetLayout() const { return m_UniformBufferDescriptorSetLayout; }
+        VulkanDescriptorSetLayout* getMaterialDescriptorSetLayout() const { return m_MaterialDescriptorSetLayout; }
+
+    private :
         VulkanPlatform* m_Platform = nullptr;
-        std::unordered_map<PipelineLayoutKey, vk::PipelineLayout, PipelineLayoutKeyHasher> m_LayoutCache;
+        vk::Device m_LogicalDevice;
+        VulkanDescriptorPool* m_DescriptorPool = nullptr;
+        PipelineLayoutContainer m_PipelineLayoutCache;
+        VulkanDescriptorSetLayout* m_UniformBufferDescriptorSetLayout = nullptr;
+        VulkanDescriptorSetLayout* m_MaterialDescriptorSetLayout = nullptr;
     };
 }

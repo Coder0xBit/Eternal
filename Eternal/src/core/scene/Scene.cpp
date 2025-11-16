@@ -28,13 +28,15 @@ namespace Eternal {
         model.addComponent<Eternal::RenderComponent>(mesh->getVertices(), mesh->getIndices());
         model.addComponent<Eternal::TransformComponent>(entity.initialPosition);
 
-        if (!entity.texturePath.empty()) {
-            Image* texture = ResourceManager::get().loadResource<Image>(entity.texturePath);
-            if (!texture) {
-                Eternal::Logger::Error("Failed to load texture from path: {}", entity.texturePath);
-                return;
-            }
+        if (entity.texturePath.empty()) return;
+        Image* texture = ResourceManager::get().loadResource<Image>(entity.texturePath);
+
+        if (!texture) {
+            Eternal::Logger::Error("Failed to load texture from path: {}", entity.texturePath);
             model.addComponent<Eternal::MaterialComponent>(texture);
+            return;
         }
+
+        model.addComponent<Eternal::MaterialComponent>(texture);
     }
 }

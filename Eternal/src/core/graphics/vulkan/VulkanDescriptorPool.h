@@ -41,7 +41,6 @@ namespace Eternal {
 		~VulkanDescriptorPool();
 
 		vk::DescriptorPool getDescriptorPool() const { return m_DescriptorPool; }
-		uint32_t getCurrentlyAllocatedSets() const { return m_CurrentlyAllocatedSets; }
 		void reset();
 		vk::DescriptorSet allocate(const VulkanDescriptorSetLayout& descriptorSetLayout);
 		std::vector<vk::DescriptorSet> allocate(uint32_t descriptorSetCount, const VulkanDescriptorSetLayout& descriptorSetLayout);
@@ -57,7 +56,6 @@ namespace Eternal {
 
 		std::vector<vk::DescriptorPoolSize> m_PoolSizes;
 
-		uint32_t m_CurrentlyAllocatedSets = 0;
 		uint32_t m_MaxSets;
 	};
 }

@@ -120,12 +120,12 @@ namespace Eternal {
 			auto [result, graphicsPipeline] = m_LogicalDevice.createGraphicsPipeline(VK_NULL_HANDLE, graphicsPipelineCreateInfo, nullptr);
 			m_Pipeline = graphicsPipeline;
 		}
-		catch (vk::SystemError err) {
+		catch (vk::SystemError& err) {
 			Eternal::Logger::Error("Graphics Pipeline Exception : {}", err.what());
 		};
 	}
 
-	void VulkanPipeline::bind(vk::CommandBuffer commandBuffer) {
+	void VulkanPipeline::bind(vk::CommandBuffer commandBuffer) const {
 		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
 	}
 

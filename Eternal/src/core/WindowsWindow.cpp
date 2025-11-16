@@ -24,7 +24,7 @@ namespace Eternal {
 
         glfwSetWindowUserPointer(m_Window, &m_Data);
 
-        glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        // glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
             const WindowData& windowData = *(static_cast<WindowData*>(glfwGetWindowUserPointer(window)));\

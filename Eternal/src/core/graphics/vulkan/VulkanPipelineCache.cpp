@@ -1,23 +1,27 @@
 #include "VulkanPipelineCache.h"
 
+#include <ranges>
+
 #include "VulkanPipeline.h"
+#include "core/scene/MaterialComponent.h"
 
 namespace Eternal {
+    VulkanPipelineCache::VulkanPipelineCache(VulkanPlatform* platform) : m_Platform(platform) {
+    }
+
     VulkanPipelineCache::~VulkanPipelineCache() {
-        vk::Device logicalDevice = m_Platform->getLogicalDevice();
-        for (auto& [pipelineKey, pipeline]: m_PipelineCache) {
-            logicalDevice.destroyPipeline(pipeline->getPipeline());
-        }
+        m_PipelineCache.clear();
     }
 
     vk::Pipeline VulkanPipelineCache::getOrCreate(PipelineKey pipelineKey) {
-        vk::Device logicalDevice = m_Platform->getLogicalDevice();
-        std::string fragShader;
-        if (pipelineKey.hasMaterial) {
-            fragShader = "frag_texture_mapping.spv";
-        } else {
-            fragShader = "common_fragment.spv";
+        if (m_PipelineCache.contains(pipelineKey)) {
+            return m_PipelineCache[pipelineKey]->getPipeline();
         }
+
+        vk::Device logicalDevice = m_Platform->getLogicalDevice();
+        bool isSamplerAttached = IS_BIT_SET(pipelineKey.pipelineLayoutMask, PipelineParams::SAMPLER);
+        bool hasMaterial = pipelineKey.material != nullptr;
+        std::string fragShader = hasMaterial ? "frag_texture_mapping.spv" : "common_fragment.spv";
 
         std::string vertexShader = "common_vertex.spv";
 
@@ -38,6 +42,7 @@ namespace Eternal {
         vulkanPipeline->create();
         logicalDevice.destroyShaderModule(vertexShaderModule);
         logicalDevice.destroyShaderModule(fragmentShaderModule);
-        return m_PipelineCache.emplace(pipelineKey, vulkanPipeline).first->second->getPipeline();
+        auto [it , inserted] = m_PipelineCache.emplace(pipelineKey, vulkanPipeline);
+        return it->second->getPipeline();
     }
 }

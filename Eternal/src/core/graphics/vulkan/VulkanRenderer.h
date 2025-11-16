@@ -14,6 +14,7 @@
 #include "VulkanTextureManager.h"
 #include "VulkanPipeline.h"
 #include "VulkanPipelineCache.h"
+#include "VulkanPipelineLayoutCache.h"
 
 namespace Eternal {
     class ImGuiOverlay;
@@ -48,8 +49,6 @@ namespace Eternal {
         void initialize();
 
         void bindScene();
-
-        void createPipeline();
 
         void initializeDescriptors();
 
@@ -99,14 +98,12 @@ namespace Eternal {
 
         std::vector<std::shared_ptr<VulkanBuffer> > m_UniformBuffers;
         VulkanDescriptorPool* m_DescriptorPool = nullptr;
-        VulkanDescriptorSetLayout* m_UniformBufferDescriptorSetLayout = nullptr;
-        VulkanDescriptorSetLayout* m_MaterialDescriptorSetLayout = nullptr;
         std::unordered_map<uint32_t, vk::DescriptorSet> m_UniformDescriptorSets;
         std::unordered_map<uint32_t, vk::DescriptorSet> m_MaterialDescriptorSets;
 
-        vk::PipelineLayout m_UBOPipelineLayout = nullptr;
-        vk::PipelineLayout m_MaterialUBOPipelineLayout = nullptr;
         Eternal::VulkanPipelineCache* m_PipelineCache = nullptr;
+        Eternal::VulkanPipelineLayoutCache* m_PipelineLayoutCache = nullptr;
+        vk::Pipeline* m_BoundPipeline = nullptr;
         Eternal::Timer* m_Timer = nullptr;
     };
 }

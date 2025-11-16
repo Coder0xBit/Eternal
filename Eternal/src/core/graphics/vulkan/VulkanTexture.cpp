@@ -29,7 +29,7 @@ namespace Eternal {
 		}
 	}
 
-	vk::BufferImageCopy VulkanTexture::getRegionForCopy() {
+	vk::BufferImageCopy VulkanTexture::getRegionForCopy() const {
 		vk::ImageSubresourceLayers subresourceRange = vk::ImageSubresourceLayers()
 			.setAspectMask(vk::ImageAspectFlagBits::eColor)
 			.setMipLevel(0)
@@ -133,7 +133,7 @@ namespace Eternal {
 		createSampler();
 	}
 
-	void VulkanTexture::recordUploadCommand(vk::CommandBuffer commandBuffer) {
+	void VulkanTexture::recordUploadCommand(vk::CommandBuffer commandBuffer) const {
 		{
 			VulkanTexture::LayoutTransitionInfo layoutTransitionInfo =
 				getLayoutTransitionInfo(m_Format, vk::ImageLayout::eUndefined, vk::ImageLayout::eTransferDstOptimal);
@@ -153,7 +153,7 @@ namespace Eternal {
 		}
 	}
 
-	VulkanTexture::LayoutTransitionInfo VulkanTexture::getLayoutTransitionInfo(vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout) {
+	VulkanTexture::LayoutTransitionInfo VulkanTexture::getLayoutTransitionInfo(vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout) const {
 		vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
 			.setAspectMask(vk::ImageAspectFlagBits::eColor)
 			.setBaseMipLevel(0)

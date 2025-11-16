@@ -29,7 +29,7 @@ namespace Eternal {
 		void bindVertexAttributeDescriptions(const std::vector<vk::VertexInputAttributeDescription>& attributeDescriptions);
 		void create();
 		void create(const PipelineCreationRequirements& pipelineCreationRequirements);
-		void bind(vk::CommandBuffer commandBuffer);
+		void bind(vk::CommandBuffer commandBuffer) const;
 		vk::Pipeline getPipeline() const { return m_Pipeline; }
 		~VulkanPipeline();
 

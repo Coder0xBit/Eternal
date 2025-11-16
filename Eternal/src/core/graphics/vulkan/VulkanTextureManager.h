@@ -4,11 +4,13 @@
 #include <core/scene/Scene.h>
 #include <core/scene/MaterialComponent.h>
 
+#include "VulkanDescriptorPool.h"
 #include "VulkanTexture.h"
 #include "VulkanUtils.h"
 #include "VulkanPlatform.h"
 
 namespace Eternal {
+
 	class VulkanTextureManager {
 	public:
 		using EntityId = uint32_t;
@@ -31,7 +33,7 @@ namespace Eternal {
 
 	private:
 		void initialize();
-		void initializeTexture(std::shared_ptr<VulkanTexture> vulkanTexture);
+		void initializeTexture(std::shared_ptr<VulkanTexture> vulkanTexture) const;
 		void createCommandPool();
 
 		vk::CommandPool m_CommandPool;
@@ -41,6 +43,5 @@ namespace Eternal {
 		vk::Device m_Device = nullptr;
 		vk::PhysicalDevice m_PhysicalDevice = nullptr;
 		VulkanTextureContainer m_Textures;
-
 	};
 }

@@ -13,7 +13,7 @@ namespace Eternal {
 	VulkanDescriptorSetLayout::Builder& VulkanDescriptorSetLayout::Builder::operator=(Builder&& rhs) noexcept = default;
 
 	VulkanDescriptorSetLayout::Builder& VulkanDescriptorSetLayout::Builder::addBinding(LayoutInfo layoutInfo) {
-		ETERNAL_ASSERT(mImpl->bindings.count(layoutInfo.binding) == 0, "Binding is in use");
+		ETERNAL_ASSERT(!mImpl->bindings.contains(layoutInfo.binding), "Binding is in use");
 		vk::DescriptorSetLayoutBinding binding = vk::DescriptorSetLayoutBinding()
 			.setBinding(layoutInfo.binding)
 			.setDescriptorType(layoutInfo.type)

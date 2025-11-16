@@ -57,7 +57,16 @@ namespace Eternal {
         m_VulkanTextureManager = Memory::Allocate<VulkanTextureManager>(m_Platform, m_Scene);
 
         m_PipelineCache = Memory::Allocate<VulkanPipelineCache>(m_Platform);
-        createPipeline();
+
+        m_DescriptorPool = VulkanDescriptorPool::Builder(m_LogicalDevice)
+                .addPoolSize({vk::DescriptorType::eUniformBuffer, e_MaxEntities})
+                .addPoolSize({vk::DescriptorType::eCombinedImageSampler, e_MaxEntities})
+                .setMaxSets(e_MaxEntities)
+                .build();
+
+        m_PipelineLayoutCache = Memory::Allocate<VulkanPipelineLayoutCache>(m_DescriptorPool, m_Platform);
+
+        initializeDescriptors();
         createCommandPool();
         createCommandBuffers();
         createSemaphores();
@@ -81,21 +90,14 @@ namespace Eternal {
 
         m_Platform->destroyCommandPool(m_CommandPool);
 
-        m_LogicalDevice.destroyPipelineLayout(m_MaterialUBOPipelineLayout);
-
-        m_LogicalDevice.destroyPipelineLayout(m_UBOPipelineLayout);
-
+        Memory::Deallocate(m_PipelineLayoutCache);
         Memory::Deallocate(m_PipelineCache);
-
         Memory::Deallocate(m_VulkanSwapChain);
 
         //m_UniformBuffers.clear();
 
         m_UniformDescriptorSets.clear();
         m_MaterialDescriptorSets.clear();
-
-        Memory::Deallocate(m_UniformBufferDescriptorSetLayout);
-        Memory::Deallocate(m_MaterialDescriptorSetLayout);
 
         Memory::Deallocate(m_DescriptorPool);
 
@@ -110,53 +112,24 @@ namespace Eternal {
 
     void VulkanRenderer::bindScene() {
         m_Scene->onComponentAdded<Eternal::RenderComponent>(
-            [this](Eternal::Entity entity, Eternal::RenderComponent& component) {
+            [this](Eternal::Entity& entity, Eternal::RenderComponent& component) {
                 m_VulkanBufferManager->addBuffer(entity.getUUID(), component);
             });
 
         m_Scene->onComponentAdded<Eternal::TransformComponent>(
-            [this](Eternal::Entity entity, Eternal::TransformComponent& component) {
+            [this](Eternal::Entity& entity, Eternal::TransformComponent& component) {
                 m_VulkanBufferManager->addUniformBuffer(entity.getUUID(), component);
             });
-    }
-
-    void VulkanRenderer::createPipeline() {
-        m_UniformBufferDescriptorSetLayout = VulkanDescriptorSetLayout::Builder(m_LogicalDevice)
-                .addBinding({0, vk::DescriptorType::eUniformBuffer, vk::ShaderStageFlagBits::eVertex})
-                .build();
-
-        m_MaterialDescriptorSetLayout = VulkanDescriptorSetLayout::Builder(m_LogicalDevice)
-                .addBinding({0, vk::DescriptorType::eCombinedImageSampler, vk::ShaderStageFlagBits::eFragment})
-                .build();
-
-        m_DescriptorPool = VulkanDescriptorPool::Builder(m_LogicalDevice)
-                .addPoolSize({vk::DescriptorType::eUniformBuffer, e_MaxEntities})
-                .addPoolSize({vk::DescriptorType::eCombinedImageSampler, e_MaxEntities})
-                .setMaxSets(e_MaxEntities)
-                .build();
-
-        std::vector<vk::DescriptorSetLayout> setLayouts;
-        setLayouts.emplace_back(m_UniformBufferDescriptorSetLayout->getDescriptorSetLayout());
-        vk::PipelineLayoutCreateInfo pipelineLayoutCreateInfo = vk::PipelineLayoutCreateInfo()
-                .setSetLayouts(setLayouts);
-
-        m_UBOPipelineLayout = m_LogicalDevice.createPipelineLayout(pipelineLayoutCreateInfo);
-
-        setLayouts.emplace_back(m_MaterialDescriptorSetLayout->getDescriptorSetLayout());
-        pipelineLayoutCreateInfo.setSetLayouts(setLayouts);
-
-        m_MaterialUBOPipelineLayout = m_LogicalDevice.createPipelineLayout(pipelineLayoutCreateInfo);
-
-        initializeDescriptors();
     }
 
     void VulkanRenderer::updateUniformBuffers() {
     }
 
     void VulkanRenderer::initializeDescriptors() {
+        auto uboDescriptorSetLayout = m_PipelineLayoutCache->getUboDescriptorSetLayout();
         auto uniformBuffers = m_VulkanBufferManager->getUniformBuffers();
         for (auto& [entityId, uniformBuffer]: uniformBuffers) {
-            vk::DescriptorSet descriptorSet = m_DescriptorPool->allocate(*m_UniformBufferDescriptorSetLayout);
+            vk::DescriptorSet descriptorSet = m_DescriptorPool->allocate(*uboDescriptorSetLayout);
             m_UniformDescriptorSets[entityId] = descriptorSet;
 
             vk::DescriptorBufferInfo bufferInfo = vk::DescriptorBufferInfo()
@@ -174,9 +147,10 @@ namespace Eternal {
             m_LogicalDevice.updateDescriptorSets(writeDescriptorSet, nullptr);
         }
 
+        auto materialDescriptorSetLayout = m_PipelineLayoutCache->getMaterialDescriptorSetLayout();
         auto textures = m_VulkanTextureManager->getTextures();
         for (auto& [entityId, texture]: textures) {
-            vk::DescriptorSet descriptorSet = m_DescriptorPool->allocate(*m_MaterialDescriptorSetLayout);
+            vk::DescriptorSet descriptorSet = m_DescriptorPool->allocate(*materialDescriptorSetLayout);
             m_MaterialDescriptorSets[entityId] = descriptorSet;
 
             vk::DescriptorImageInfo imageInfo = vk::DescriptorImageInfo()
@@ -275,17 +249,18 @@ namespace Eternal {
             uniformBufferData.view = camera->getView();
             uniformBufferData.model = transform.mat4();
 
+            PipelineLayoutCacheKey pipelineLayoutKey = {
+                .pipelineLayoutMask = material != nullptr ? material->getPipelineLayoutBitMask() : eDefaultPipelineLayoutBitMask,
+            };
+
             vk::PipelineLayout pipelineLayout;
-            if (material != nullptr) {
-                pipelineLayout = m_MaterialUBOPipelineLayout;
-            } else {
-                pipelineLayout = m_UBOPipelineLayout;
-            }
+            pipelineLayout = m_PipelineLayoutCache->getOrCreatePipelineLayout(pipelineLayoutKey);
 
             PipelineKey pipelineKey = {
-                .hasMaterial = material != nullptr,
+                .pipelineLayoutMask = material != nullptr ? material->getPipelineLayoutBitMask() : eDefaultPipelineLayoutBitMask,
                 .pipelineLayout = pipelineLayout,
-                .renderPass = m_VulkanSwapChain->getRenderPass()
+                .renderPass = m_VulkanSwapChain->getRenderPass(),
+                .material = material,
             };
 
             vk::Pipeline pipeline = m_PipelineCache->getOrCreate(pipelineKey);

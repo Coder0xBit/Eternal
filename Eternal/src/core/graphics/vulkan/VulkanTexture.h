@@ -18,17 +18,17 @@ namespace Eternal {
 		~VulkanTexture();
 
 		std::shared_ptr<VulkanBuffer> getStagingBuffer() { return m_StagingBuffer; }
-		vk::Format getFormat() { return m_Format; }
-		const vk::Image& getImage() { return m_Image; }
-		int getWidth() { return m_Width; }
-		int getHeight() { return m_Height; }
-		vk::BufferImageCopy getRegionForCopy();
-		vk::ImageView getImageView() { return m_ImageView; }
-		vk::Sampler getSampler() { return m_Sampler; }
+		vk::Format getFormat() const { return m_Format; }
+		const vk::Image& getImage() const { return m_Image; }
+		int getWidth() const { return m_Width; }
+		int getHeight() const { return m_Height; }
+		vk::BufferImageCopy getRegionForCopy() const;
+		vk::ImageView getImageView() const { return m_ImageView; }
+		vk::Sampler getSampler() const { return m_Sampler; }
 
 		void create();
-		void recordUploadCommand(vk::CommandBuffer commandBuffer);
-		LayoutTransitionInfo getLayoutTransitionInfo(vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout);
+		void recordUploadCommand(vk::CommandBuffer commandBuffer) const;
+		LayoutTransitionInfo getLayoutTransitionInfo(vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout) const;
 
 	private:
 		const Eternal::Image* m_ImageResource;
