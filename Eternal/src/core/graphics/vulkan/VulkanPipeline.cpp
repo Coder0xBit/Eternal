@@ -1,4 +1,4 @@
-#include "VulkanPipeline.h"
+#include "core/graphics/vulkan/VulkanPipeline.h"
 
 namespace Eternal {
 	VulkanPipeline::VulkanPipeline(vk::Device logicalDevice)

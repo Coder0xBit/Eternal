@@ -1,6 +1,6 @@
 #pragma once
-#include <utils/Base.h>
-#include "Event.h"
+
+#include "core/event/Event.h"
 
 namespace Eternal {
     class EventDispatcher {

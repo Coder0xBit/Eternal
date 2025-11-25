@@ -1,8 +1,7 @@
 #pragma once
 
-#include <utils/Base.h>
-#include <core/resource/Resource.h>
-#include <core/graphics/Vertex.h>
+#include "core/resource/Resource.h"
+#include "core/graphics/Vertex.h"
 
 namespace Eternal {
     class Mesh : public Resource {

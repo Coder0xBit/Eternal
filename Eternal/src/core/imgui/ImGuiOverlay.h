@@ -1,9 +1,9 @@
 #pragma once
-#include <core/graphics/FrameInfo.h>
 
-#include "Window.h"
-#include "graphics/Backend.h"
-#include "graphics/GraphicsPlatform.h"
+#include "core/graphics/FrameInfo.h"
+#include "core/graphics/Backend.h"
+#include "core/graphics/GraphicsPlatform.h"
+#include "core/window/Window.h"
 
 namespace Eternal {
     class ImGuiOverlay {

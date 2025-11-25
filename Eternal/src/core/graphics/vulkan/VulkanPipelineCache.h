@@ -1,10 +1,10 @@
 #pragma once
-#include <vulkan/vulkan.hpp>
 
-#include "VulkanPipeline.h"
-#include "VulkanPipelineKey.h"
-#include "VulkanPlatform.h"
+#include "core/graphics/vulkan/VulkanPipeline.h"
+#include "core/graphics/vulkan/VulkanPlatform.h"
 #include "core/scene/MaterialComponent.h"
+
+#include <vulkan/vulkan.hpp>
 
 namespace Eternal {
     struct PipelineKey {

@@ -1,5 +1,6 @@
 #pragma once
-#include "Event.h"
+
+#include "core/event/Event.h"
 
 namespace Eternal {
     class WindowResizeEvent : public Event {

@@ -1,10 +1,11 @@
 #pragma once
-#include <core/Engine.h>
-#include <core/ImGuiOverlay.h>
-#include <core/Window.h>
-#include <core/scene/Scene.h>
 
 #include "Application.h"
+
+#include "core/Engine.h"
+#include "core/imgui/ImGuiOverlay.h"
+#include "core/window/Window.h"
+#include "core/scene/Scene.h"
 #include "core/event/KeyEvents.h"
 #include "core/Camera.hpp"
 #include "core/graphics/Timer.h"

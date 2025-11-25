@@ -1,5 +1,4 @@
-#include "Camera.hpp"
-
+#include "core/Camera.hpp"
 #include "core/event/EventDispatcher.h"
 
 namespace Eternal {

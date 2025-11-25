@@ -1,7 +1,7 @@
 #pragma once
 
-#include <utils/Base.h>
-#include <core/graphics/Vertex.h>
+#include "utils/Base.h"
+#include "core/graphics/Vertex.h"
 
 namespace Eternal {
     struct RenderComponent {

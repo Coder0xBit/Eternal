@@ -1,5 +1,5 @@
-#include "VulkanTexture.h"
-#include "VulkanPlatform.h"
+#include "core/graphics/vulkan/VulkanTexture.h"
+#include "core/graphics/vulkan/VulkanPlatform.h"
 
 namespace Eternal {
 

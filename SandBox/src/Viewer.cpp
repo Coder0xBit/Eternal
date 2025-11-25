@@ -1,15 +1,14 @@
 #include "Viewer.h"
-#include "imgui/imgui.h"
 
-#include <core/graphics/vulkan/VulkanImGuiOverlay.h>
-#include <core/graphics/vulkan/VulkanPlatform.h>
-#include <core/graphics/vulkan/VulkanRenderer.h>
-#include <core/scene/Entity.h>
-#include <core/scene/TransformComponent.h>
+#include "utils/Base.h"
 
+#include "core/scene/Entity.h"
+#include "core/scene/TransformComponent.h"
+#include "core/scene/RenderComponent.h"
 #include "core/event/EventDispatcher.h"
-#include "core/event/KeyEvents.h"
+#include "core/graphics/Vertex.h"
 
+#include <imgui/imgui.h>
 
 void SetEngineRootDirectory() {
     std::filesystem::path path = std::filesystem::current_path() / "../Eternal";

@@ -1,6 +1,6 @@
 #pragma once
-#include "Event.h"
-#include "core/input/KeyCodes.h"
+
+#include "core/event/Event.h"
 
 namespace Eternal {
     class MouseMovedEvent : public Event {

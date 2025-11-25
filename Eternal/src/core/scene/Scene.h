@@ -1,7 +1,9 @@
 #pragma once
+
 #include "utils/Base.h"
-#include "TransformComponent.h"
-#include "entt/entt.hpp"
+#include "core/scene/TransformComponent.h"
+
+#include <entt/entt.hpp>
 
 namespace Eternal {
     class Entity;

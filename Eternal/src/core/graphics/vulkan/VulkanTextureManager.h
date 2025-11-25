@@ -1,13 +1,10 @@
 #pragma once
 
-#include <utils/Base.h>
-#include <core/scene/Scene.h>
-#include <core/scene/MaterialComponent.h>
-
-#include "VulkanDescriptorPool.h"
-#include "VulkanTexture.h"
-#include "VulkanUtils.h"
-#include "VulkanPlatform.h"
+#include "utils/Base.h"
+#include "core/graphics/vulkan/VulkanTexture.h"
+#include "core/graphics/vulkan/VulkanPlatform.h"
+#include "core/scene/Scene.h"
+#include "core/scene/MaterialComponent.h"
 
 namespace Eternal {
 

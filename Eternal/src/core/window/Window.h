@@ -1,9 +1,10 @@
 #pragma once
-#include <utils/Base.h>
-#include "event/Event.h"
-#include <vulkan/vulkan.hpp>
 
-#include "input/KeyCodes.h"
+#include "utils/Base.h"
+#include "core/event/Event.h"
+#include "core/input/KeyCodes.h"
+
+#include <vulkan/vulkan.hpp>
 
 namespace Eternal {
     class Window {

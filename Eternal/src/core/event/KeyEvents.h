@@ -1,5 +1,6 @@
 #pragma once
-#include "Event.h"
+
+#include "core/event/Event.h"
 #include "core/input/KeyCodes.h"
 
 namespace Eternal {

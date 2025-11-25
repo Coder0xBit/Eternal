@@ -1,6 +1,7 @@
 #pragma once
-#include "VulkanDescriptorPool.h"
-#include "VulkanPlatform.h"
+
+#include "core/graphics/vulkan/VulkanDescriptorPool.h"
+#include "core/graphics/vulkan/VulkanPlatform.h"
 
 namespace Eternal {
     struct PipelineLayoutCacheKey {

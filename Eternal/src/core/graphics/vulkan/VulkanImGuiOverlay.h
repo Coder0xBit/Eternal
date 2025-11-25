@@ -1,10 +1,9 @@
 #pragma once
-#include <core/ImGuiOverlay.h>
-#include <core/graphics/vulkan/VulkanPlatform.h>
-#include <core/graphics/vulkan/VulkanSwapChain.h>
-#include <core/graphics/vulkan/VulkanFrameInfo.h>
-#include <core/graphics/vulkan/VulkanRenderer.h>
-#include <core/Window.h>
+
+#include "core/graphics/vulkan/VulkanPlatform.h"
+#include "core/graphics/vulkan/VulkanSwapChain.h"
+#include "core/imgui/ImGuiOverlay.h"
+#include "core/window/Window.h"
 
 namespace Eternal {
     class VulkanImGuiOverlay : public ImGuiOverlay {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <utils/Base.h>
+#include "utils/Base.h"
 
+#include <glm/glm.hpp>
 #include <vulkan/vulkan.hpp>
 
 namespace Eternal {

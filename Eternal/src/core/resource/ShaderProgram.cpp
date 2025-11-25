@@ -1,4 +1,4 @@
-#include "ShaderProgram.h"
+#include "core/resource/ShaderProgram.h"
 
 namespace Eternal {
 	ShaderProgram::ShaderProgram() {}

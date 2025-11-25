@@ -1,9 +1,8 @@
 #pragma once
-#include <utils/Base.h>
-#include <core/graphics/Vertex.h>
-#include <core/Window.h>
-#include <core/graphics/SwapChain.h>
-#include <core/graphics/Backend.h>
+#include "utils/Base.h"
+#include "core/window/Window.h"
+#include "core/graphics/SwapChain.h"
+#include "core/graphics/Backend.h"
 
 namespace Eternal {
     class GraphicsPlatform {

@@ -1,10 +1,9 @@
-#include "WindowsWindow.h"
-
-#include "event/KeyEvents.h"
-#include "event/MouseEvents.h"
-#include "event/WindowEvent.h"
-#include "resource/ResourceManager.h"
-#include "resource/Image.h"
+#include "core/window/WindowsWindow.h"
+#include "core/event/KeyEvents.h"
+#include "core/event/MouseEvents.h"
+#include "core/event/WindowEvent.h"
+#include "core/resource/ResourceManager.h"
+#include "core/resource/Image.h"
 
 namespace Eternal {
     WindowsWindow::WindowsWindow(const Builder& builder) {

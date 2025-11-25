@@ -1,8 +1,6 @@
 #pragma once
-#include <utils/Base.h>
 
-
-#include "Timer.h"
+#include "core/graphics/Timer.h"
 #include "core/Camera.hpp"
 
 namespace Eternal {

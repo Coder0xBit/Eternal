@@ -1,4 +1,4 @@
-#include "VulkanDescriptorPool.h"
+#include "core/graphics/vulkan/VulkanDescriptorPool.h"
 
 namespace Eternal {
 	VulkanDescriptorPool::Builder::Builder(vk::Device logicalDevice) noexcept

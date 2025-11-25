@@ -1,9 +1,6 @@
-#include "VulkanTextureManager.h"
-
-#include <core/scene/Entity.h>
-
-#include "core/resource/ResourceManager.h"
+#include "core/graphics/vulkan/VulkanTextureManager.h"
 #include "core/scene/RenderComponent.h"
+#include "core/scene/Entity.h"
 
 namespace Eternal {
     VulkanTextureManager::VulkanTextureManager(Eternal::VulkanPlatform* vulkanPlatform, Scene* scene)

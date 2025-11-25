@@ -1,6 +1,5 @@
-#include "Renderer.h"
-
-#include "vulkan/VulkanRenderer.h"
+#include "core/graphics/Renderer.h"
+#include "core/graphics/vulkan/VulkanRenderer.h"
 
 namespace Eternal {
     Renderer* Renderer::create(const Builder& builder) {

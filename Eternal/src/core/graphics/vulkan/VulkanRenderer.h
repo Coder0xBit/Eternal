@@ -1,20 +1,14 @@
 #pragma once
 
-#include <utils/Base.h>
-
-#include <core/graphics/Renderer.h>
-#include <core/scene/Scene.h>
-
-#include "VulkanBufferManager.h"
-#include "VulkanPlatform.h"
-#include "VulkanFrameInfo.h"
-#include "VulkanUtils.h"
-#include "VulkanDescriptorPool.h"
-#include "VulkanDescsriptorSetLayout.h"
-#include "VulkanTextureManager.h"
-#include "VulkanPipeline.h"
-#include "VulkanPipelineCache.h"
-#include "VulkanPipelineLayoutCache.h"
+#include "utils/Base.h"
+#include "core/graphics/Renderer.h"
+#include "core/graphics/vulkan/VulkanBufferManager.h"
+#include "core/graphics/vulkan/VulkanPlatform.h"
+#include "core/graphics/vulkan/VulkanDescriptorPool.h"
+#include "core/graphics/vulkan/VulkanTextureManager.h"
+#include "core/graphics/vulkan/VulkanPipelineCache.h"
+#include "core/graphics/vulkan/VulkanPipelineLayoutCache.h"
+#include "core/scene/Scene.h"
 
 namespace Eternal {
     class ImGuiOverlay;

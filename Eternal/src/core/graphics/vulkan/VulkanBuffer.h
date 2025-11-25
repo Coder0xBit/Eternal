@@ -1,8 +1,9 @@
 #pragma once
 
 #include <vulkan/vulkan.hpp>
-#include <utils/Base.h>
-#include <core/Logger.h>
+
+#include "utils/Base.h"
+#include "core/log/Logger.h"
 
 namespace Eternal {
 	class VulkanBuffer {

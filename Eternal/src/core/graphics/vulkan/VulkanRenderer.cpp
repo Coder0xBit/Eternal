@@ -1,17 +1,12 @@
-#include "VulkanRenderer.h"
-#include "imgui/imgui.h"
-#include "imgui/backends/imgui_impl_glfw.h"
-#include "imgui/backends/imgui_impl_vulkan.h"
-
-#include <core/graphics/vulkan/VulkanDescsriptorSetLayout.h>
-#include <core/graphics/vulkan/VulkanDescriptorPool.h>
-#include <core/scene/Entity.h>
-#include <core/scene/TransformComponent.h>
-#include <core/scene/RenderComponent.h>
-
-#include "VulkanBufferManager.h"
-#include "VulkanImGuiOverlay.h"
-#include "VulkanPipelineCache.h"
+#include "core/graphics/vulkan/VulkanRenderer.h"
+#include "core/graphics/vulkan/VulkanDescsriptorSetLayout.h"
+#include "core/graphics/vulkan/VulkanDescriptorPool.h"
+#include "core/graphics/vulkan/VulkanImGuiOverlay.h"
+#include "core/graphics/vulkan/VulkanBufferManager.h"
+#include "core/graphics/vulkan/VulkanPipelineCache.h"
+#include "core/scene/Entity.h"
+#include "core/scene/TransformComponent.h"
+#include "core/scene/RenderComponent.h"
 
 namespace Eternal {
     VulkanRenderer::VulkanRenderer(const Builder& builder) {
@@ -239,25 +234,46 @@ namespace Eternal {
 
         VulkanSwapChain::SwapChainDetails swapChainDetails = m_VulkanSwapChain->getSwapChainDetails();
 
+        VulkanBufferManager::UniformBuffer sceneUbo;
+        sceneUbo.projection = camera->getProjection();
+        sceneUbo.view = camera->getView();
+
+        vk::Viewport viewport = vk::Viewport()
+                .setX(0.0f)
+                .setY(0.0f)
+                .setWidth(static_cast<float>(swapChainDetails.extent.width))
+                .setHeight(static_cast<float>(swapChainDetails.extent.height))
+                .setMinDepth(0.0f)
+                .setMaxDepth(1.0f);
+
+        commandBuffer.setViewport(0, 1, &viewport);
+
+        vk::Rect2D scissor = vk::Rect2D()
+                .setOffset({0, 0})
+                .setExtent(swapChainDetails.extent);
+
+        commandBuffer.setScissor(0, 1, &scissor);
+
         for (const auto& [e, renderComponent]: m_Scene->getAllEntityWith<Eternal::RenderComponent>().each()) {
             Eternal::Entity entity = Eternal::Entity(e, m_Scene);
 
             auto transform = entity.getComponent<Eternal::TransformComponent>();
             auto material = entity.tryGetComponent<Eternal::MaterialComponent>();
-            VulkanBufferManager::UniformBuffer uniformBufferData;
-            uniformBufferData.projection = camera->getProjection();
-            uniformBufferData.view = camera->getView();
-            uniformBufferData.model = transform.mat4();
+            sceneUbo.model = transform.mat4();
 
             PipelineLayoutCacheKey pipelineLayoutKey = {
-                .pipelineLayoutMask = material != nullptr ? material->getPipelineLayoutBitMask() : eDefaultPipelineLayoutBitMask,
+                .pipelineLayoutMask = material != nullptr
+                                          ? material->getPipelineLayoutBitMask()
+                                          : eDefaultPipelineLayoutBitMask,
             };
 
             vk::PipelineLayout pipelineLayout;
             pipelineLayout = m_PipelineLayoutCache->getOrCreatePipelineLayout(pipelineLayoutKey);
 
             PipelineKey pipelineKey = {
-                .pipelineLayoutMask = material != nullptr ? material->getPipelineLayoutBitMask() : eDefaultPipelineLayoutBitMask,
+                .pipelineLayoutMask = material != nullptr
+                                          ? material->getPipelineLayoutBitMask()
+                                          : eDefaultPipelineLayoutBitMask,
                 .pipelineLayout = pipelineLayout,
                 .renderPass = m_VulkanSwapChain->getRenderPass(),
                 .material = material,
@@ -269,7 +285,7 @@ namespace Eternal {
             std::shared_ptr<VulkanBuffer> uniformBuffer = m_VulkanBufferManager->getUniformBuffer(entity.getUUID());
 
             if (uniformBuffer) {
-                uniformBuffer->write(&uniformBufferData);
+                uniformBuffer->write(&sceneUbo);
             }
 
             auto descriptorSet = m_UniformDescriptorSets[entity.getUUID()];
@@ -281,7 +297,6 @@ namespace Eternal {
                 commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 1, 1,
                                                  &materialDescriptorSet, 0, nullptr);
             }
-            //m_CurrentCommandBuffer.pushConstants(m_PipelineLayout, vk::ShaderStageFlagBits::eVertex | vk::ShaderStageFlagBits::eFragment, 0, sizeof(PushConstants), &m_PushConstants);
 
             std::shared_ptr<VulkanBuffer> vertexBuffer = m_VulkanBufferManager->getVertexBuffer(entity.getUUID());
             if (vertexBuffer) {
@@ -292,25 +307,6 @@ namespace Eternal {
             std::shared_ptr<VulkanBuffer> indexBuffer = m_VulkanBufferManager->getIndexBuffer(entity.getUUID());
             if (indexBuffer) {
                 commandBuffer.bindIndexBuffer(*(indexBuffer->getBuffer()), 0, vk::IndexType::eUint32);
-            }
-
-            vk::Viewport viewport = vk::Viewport()
-                    .setX(0.0f)
-                    .setY(0.0f)
-                    .setWidth(static_cast<float>(swapChainDetails.extent.width))
-                    .setHeight(static_cast<float>(swapChainDetails.extent.height))
-                    .setMinDepth(0.0f)
-                    .setMaxDepth(1.0f);
-
-            commandBuffer.setViewport(0, 1, &viewport);
-
-            vk::Rect2D scissor = vk::Rect2D()
-                    .setOffset({0, 0})
-                    .setExtent(swapChainDetails.extent);
-
-            commandBuffer.setScissor(0, 1, &scissor);
-
-            if (indexBuffer) {
                 commandBuffer.drawIndexed(indexBuffer->getElementCount(), 1, 0, 0, 0);
             }
         }

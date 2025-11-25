@@ -1,21 +1,18 @@
 #pragma once
 
+#include "utils/Base.h"
+#include "core/input/InputDispatcher.h"
+#include "core/event/Event.h"
+#include "core/event/MouseEvents.h"
+#include "core/event/WindowEvent.h"
+#include "core/graphics/Timer.h"
+
 #define GLM_ENABLE_EXPERIMENTAL
 
-#include <utils/Base.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
-
-#include "InputDispatcher.h"
-#include "core/event/Event.h"
-#include "core/event/KeyEvents.h"
-#include "core/event/MouseEvents.h"
-#include "core/event/WindowEvent.h"
-#include "core/scene/NameComponent.h"
-#include "core/scene/TransformComponent.h"
-#include "GLFW/glfw3.h"
-#include "graphics/Timer.h"
+#include <GLFW/glfw3.h>
 
 namespace Eternal {
     class Camera {

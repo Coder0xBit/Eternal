@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/resource/Resource.h"
+
 #include <GLFW/glfw3.h>
 
 namespace Eternal {

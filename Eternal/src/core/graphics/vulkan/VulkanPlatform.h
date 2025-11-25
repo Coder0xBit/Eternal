@@ -2,17 +2,15 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 
-#include <utils/Base.h>
-#include <core/graphics/vulkan/VulkanGraphicsContext.h>
+#include "utils/Base.h"
+#include "core/graphics/vulkan/VulkanGraphicsContext.h"
+#include "core/graphics/GraphicsPlatform.h"
 #include "core/Camera.hpp"
 
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <fstream>
-#include <filesystem>
-
-#include "core/graphics/GraphicsPlatform.h"
 
 namespace Eternal {
     using VkStringArray = std::vector<const char*>;

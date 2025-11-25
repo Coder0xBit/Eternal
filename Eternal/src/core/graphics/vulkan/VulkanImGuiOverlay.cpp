@@ -1,6 +1,8 @@
-#include "VulkanImGuiOverlay.h"
-#include "imgui/backends/imgui_impl_vulkan.h"
-#include "imgui/backends/imgui_impl_glfw.h"
+#include "core/graphics/vulkan/VulkanImGuiOverlay.h"
+#include "core/graphics/vulkan/VulkanFrameInfo.h"
+
+#include <imgui/backends/imgui_impl_vulkan.h>
+#include <imgui/backends/imgui_impl_glfw.h>
 
 namespace Eternal {
     VulkanImGuiOverlay::VulkanImGuiOverlay(const Builder& builder) {

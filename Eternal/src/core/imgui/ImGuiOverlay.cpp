@@ -1,6 +1,5 @@
-#include "ImGuiOverlay.h"
-
-#include "graphics/vulkan/VulkanImGuiOverlay.h"
+#include "core/imgui/ImGuiOverlay.h"
+#include "core/graphics/vulkan/VulkanImGuiOverlay.h"
 
 namespace Eternal {
     ImGuiOverlay* ImGuiOverlay::create(const Builder& builder) {

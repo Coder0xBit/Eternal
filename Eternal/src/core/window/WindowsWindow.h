@@ -1,11 +1,10 @@
 #pragma once
 
-#include <core/graphics/vulkan/VulkanWindow.h>
+#include "core/graphics/vulkan/VulkanWindow.h"
 
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
 
-#include <filesystem>
 
 namespace Eternal {
     constexpr const char* WINDOW_ICON_PATH = "res/PNGs/eternal_logo.png";
@@ -47,7 +46,6 @@ namespace Eternal {
         virtual bool isKeyPressed(Eternal::KeyCode keycode) const override;
 
     private:
-
         GLFWwindow* m_Window = nullptr;
 
         struct WindowData {

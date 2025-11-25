@@ -1,7 +1,7 @@
 #pragma once
 
-#include <utils/Base.h>
-#include <core/resource/Image.h>
+#include "utils/Base.h"
+#include "core/resource/Image.h"
 
 namespace Eternal {
     enum PipelineParams {

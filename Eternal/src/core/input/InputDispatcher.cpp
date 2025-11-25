@@ -1,4 +1,4 @@
-#include "InputDispatcher.h"
+#include "core/input/InputDispatcher.h"
 
 namespace Eternal {
     InputDispatcher::InputDispatcher(Eternal::Window* window) : m_Window(window) {

@@ -1,5 +1,6 @@
 #pragma once
-#include "Window.h"
+
+#include "core/window/Window.h"
 
 namespace Eternal {
     class InputDispatcher {
@@ -9,6 +10,7 @@ namespace Eternal {
         ~InputDispatcher() = default;
 
         bool isKeyPressed(Eternal::KeyCode keycode) const;
+
     private :
         Eternal::Window* m_Window;
     };
