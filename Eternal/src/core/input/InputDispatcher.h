@@ -12,6 +12,6 @@ namespace Eternal {
         bool isKeyPressed(Eternal::KeyCode keycode) const;
 
     private :
-        Eternal::Window* m_Window;
+        Eternal::Window* m_Window = nullptr;
     };
 }

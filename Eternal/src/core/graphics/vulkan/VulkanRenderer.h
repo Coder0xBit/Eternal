@@ -33,7 +33,7 @@ namespace Eternal {
 
         SwapChain* getSwapChain() const override { return m_VulkanSwapChain; }
 
-        bool beginFrame() override;
+        FrameInfo* beginFrame() override;
 
         void render(Eternal::Camera* camera) override;
 

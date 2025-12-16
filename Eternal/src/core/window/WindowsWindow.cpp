@@ -69,6 +69,16 @@ namespace Eternal {
         glfwPollEvents();
     }
 
+    void WindowsWindow::setCursorInputMode(CursorInputMode inputMode) {
+        int cursorInputMode;
+        if (inputMode == CursorInputMode::LOCKED) {
+            cursorInputMode = GLFW_CURSOR_DISABLED;
+        } else {
+            cursorInputMode = GLFW_CURSOR_NORMAL;
+        }
+        glfwSetInputMode(m_Window, GLFW_CURSOR, cursorInputMode);
+    }
+
     bool WindowsWindow::shouldClose() const {
         return glfwWindowShouldClose(m_Window);
     }

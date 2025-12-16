@@ -41,9 +41,9 @@ namespace Eternal {
 
             Builder& backend(Backend backend) noexcept;
 
-            GraphicsPlatform* build() const noexcept;
+            std::unique_ptr<GraphicsPlatform> build() const noexcept;
         };
 
-        static GraphicsPlatform* create(const Builder& builder);
+        static std::unique_ptr<GraphicsPlatform> create(const Builder& builder);
     };
 }

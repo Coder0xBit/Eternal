@@ -23,6 +23,8 @@ namespace Eternal {
 
         virtual void* getNativeWindow() const override { return m_Window; }
 
+        virtual void setCursorInputMode(CursorInputMode inputMode) override;
+
         virtual bool shouldClose() const override;
 
         virtual void shutDown() const override;

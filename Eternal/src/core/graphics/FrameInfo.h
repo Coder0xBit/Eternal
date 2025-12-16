@@ -8,7 +8,6 @@ namespace Eternal {
     public:
         virtual ~FrameInfo() = default;
 
-        Eternal::Camera* camera;
         Eternal::Timestep* timeStep = nullptr;
     };
 }

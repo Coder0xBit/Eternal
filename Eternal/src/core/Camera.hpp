@@ -59,6 +59,8 @@ namespace Eternal {
 
         void onUpdate(const Eternal::Timestep& timeStep);
 
+        void resetMouseTracking();
+
     private:
         bool onWindowResize(const Eternal::WindowResizeEvent& event);
 

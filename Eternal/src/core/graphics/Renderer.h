@@ -10,7 +10,7 @@
 namespace Eternal {
     class Renderer {
     public:
-        virtual bool beginFrame() = 0;
+        virtual FrameInfo* beginFrame() = 0;
 
         virtual void render(Eternal::Camera* camera) = 0;
 
@@ -52,9 +52,9 @@ namespace Eternal {
 
             Builder& scene(Scene* scene) noexcept;
 
-            Renderer* build() const noexcept;
+            std::unique_ptr<Renderer> build() const noexcept;
         };
 
-        static Renderer* create(Builder const& builder);
+        static std::unique_ptr<Renderer> create(Builder const& builder);
     };
 }

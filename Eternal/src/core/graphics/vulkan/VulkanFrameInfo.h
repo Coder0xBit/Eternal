@@ -9,8 +9,7 @@ namespace Eternal {
     public :
         VulkanFrameInfo() = default;
 
-        VulkanFrameInfo(vk::CommandBuffer cmdBuffer, uint32_t imgIndex, Eternal::Camera* cam) {
-            this->camera = cam;
+        VulkanFrameInfo(vk::CommandBuffer cmdBuffer, uint32_t imgIndex) {
             this->imageIndex = imgIndex;
             this->commandBuffer = cmdBuffer;
         }

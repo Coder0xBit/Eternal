@@ -2,8 +2,8 @@
 #include "core/graphics/vulkan/VulkanPlatform.h"
 
 namespace Eternal {
-    GraphicsPlatform* GraphicsPlatform::create(const Builder& builder) {
-        return Memory::Allocate<VulkanPlatform>(builder);
+    std::unique_ptr<GraphicsPlatform> GraphicsPlatform::create(const Builder& builder) {
+        return std::make_unique<VulkanPlatform>(builder);
     }
 
     GraphicsPlatform::Builder::Builder() noexcept = default;
@@ -28,7 +28,7 @@ namespace Eternal {
         return *this;
     }
 
-    GraphicsPlatform* GraphicsPlatform::Builder::build() const noexcept {
+    std::unique_ptr<GraphicsPlatform> GraphicsPlatform::Builder::build() const noexcept {
         return create(*this);
     }
 }

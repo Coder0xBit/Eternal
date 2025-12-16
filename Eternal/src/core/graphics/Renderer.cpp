@@ -2,9 +2,9 @@
 #include "core/graphics/vulkan/VulkanRenderer.h"
 
 namespace Eternal {
-    Renderer* Renderer::create(const Builder& builder) {
+    std::unique_ptr<Renderer> Renderer::create(const Builder& builder) {
         ETERNAL_ASSERT(builder->backend == Backend::Vulkan, "Currently Only supported Backend is Vulkan");
-        return Memory::Allocate<VulkanRenderer>(builder);
+        return std::make_unique<VulkanRenderer>(builder);
     }
 
     Renderer::Builder::Builder() noexcept = default;
@@ -39,7 +39,7 @@ namespace Eternal {
         return *this;
     }
 
-    Renderer* Renderer::Builder::build() const noexcept {
+    std::unique_ptr<Renderer> Renderer::Builder::build() const noexcept {
         return create(*this);
     }
 }

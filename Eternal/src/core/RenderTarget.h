@@ -1,0 +1,28 @@
+#pragma  once
+#include "utils/Base.h"
+
+namespace Eternal {
+    struct RenderTargetDesc {
+        uint32_t width = 0;
+        uint32_t height = 0;
+        bool hasColor = false;
+        bool hasDepth = false;
+        bool hasStencil = false;
+        bool isPresentation = false;
+    };
+
+    class RenderTarget {
+    public :
+        RenderTarget();
+        virtual ~RenderTarget() = default;
+
+        virtual uint32_t getWidth() const = 0;
+        virtual uint32_t getHeight() const = 0;
+
+        virtual bool hasColor() const = 0;
+        virtual bool hasDepth() const = 0;
+        virtual bool hasStencil() const = 0;
+
+        virtual bool isPresentation() const;
+    };
+}

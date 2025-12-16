@@ -10,6 +10,7 @@
 
 #include <imgui/imgui.h>
 
+
 void SetEngineRootDirectory() {
     std::filesystem::path path = std::filesystem::current_path() / "../Eternal";
     std::filesystem::current_path(path);
@@ -25,37 +26,74 @@ namespace Eternal {
                 .width(1200)
                 .build();
 
-        m_InputDispatcher = Memory::Allocate<InputDispatcher>(m_Window);
+        m_InputDispatcher = std::make_unique<InputDispatcher>(m_Window.get());
 
-        m_Engine = Eternal::Engine::Builder()
+        m_GraphicsPlatform = Eternal::GraphicsPlatform::Builder()
                 .applicationName("Eternal Application")
                 .backend(m_Backend)
                 .build();
 
-        m_Scene = Memory::Allocate<Eternal::Scene>();
+        m_Scene = std::make_unique<Eternal::Scene>();
         setupScene();
 
-        m_Renderer = m_Engine->createRenderer(m_Window, m_Scene);
+        m_Renderer = Eternal::Renderer::Builder()
+                .backend(m_Backend)
+                .platform(m_GraphicsPlatform.get())
+                .window(m_Window.get())
+                .scene(m_Scene.get())
+                .build();
 
         m_ImGuiOverlay = Eternal::ImGuiOverlay::Builder()
                 .backend(m_Backend)
-                .platform(m_Engine->getPlatform())
-                .window(m_Window)
+                .platform(m_GraphicsPlatform.get())
+                .window(m_Window.get())
                 .swapChain(m_Renderer->getSwapChain())
                 .build();
 
-        m_Timer = Memory::Allocate<Eternal::Timer>();
+        m_Timer = std::make_unique<Eternal::Timer>();
 
-        m_Camera = Memory::Allocate<Camera>(m_InputDispatcher);
+        m_Camera = std::make_unique<Camera>(m_InputDispatcher.get());
         float aspectRatio = m_Window->getAspectRatio();
         m_Camera->setPerspectiveProjection(glm::radians(50.f), aspectRatio, 0.1f, 1000.f);
 
         m_IsRunning = true;
     }
 
-    bool Viewer::onEvent(Event& event) const {
-        m_Camera->onEvent(event);
+    bool Viewer::onEvent(Event& event) {
+        EventDispatcher dispatcher(event);
+        dispatcher.dispatch<Eternal::KeyPressedEvent>(ETERNAL_BIND_EVENT_FN(Viewer::onKeyPressed));
+        if (m_InputCapture.captured) {
+            m_Camera->onEvent(event);
+        }
         return true;
+    }
+
+    bool Viewer::onKeyPressed(KeyPressedEvent& event) {
+        switch (event.getKeyCode()) {
+            case Key::Escape:
+                m_InputCapture.release();
+                return true;
+            case Key::P:
+                m_InputCapture.capture();
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    void Viewer::handleInputCaptureState() {
+        if (!m_InputCapture.changed()) {
+            return;
+        }
+
+        if (m_InputCapture.captured) {
+            m_Window->setCursorInputMode(CursorInputMode::LOCKED);
+        } else {
+            m_Window->setCursorInputMode(CursorInputMode::NORMAL);
+        }
+
+        m_Camera->resetMouseTracking();
+        m_InputCapture.acknowledge();
     }
 
     void Viewer::onImGuiRender(Eternal::Timestep& ts) const {
@@ -63,7 +101,7 @@ namespace Eternal {
         ImGui::Text("Time: %.6f", ts);
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
         for (auto e: m_Scene->getAllEntityWith<Eternal::TransformComponent>()) {
-            Eternal::Entity entity = Eternal::Entity(e, m_Scene);
+            Eternal::Entity entity = Eternal::Entity(e, m_Scene.get());
 
             auto& nameComponent = entity.getComponent<Eternal::NameComponent>();
             ImGui::Text("Entity Name: %s", nameComponent.getName());
@@ -82,6 +120,8 @@ namespace Eternal {
                 component.setRotation(glm::radians(rotationDegrees));
             }
         }
+
+        ImGui::Text("Press Esc to exit Capture Mode. Press P to enter Play/Capture Mode.");
         ImGui::End();
     }
 
@@ -94,6 +134,15 @@ namespace Eternal {
         };
 
         m_Scene->addEntity(testEntity1);
+
+        TestEntityDetails testEntity2 = {
+            "watch_tower_2",
+            "res/models/wooden_watch_tower.obj",
+            "res/models/textures/Wood_Tower_Col.jpg",
+            glm::vec3(0.0f, 0.0f, 10.0f)
+        };
+
+        m_Scene->addEntity(testEntity2);
 
         std::vector<Eternal::Vertex> triVertices = {
             {{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}}, // 0: top (red)
@@ -114,19 +163,24 @@ namespace Eternal {
         while (m_IsRunning) {
             auto timeStep = m_Timer->tick();
             m_Window->onUpdate();
+            handleInputCaptureState();
             m_Camera->onUpdate(timeStep);
 
-            if (m_Renderer->beginFrame()) {
-                m_Renderer->render(m_Camera);
+            if (FrameInfo* frameInfo = m_Renderer->beginFrame()) {
+                m_ImGuiOverlay->beginFrame();
+                onImGuiRender(timeStep);
+                m_Renderer->render(m_Camera.get());
+                m_ImGuiOverlay->render(frameInfo);
                 m_Renderer->endFrame();
+                Memory::Deallocate(frameInfo);
             }
 
             m_IsRunning = !m_Window->shouldClose();
         }
     }
 
-    Viewer* Viewer::create() {
-        return Memory::Allocate<Viewer>();
+    std::unique_ptr<Viewer> Viewer::create() {
+        return std::make_unique<Viewer>();
     }
 
     Viewer::~Viewer() {
@@ -134,10 +188,5 @@ namespace Eternal {
     }
 
     void Viewer::shutdown() {
-        Memory::Deallocate(m_Timer);
-        Memory::Deallocate(m_ImGuiOverlay);
-        Memory::Deallocate(m_Engine);
-        Memory::Deallocate(m_Window);
-        Memory::Deallocate(m_Camera);
     }
 }

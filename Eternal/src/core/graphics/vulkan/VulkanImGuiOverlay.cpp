@@ -6,8 +6,8 @@
 
 namespace Eternal {
     VulkanImGuiOverlay::VulkanImGuiOverlay(const Builder& builder) {
-        m_VulkanPlatform = static_cast<VulkanPlatform*>(builder->platform);
-        m_SwapChain = static_cast<VulkanSwapChain*>(builder->swapChain);
+        m_VulkanPlatform = dynamic_cast<VulkanPlatform*>(builder->platform);
+        m_SwapChain = dynamic_cast<VulkanSwapChain*>(builder->swapChain);
         m_Window = builder->window;
 
         ETERNAL_ASSERT(m_VulkanPlatform != nullptr, "VulkanImGuiLayer :: VulkanPlatform is null");

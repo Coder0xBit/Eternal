@@ -30,6 +30,10 @@ namespace Eternal {
         dispatcher.dispatch<Eternal::MouseMovedEvent>(ETERNAL_BIND_EVENT_FN(Camera::onMouseMove));
     }
 
+    void Camera::resetMouseTracking() {
+        m_FirstMouse = true;
+    }
+
     void Camera::onUpdate(const Eternal::Timestep& timeStep) {
         float velocity = 10.0f * timeStep.seconds();
 

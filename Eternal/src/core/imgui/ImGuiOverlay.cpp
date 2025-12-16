@@ -2,9 +2,9 @@
 #include "core/graphics/vulkan/VulkanImGuiOverlay.h"
 
 namespace Eternal {
-    ImGuiOverlay* ImGuiOverlay::create(const Builder& builder) {
+    std::unique_ptr<ImGuiOverlay> ImGuiOverlay::create(const Builder& builder) {
         ETERNAL_ASSERT(builder->backend == Backend::Vulkan, "Currently Only supported Backend is Vulkan");
-        return Memory::Allocate<VulkanImGuiOverlay>(builder);
+        return std::make_unique<VulkanImGuiOverlay>(builder);
     }
 
     ImGuiOverlay::Builder::Builder() noexcept = default;
@@ -39,7 +39,7 @@ namespace Eternal {
         return *this;
     }
 
-    ImGuiOverlay* ImGuiOverlay::Builder::build() const noexcept {
+    std::unique_ptr<ImGuiOverlay> ImGuiOverlay::Builder::build() const noexcept {
         return create(*this);
     }
 }

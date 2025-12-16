@@ -3,12 +3,12 @@
 #include <core/System.h>
 
 namespace Eternal {
-    Window* Window::create(const Builder& builder) {
+    std::unique_ptr<Window> Window::create(const Builder& builder) {
         System system = Eternal::detectSystem();
 
         switch (system) {
             case System::WINDOWS:
-                return Memory::Allocate<WindowsWindow>(builder);
+                return std::make_unique<WindowsWindow>(builder);
                 break;
             default:
                 return nullptr;
@@ -38,7 +38,7 @@ namespace Eternal {
         return *this;
     }
 
-    Window* Window::Builder::build() noexcept {
+    std::unique_ptr<Window> Window::Builder::build() const noexcept {
         return Window::create(*this);
     }
 }

@@ -1,4 +1,6 @@
 #include "core/graphics/vulkan/VulkanRenderer.h"
+
+#include "VulkanFrameInfo.h"
 #include "core/graphics/vulkan/VulkanDescsriptorSetLayout.h"
 #include "core/graphics/vulkan/VulkanDescriptorPool.h"
 #include "core/graphics/vulkan/VulkanImGuiOverlay.h"
@@ -101,8 +103,6 @@ namespace Eternal {
         Memory::Deallocate(m_VulkanBufferManager);
 
         m_LogicalDevice.destroy();
-
-        Memory::Deallocate(m_Platform);
     }
 
     void VulkanRenderer::bindScene() {
@@ -207,15 +207,15 @@ namespace Eternal {
         m_RenderPass = m_VulkanSwapChain->getRenderPass();
     }
 
-    bool VulkanRenderer::beginFrame() {
+    FrameInfo* VulkanRenderer::beginFrame() {
         if (m_Window->isMinimized())
-            return false;
+            return nullptr;
 
         m_VulkanSwapChain->acquire(m_ImageAvailableSemaphores[m_CurrentFrame], &m_CurrentImageIndex);
 
         if (m_VulkanSwapChain->shouldRecreate()) {
             handleWindowResize();
-            return false;
+            return nullptr;
         }
 
         m_LogicalDevice.waitForFences(1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT16_MAX);
@@ -225,8 +225,7 @@ namespace Eternal {
         m_CurrentCommandBuffer.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
 
         beginRecording(m_CurrentCommandBuffer);
-
-        return true;
+        return Memory::Allocate<VulkanFrameInfo>(m_CurrentCommandBuffer, m_CurrentImageIndex);
     }
 
     void VulkanRenderer::render(Eternal::Camera* camera) {

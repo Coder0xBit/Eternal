@@ -25,7 +25,7 @@ namespace Eternal {
             Eternal::Entity entity = Eternal::Entity(e, m_Scene);
             EntityId entityUUID = entity.getUUID();
 
-            if (m_VertexBuffers.count(entityUUID) >= 1 || m_IndexBuffers.count(entityUUID) >= 1)
+            if (m_VertexBuffers.contains(entityUUID) || m_IndexBuffers.contains(entityUUID))
                 continue;
 
             auto& component = entity.getComponent<Eternal::RenderComponent>();
@@ -37,7 +37,7 @@ namespace Eternal {
             Eternal::Entity entity = Eternal::Entity(e, m_Scene);
             EntityId entityUUID = entity.getUUID();
 
-            if (m_UniformBuffers.count(entityUUID) >= 1)
+            if (m_UniformBuffers.contains(entityUUID))
                 continue;
 
             auto& component = entity.getComponent<Eternal::TransformComponent>();

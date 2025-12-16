@@ -47,9 +47,9 @@ namespace Eternal {
 
             Builder& swapChain(SwapChain* swapChain) noexcept;
 
-            ImGuiOverlay* build() const noexcept;
+            std::unique_ptr<ImGuiOverlay> build() const noexcept;
         };
 
-        static ImGuiOverlay* create(const Builder& builder);
+        static std::unique_ptr<ImGuiOverlay> create(const Builder& builder);
     };
 }
