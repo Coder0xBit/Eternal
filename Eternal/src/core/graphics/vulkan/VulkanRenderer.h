@@ -35,6 +35,8 @@ namespace Eternal {
 
         FrameInfo* beginFrame() override;
 
+        vk::RenderPass getRenderPass() const { return m_RenderPass; }
+
         void render(Eternal::Camera* camera) override;
 
         void endFrame() override;
@@ -43,6 +45,12 @@ namespace Eternal {
         void initialize();
 
         void bindScene();
+
+        void createRenderPass();
+
+        void createFrameBuffers();
+
+        void createDepthImageView();
 
         void initializeDescriptors();
 
@@ -62,12 +70,27 @@ namespace Eternal {
 
         void updateUniformBuffers();
 
+        void destroyRenderPass();
+
+        void destroyFrameBuffers();
+
+        void destroyDepthImageView();
+
         Scene* m_Scene = nullptr;
         VulkanPlatform* m_Platform = nullptr;
         VulkanSwapChain* m_VulkanSwapChain = nullptr;
+        VulkanSwapChain::SwapChainDetails m_SwapChainDetails = {};
 
         vk::Viewport m_Viewport;
         vk::Rect2D m_Scissor;
+
+        vk::RenderPass m_RenderPass = nullptr;
+
+        vk::Image m_DepthImage;
+        vk::DeviceMemory m_DepthImageMemory;
+        vk::ImageView m_DepthImageView;
+
+        std::vector<vk::Framebuffer> m_FrameBuffers;
 
         Eternal::VulkanBufferManager* m_VulkanBufferManager = nullptr;
         Eternal::VulkanTextureManager* m_VulkanTextureManager = nullptr;
@@ -88,7 +111,6 @@ namespace Eternal {
         vk::Device m_LogicalDevice = nullptr;
         vk::PhysicalDevice m_PhysicalDevice = nullptr;
         PushConstants m_PushConstants;
-        vk::RenderPass m_RenderPass = nullptr;
 
         std::vector<std::shared_ptr<VulkanBuffer> > m_UniformBuffers;
         VulkanDescriptorPool* m_DescriptorPool = nullptr;

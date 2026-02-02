@@ -16,7 +16,7 @@ namespace Eternal {
 
     private:
         VulkanPlatform* m_VulkanPlatform = nullptr;
-        VulkanSwapChain* m_SwapChain = nullptr;
+        VulkanRenderer* m_VulkanRenderer = nullptr;
         Window* m_Window = nullptr;
 
         void init();

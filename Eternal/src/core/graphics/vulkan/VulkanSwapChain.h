@@ -33,10 +33,8 @@ namespace Eternal {
         void recreate();
         const SwapChainDetails& getSwapChainDetails() { return m_SwapChainDetails; }
         const std::vector<vk::ImageView>& getImageViews() { return m_SwapChainImageViews; }
-        const std::vector<vk::Framebuffer>& getFrameBuffers() { return m_SwapChainFrameBuffers; }
         const std::vector<vk::Image>& getImages() { return m_SwapChainImages; }
         vk::SwapchainKHR getSwapChain() { return m_SwapChain; }
-        vk::RenderPass getRenderPass() { return m_RenderPass; }
         vk::SurfaceKHR getSurface() { return m_Surface; }
         bool shouldRecreate() const { return m_ShouldRecreate; }
         void setShouldRecreate(bool shouldRecreate) { m_ShouldRecreate = shouldRecreate; }
@@ -48,9 +46,6 @@ namespace Eternal {
         vk::PresentModeKHR selectSwapChainPresentMode();
         vk::Extent2D selectSwapChainExtent(const vk::SurfaceCapabilitiesKHR& capabilities);
         void createImageViews();
-        void createDepthImageView();
-        void createRenderPass();
-        void createFrameBuffers();
 
         bool m_ShouldRecreate = false;
         vk::Instance m_VkInstance = nullptr;
@@ -61,13 +56,9 @@ namespace Eternal {
         uint32_t m_PresentQueueFamilyIndex = INVALID_VK_INDEX;
         vk::SurfaceKHR m_Surface = nullptr;
         vk::Extent2D m_FallBackExtent;
-        vk::RenderPass m_RenderPass = nullptr;
-        std::vector<vk::Framebuffer> m_SwapChainFrameBuffers;
         std::vector<vk::Image> m_SwapChainImages;
         std::vector<vk::ImageView> m_SwapChainImageViews;
-        vk::Image m_DepthImage;
-        vk::DeviceMemory m_DepthImageMemory;
-        vk::ImageView m_DepthImageView;
+
         vk::SwapchainKHR m_SwapChain = nullptr;
         SwapChainDetails m_SwapChainDetails = {};
     };

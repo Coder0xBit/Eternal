@@ -47,7 +47,7 @@ namespace Eternal {
                 .backend(m_Backend)
                 .platform(m_GraphicsPlatform.get())
                 .window(m_Window.get())
-                .swapChain(m_Renderer->getSwapChain())
+                .renderer(m_Renderer.get())
                 .build();
 
         m_Timer = std::make_unique<Eternal::Timer>();

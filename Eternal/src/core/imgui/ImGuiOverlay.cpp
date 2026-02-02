@@ -34,8 +34,8 @@ namespace Eternal {
         return *this;
     }
 
-    ImGuiOverlay::Builder& ImGuiOverlay::Builder::swapChain(SwapChain* swapChain) noexcept {
-        mImpl->swapChain = swapChain;
+    ImGuiOverlay::Builder& ImGuiOverlay::Builder::renderer(Renderer* renderer) noexcept {
+        mImpl->renderer = renderer;
         return *this;
     }
 

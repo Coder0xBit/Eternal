@@ -142,7 +142,7 @@ namespace Eternal {
 
 		{
 			vk::BufferImageCopy region = getRegionForCopy();
-			auto stagingBuffer = m_StagingBuffer->getBuffer();
+			auto stagingBuffer = m_StagingBuffer->getVkBuffer();
 			commandBuffer.copyBufferToImage(*stagingBuffer, m_Image, vk::ImageLayout::eTransferDstOptimal, region);
 		}
 

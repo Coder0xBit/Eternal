@@ -28,7 +28,7 @@ namespace Eternal {
         void shutDown() override;
         SwapChain* createSwapChain(Window* window) override;
         vk::Instance createInstance(const std::string& applicationName);
-        vk::PhysicalDevice choosePhysicalDevice(vk::Instance& instance);
+        vk::PhysicalDevice choosePhysicalDevice(const vk::Instance& instance);
         uint32_t identifyGraphicsQueueFamilyIndex(vk::PhysicalDevice& device, vk::QueueFlags flags);
         uint32_t identifyPresentQueueFamilyIndex(vk::PhysicalDevice& device, vk::SurfaceKHR& surface);
         vk::Device createLogicalDevice(vk::PhysicalDevice& device, uint32_t graphicsQueueFamilyIndex,

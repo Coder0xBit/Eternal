@@ -3,6 +3,7 @@
 #include "core/graphics/FrameInfo.h"
 #include "core/graphics/Backend.h"
 #include "core/graphics/GraphicsPlatform.h"
+#include "core/graphics/Renderer.h"
 #include "core/window/Window.h"
 
 namespace Eternal {
@@ -18,7 +19,7 @@ namespace Eternal {
             Backend backend = Vulkan;
             GraphicsPlatform* platform = nullptr;
             Window* window = nullptr;
-            SwapChain* swapChain = nullptr;
+            Renderer* renderer = nullptr;
         };
 
 
@@ -45,7 +46,7 @@ namespace Eternal {
 
             Builder& window(Window* window) noexcept;
 
-            Builder& swapChain(SwapChain* swapChain) noexcept;
+            Builder& renderer(Renderer* renderer) noexcept;
 
             std::unique_ptr<ImGuiOverlay> build() const noexcept;
         };

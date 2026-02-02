@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils/Base.h"
+#include "core/graphics/vulkan/VulkanPlatform.h"
 #include "core/graphics/vulkan/VulkanBuffer.h"
 #include "core/scene/Scene.h"
 #include "core/scene/RenderComponent.h"
@@ -19,7 +20,7 @@ namespace Eternal {
             alignas(16) glm::mat4 model{1.0f};
         };
 
-        VulkanBufferManager(vk::Device device, vk::PhysicalDevice physicalDevice, Scene* scene);
+        VulkanBufferManager(VulkanPlatform* vulkanPlatform, Scene* scene);
 
         std::shared_ptr<VulkanBuffer> getVertexBuffer(EntityId entityId) {
             auto it = m_VertexBuffers.find(entityId);
@@ -71,13 +72,12 @@ namespace Eternal {
 
         Scene* m_Scene;
 
-        vk::Device m_Device;
-
-        vk::PhysicalDevice m_PhysicalDevice;
         vk::MemoryPropertyFlags m_BufferProperties =
                 vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
         vk::MemoryPropertyFlags m_UniformBufferProperties =
                 vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
+
+        VulkanPlatform* m_VulkanPlatform;
 
         VulkanEntityData m_VertexBuffers;
         VulkanEntityData m_IndexBuffers;

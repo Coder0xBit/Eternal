@@ -8,7 +8,6 @@ namespace Eternal {
         bool hasColor = false;
         bool hasDepth = false;
         bool hasStencil = false;
-        bool isPresentation = false;
     };
 
     class RenderTarget {
@@ -18,11 +17,5 @@ namespace Eternal {
 
         virtual uint32_t getWidth() const = 0;
         virtual uint32_t getHeight() const = 0;
-
-        virtual bool hasColor() const = 0;
-        virtual bool hasDepth() const = 0;
-        virtual bool hasStencil() const = 0;
-
-        virtual bool isPresentation() const;
     };
 }

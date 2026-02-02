@@ -4,11 +4,8 @@
 #include "core/scene/Entity.h"
 
 namespace Eternal {
-    VulkanBufferManager::VulkanBufferManager(vk::Device device, vk::PhysicalDevice physicalDevice, Scene* scene) {
-        m_Device = device;
+    VulkanBufferManager::VulkanBufferManager(VulkanPlatform* vulkanPlatform, Scene* scene) : m_VulkanPlatform(vulkanPlatform) {
         m_Scene = scene;
-        m_PhysicalDevice = physicalDevice;
-
         initializeBuffers();
     }
 
@@ -47,7 +44,7 @@ namespace Eternal {
     }
 
     void VulkanBufferManager::addBuffer(EntityId entityId, const RenderComponent& renderComponent) {
-        auto vertexBuffer = std::make_shared<VulkanBuffer>(m_Device, m_PhysicalDevice);
+        auto vertexBuffer = std::make_shared<VulkanBuffer>(m_VulkanPlatform);
         vertexBuffer->create(renderComponent.getVertices().size(), sizeof(Eternal::Vertex),
                              vk::BufferUsageFlagBits::eVertexBuffer);
         vertexBuffer->allocate(m_BufferProperties);
@@ -56,7 +53,7 @@ namespace Eternal {
 
         m_VertexBuffers[entityId] = vertexBuffer;
 
-        auto indexBuffer = std::make_shared<VulkanBuffer>(m_Device, m_PhysicalDevice);
+        auto indexBuffer = std::make_shared<VulkanBuffer>(m_VulkanPlatform);
         indexBuffer->create(renderComponent.getIndices().size(), sizeof(uint32_t),
                             vk::BufferUsageFlagBits::eIndexBuffer);
         indexBuffer->allocate(m_BufferProperties);
@@ -67,7 +64,7 @@ namespace Eternal {
     }
 
     void VulkanBufferManager::addUniformBuffer(EntityId entityId, const TransformComponent& transformComponent) {
-        auto uniformBuffer = std::make_shared<VulkanBuffer>(m_Device, m_PhysicalDevice);
+        auto uniformBuffer = std::make_shared<VulkanBuffer>(m_VulkanPlatform);
         uniformBuffer->create(1, sizeof(UniformBuffer), vk::BufferUsageFlagBits::eUniformBuffer);
         uniformBuffer->allocate(m_UniformBufferProperties);
         uniformBuffer->map();

@@ -1,17 +1,19 @@
 #include "core/graphics/vulkan/VulkanImGuiOverlay.h"
 #include "core/graphics/vulkan/VulkanFrameInfo.h"
+#include "core/graphics/vulkan/VulkanRenderer.h"
 
 #include <imgui/backends/imgui_impl_vulkan.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 
+
 namespace Eternal {
     VulkanImGuiOverlay::VulkanImGuiOverlay(const Builder& builder) {
         m_VulkanPlatform = dynamic_cast<VulkanPlatform*>(builder->platform);
-        m_SwapChain = dynamic_cast<VulkanSwapChain*>(builder->swapChain);
+        m_VulkanRenderer = dynamic_cast<VulkanRenderer*>(builder->renderer);
         m_Window = builder->window;
 
         ETERNAL_ASSERT(m_VulkanPlatform != nullptr, "VulkanImGuiLayer :: VulkanPlatform is null");
-        ETERNAL_ASSERT(m_SwapChain != nullptr, "VulkanImGuiLayer :: SwapChain is null");
+        ETERNAL_ASSERT(m_VulkanRenderer != nullptr, "VulkanImGuiLayer :: Renderer is null");
         ETERNAL_ASSERT(m_Window != nullptr, "VulkanImGuiLayer :: Window is null");
 
         init();
@@ -27,7 +29,7 @@ namespace Eternal {
         initInfo.PhysicalDevice = m_VulkanPlatform->getPhysicalDevice();
         initInfo.Device = m_VulkanPlatform->getLogicalDevice();
         initInfo.Queue = m_VulkanPlatform->getGraphicsQueue();
-        initInfo.RenderPass = m_SwapChain->getRenderPass();
+        initInfo.RenderPass = m_VulkanRenderer->getRenderPass();
         initInfo.DescriptorPoolSize = 2;
         initInfo.MinImageCount = 2;
         initInfo.ImageCount = 2;

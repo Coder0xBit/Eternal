@@ -79,7 +79,7 @@ namespace Eternal {
         return vk::createInstance(createInfo, nullptr);
     }
 
-    vk::PhysicalDevice VulkanPlatform::choosePhysicalDevice(vk::Instance& instance) {
+    vk::PhysicalDevice VulkanPlatform::choosePhysicalDevice(const vk::Instance& instance) {
         std::vector<vk::PhysicalDevice> availableDevices = instance.enumeratePhysicalDevices();
 
         for (vk::PhysicalDevice& device: availableDevices) {
@@ -178,8 +178,7 @@ namespace Eternal {
                 .setCodeSize(shader->getBlobSize())
                 .setPCode(shader->getBlob());
 
-        vk::ShaderModule shaderModule;
-        shaderModule = logicalDevice.createShaderModule(shaderModuleCreateInfo);
+        vk::ShaderModule shaderModule = logicalDevice.createShaderModule(shaderModuleCreateInfo);
         return shaderModule;
     }
 
@@ -282,7 +281,7 @@ namespace Eternal {
 
         Eternal::Logger::Debug("Device Name : {}", properties.deviceName.data());
 
-        std::string deviceType = "";
+        std::string deviceType;
         switch (properties.deviceType) {
             case (vk::PhysicalDeviceType::eCpu):
                 deviceType = "CPU";

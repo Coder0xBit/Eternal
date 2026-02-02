@@ -9,16 +9,16 @@ namespace Eternal {
     class VulkanGraphicsContext : public GraphicsContext {
     public:
         VulkanGraphicsContext() = default;
-        ~VulkanGraphicsContext() = default;
-        vk::Instance getVkInstance() { return m_VkInstance; }
-        vk::PhysicalDevice getPhysicalDevice() { return m_PhysicalDevice; }
-        vk::Device getLogicalDevice() { return m_LogicalDevice; }
-        vk::Queue getGraphicsQueue() { return m_GraphicsQueue; }
-        uint32_t getGraphicsQueueFamilyIndex() { return m_GraphicsQueueFamilyIndex; }
-        uint32_t getGraphicsQueueIndex() { return m_GraphicsQueueIndex; }
-        vk::Queue getPresentQueue() { return m_PresentQueue; }
-        uint32_t getPresentQueueFamilyIndex() { return m_PresentQueueFamilyIndex; }
-        uint32_t getPresentQueueIndex() { return m_PresentQueueIndex; }
+        ~VulkanGraphicsContext() override = default;
+        vk::Instance getVkInstance() const { return m_VkInstance; }
+        vk::PhysicalDevice getPhysicalDevice() const { return m_PhysicalDevice; }
+        vk::Device getLogicalDevice() const { return m_LogicalDevice; }
+        vk::Queue getGraphicsQueue() const { return m_GraphicsQueue; }
+        uint32_t getGraphicsQueueFamilyIndex() const { return m_GraphicsQueueFamilyIndex; }
+        uint32_t getGraphicsQueueIndex() const { return m_GraphicsQueueIndex; }
+        vk::Queue getPresentQueue() const { return m_PresentQueue; }
+        uint32_t getPresentQueueFamilyIndex() const { return m_PresentQueueFamilyIndex; }
+        uint32_t getPresentQueueIndex() const { return m_PresentQueueIndex; }
 
     protected:
         vk::Instance m_VkInstance = nullptr;

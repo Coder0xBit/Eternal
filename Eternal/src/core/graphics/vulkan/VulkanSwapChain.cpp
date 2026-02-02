@@ -108,9 +108,9 @@ namespace Eternal {
         m_SwapChain = m_LogicalDevice.createSwapchainKHR(swapChainCreateInfo);
 
         createImageViews();
-        createDepthImageView();
-        createRenderPass();
-        createFrameBuffers();
+        // createDepthImageView();
+        // createRenderPass();
+        // createFrameBuffers();
     }
 
     void VulkanSwapChain::destroy() {
@@ -123,30 +123,30 @@ namespace Eternal {
         }
         m_SwapChainImages.clear();
 
-        for (auto frameBuffer: m_SwapChainFrameBuffers) {
-            m_LogicalDevice.destroyFramebuffer(frameBuffer);
-        }
-        m_SwapChainFrameBuffers.clear();
-
-        if (m_DepthImageView) {
-            m_LogicalDevice.destroyImageView(m_DepthImageView);
-            m_DepthImageView = nullptr;
-        }
-
-        if (m_DepthImage) {
-            m_LogicalDevice.destroyImage(m_DepthImage);
-            m_DepthImage = nullptr;
-        }
-
-        if (m_DepthImageMemory) {
-            m_LogicalDevice.freeMemory(m_DepthImageMemory);
-            m_DepthImageMemory = nullptr;
-        }
-
-        if (m_RenderPass) {
-            m_LogicalDevice.destroyRenderPass(m_RenderPass);
-            m_RenderPass = nullptr;
-        }
+        // for (auto frameBuffer: m_SwapChainFrameBuffers) {
+        //     m_LogicalDevice.destroyFramebuffer(frameBuffer);
+        // }
+        // m_SwapChainFrameBuffers.clear();
+        //
+        // if (m_DepthImageView) {
+        //     m_LogicalDevice.destroyImageView(m_DepthImageView);
+        //     m_DepthImageView = nullptr;
+        // }
+        //
+        // if (m_DepthImage) {
+        //     m_LogicalDevice.destroyImage(m_DepthImage);
+        //     m_DepthImage = nullptr;
+        // }
+        //
+        // if (m_DepthImageMemory) {
+        //     m_LogicalDevice.freeMemory(m_DepthImageMemory);
+        //     m_DepthImageMemory = nullptr;
+        // }
+        //
+        // if (m_RenderPass) {
+        //     m_LogicalDevice.destroyRenderPass(m_RenderPass);
+        //     m_RenderPass = nullptr;
+        // }
 
         if (m_SwapChain) {
             m_LogicalDevice.destroySwapchainKHR(m_SwapChain);
@@ -206,107 +206,6 @@ namespace Eternal {
                     .setSubresourceRange(imageSubResourceRange);
 
             m_SwapChainImageViews[i] = m_LogicalDevice.createImageView(imageViewCreateInfo);
-        }
-    }
-
-    void VulkanSwapChain::createDepthImageView() {
-        vk::ImageCreateInfo imageCreateInfo = vk::ImageCreateInfo()
-                .setImageType(vk::ImageType::e2D)
-                .setFormat(vk::Format::eD32Sfloat)
-                .setExtent({m_SwapChainDetails.extent.width, m_SwapChainDetails.extent.height, 1})
-                .setMipLevels(1)
-                .setArrayLayers(1)
-                .setSamples(vk::SampleCountFlagBits::e1)
-                .setTiling(vk::ImageTiling::eOptimal)
-                .setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment);
-
-        m_DepthImage = m_LogicalDevice.createImage(imageCreateInfo);
-
-        vk::MemoryRequirements memRequirements = m_LogicalDevice.getImageMemoryRequirements(m_DepthImage);
-
-        uint32_t memoryTypeIndex = VulkanPlatform::getMemoryType(
-            m_PhysicalDevice,
-            vk::MemoryPropertyFlagBits::eDeviceLocal,
-            memRequirements.memoryTypeBits
-        );
-
-        ETERNAL_ASSERT(memoryTypeIndex != 0xFFFFFFFF, "Failed to find suitable memory type for depth image");
-
-        vk::MemoryAllocateInfo allocInfo = vk::MemoryAllocateInfo()
-                .setAllocationSize(memRequirements.size)
-                .setMemoryTypeIndex(memoryTypeIndex);
-
-        m_DepthImageMemory = m_LogicalDevice.allocateMemory(allocInfo);
-
-        m_LogicalDevice.bindImageMemory(m_DepthImage, m_DepthImageMemory, 0);
-
-        vk::ImageViewCreateInfo imageViewCreateInfo = vk::ImageViewCreateInfo()
-                .setImage(m_DepthImage)
-                .setViewType(vk::ImageViewType::e2D)
-                .setFormat(vk::Format::eD32Sfloat)
-                .setSubresourceRange({vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1});
-
-        m_DepthImageView = m_LogicalDevice.createImageView(imageViewCreateInfo);
-    }
-
-    void VulkanSwapChain::createRenderPass() {
-        vk::AttachmentDescription colorAttachment = vk::AttachmentDescription()
-                .setFormat(m_SwapChainDetails.surfaceFormat.format)
-                .setSamples(vk::SampleCountFlagBits::e1)
-                .setLoadOp(vk::AttachmentLoadOp::eClear)
-                .setStoreOp(vk::AttachmentStoreOp::eStore)
-                .setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
-                .setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
-                .setInitialLayout(vk::ImageLayout::eUndefined)
-                .setFinalLayout(vk::ImageLayout::ePresentSrcKHR);
-
-        vk::AttachmentReference colorAttachmentReference = vk::AttachmentReference()
-                .setAttachment(0)
-                .setLayout(vk::ImageLayout::eColorAttachmentOptimal);
-
-        vk::AttachmentDescription depthAttachment = vk::AttachmentDescription()
-                .setFormat(vk::Format::eD32Sfloat)
-                .setSamples(vk::SampleCountFlagBits::e1)
-                .setLoadOp(vk::AttachmentLoadOp::eClear)
-                .setStoreOp(vk::AttachmentStoreOp::eDontCare)
-                .setStencilLoadOp(vk::AttachmentLoadOp::eDontCare)
-                .setStencilStoreOp(vk::AttachmentStoreOp::eDontCare)
-                .setInitialLayout(vk::ImageLayout::eUndefined)
-                .setFinalLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
-
-        vk::AttachmentReference depthAttachmentReference = vk::AttachmentReference()
-                .setAttachment(1)
-                .setLayout(vk::ImageLayout::eDepthStencilAttachmentOptimal);
-
-        vk::SubpassDescription subPass = vk::SubpassDescription()
-                .setColorAttachmentCount(1)
-                .setPColorAttachments(&colorAttachmentReference)
-                .setPDepthStencilAttachment(&depthAttachmentReference);
-
-        std::array<vk::AttachmentDescription, 2> attachments = {colorAttachment, depthAttachment};
-
-        vk::RenderPassCreateInfo renderPassCreateInfo = vk::RenderPassCreateInfo()
-                .setAttachments(attachments)
-                .setSubpassCount(1)
-                .setPSubpasses(&subPass);
-
-        m_RenderPass = m_LogicalDevice.createRenderPass(renderPassCreateInfo);
-    }
-
-    void VulkanSwapChain::createFrameBuffers() {
-        m_SwapChainFrameBuffers.resize(m_SwapChainImageViews.size());
-
-        for (uint32_t i = 0; i < m_SwapChainImageViews.size(); i++) {
-            vk::ImageView attachment[] = {m_SwapChainImageViews[i], m_DepthImageView};
-
-            vk::FramebufferCreateInfo frameBufferInfo = vk::FramebufferCreateInfo()
-                    .setRenderPass(m_RenderPass)
-                    .setAttachments(attachment)
-                    .setWidth(m_SwapChainDetails.extent.width)
-                    .setHeight(m_SwapChainDetails.extent.height)
-                    .setLayers(1);
-
-            m_SwapChainFrameBuffers[i] = m_LogicalDevice.createFramebuffer(frameBufferInfo);
         }
     }
 }
