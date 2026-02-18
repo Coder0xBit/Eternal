@@ -5,8 +5,6 @@
 namespace Eternal {
     VulkanTextureManager::VulkanTextureManager(Eternal::VulkanPlatform* vulkanPlatform, Scene* scene)
         : m_VulkanPlatform(vulkanPlatform), m_Scene(scene) {
-        m_Device = m_VulkanPlatform->getLogicalDevice();
-        m_PhysicalDevice = m_VulkanPlatform->getPhysicalDevice();
         createCommandPool();
         initialize();
     }
@@ -37,7 +35,7 @@ namespace Eternal {
         }
 
         std::shared_ptr<VulkanTexture> vulkanTexture =
-                std::make_shared<VulkanTexture>(m_Device, m_PhysicalDevice, albedoTextureImage);
+                std::make_shared<VulkanTexture>(m_VulkanPlatform, albedoTextureImage);
 
         initializeTexture(vulkanTexture);
 

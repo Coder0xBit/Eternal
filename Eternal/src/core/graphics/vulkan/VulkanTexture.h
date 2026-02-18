@@ -13,7 +13,7 @@ namespace Eternal {
             vk::PipelineStageFlags destinationStage;
         };
 
-        VulkanTexture(vk::Device device, vk::PhysicalDevice physicalDevice, const Eternal::Image* imageResource);
+        VulkanTexture(Eternal::VulkanPlatform* vulkanPlatform, const Eternal::Image* imageResource);
         ~VulkanTexture();
 
         std::shared_ptr<VulkanBuffer> getStagingBuffer() { return m_StagingBuffer; }
@@ -45,6 +45,8 @@ namespace Eternal {
 
         vk::Device m_Device;
         vk::PhysicalDevice m_PhysicalDevice;
+
+        Eternal::VulkanPlatform* m_VulkanPlatform;
 
         vk::Image m_Image;
         vk::DeviceSize m_ImageSize = 0;

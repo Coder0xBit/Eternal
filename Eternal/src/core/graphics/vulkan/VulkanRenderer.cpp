@@ -48,7 +48,7 @@ namespace Eternal {
 
         m_PhysicalDevice = m_Platform->getPhysicalDevice();
 
-        m_VulkanBufferManager = Memory::Allocate<VulkanBufferManager>(m_LogicalDevice, m_PhysicalDevice, m_Scene);
+        m_VulkanBufferManager = Memory::Allocate<VulkanBufferManager>(m_Platform, m_Scene);
         m_VulkanTextureManager = Memory::Allocate<VulkanTextureManager>(m_Platform, m_Scene);
 
         m_PipelineCache = Memory::Allocate<VulkanPipelineCache>(m_Platform);

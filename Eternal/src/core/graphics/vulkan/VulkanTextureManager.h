@@ -19,8 +19,7 @@ namespace Eternal {
 		void addTexture(EntityId entityId, const MaterialComponent& materialComponent);
 
 		std::shared_ptr<VulkanTexture> getTexture(EntityId entityId) const {
-			auto it = m_Textures.find(entityId);
-			if (it != m_Textures.end()) {
+			if (auto it = m_Textures.find(entityId); it != m_Textures.end()) {
 				return it->second;
 			}
 			return nullptr;
@@ -37,8 +36,6 @@ namespace Eternal {
 
 		Eternal::VulkanPlatform* m_VulkanPlatform = nullptr;
 		Scene* m_Scene = nullptr;
-		vk::Device m_Device = nullptr;
-		vk::PhysicalDevice m_PhysicalDevice = nullptr;
 		VulkanTextureContainer m_Textures;
 	};
 }
