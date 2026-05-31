@@ -44,21 +44,27 @@ namespace Eternal {
     }
 
     void VulkanBufferManager::addBuffer(EntityId entityId, const RenderComponent& renderComponent) {
-        auto vertexBuffer = std::make_shared<VulkanBuffer>(m_VulkanPlatform);
-        vertexBuffer->create(renderComponent.getVertices().size(), sizeof(Eternal::Vertex),
-                             vk::BufferUsageFlagBits::eVertexBuffer);
-        vertexBuffer->allocate(m_BufferProperties);
-        vertexBuffer->map();
-        vertexBuffer->write((void*) (renderComponent.getVertices().data()));
+        // auto vertexBuffer = std::make_shared<VulkanBuffer>(m_VulkanPlatform);
+        // vertexBuffer->create(renderComponent.getVertices().size(), sizeof(Eternal::Vertex),
+        //                      vk::BufferUsageFlagBits::eVertexBuffer);
+        // vertexBuffer->allocate(m_BufferProperties);
+        // vertexBuffer->map();
+        // vertexBuffer->write((void*) (renderComponent.getVertices().data()));
+
+        std::vector<Eternal::Vertex> vertices = renderComponent.getVertices();
+        auto vertexBuffer = std::make_shared<VulkanVertexBuffer>(m_VulkanPlatform, vertices);
 
         m_VertexBuffers[entityId] = vertexBuffer;
 
-        auto indexBuffer = std::make_shared<VulkanBuffer>(m_VulkanPlatform);
-        indexBuffer->create(renderComponent.getIndices().size(), sizeof(uint32_t),
-                            vk::BufferUsageFlagBits::eIndexBuffer);
-        indexBuffer->allocate(m_BufferProperties);
-        indexBuffer->map();
-        indexBuffer->write((void*) (renderComponent.getIndices().data()));
+        // auto indexBuffer = std::make_shared<VulkanBuffer>(m_VulkanPlatform);
+        // indexBuffer->create(renderComponent.getIndices().size(), sizeof(uint32_t),
+        //                     vk::BufferUsageFlagBits::eIndexBuffer);
+        // indexBuffer->allocate(m_BufferProperties);
+        // indexBuffer->map();
+        // indexBuffer->write((void*) (renderComponent.getIndices().data()));
+
+        std::vector<uint32_t> indices = renderComponent.getIndices();
+        auto indexBuffer = std::make_shared<VulkanIndexBuffer>(m_VulkanPlatform, indices);
 
         m_IndexBuffers[entityId] = indexBuffer;
     }

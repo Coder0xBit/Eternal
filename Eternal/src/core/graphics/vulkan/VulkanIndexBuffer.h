@@ -11,8 +11,10 @@ namespace Eternal {
         ~VulkanIndexBuffer() override;
         void bind() override;
         void unBind() override;
-        uint32_t getCount() override { return m_Buffer->getBufferSize(); };
-        vk::Buffer* getVkBuffer() const { return m_Buffer->getVkBuffer(); }
+        uint32_t getCount() override { return m_Buffer->getBufferSize(); }
+
+        // the lifetime of m_Buffer is handled by the VulkanIndexBuffer, do not delete after acquiring it
+        VulkanBuffer* getVulkanBuffer() { return m_Buffer.get(); }
 
     private :
         std::unique_ptr<VulkanBuffer> m_Buffer;

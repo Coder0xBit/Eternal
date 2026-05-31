@@ -24,11 +24,11 @@
 
 #define ETERNAL_ASSERT(condition, message) \
     do { \
-        if (!(condition)) { \
+        if(!(condition)) { \
             Eternal::Logger::Error("Assertion failed: {}. File: {}, Line: {}", message, __FILE__, __LINE__); \
-            throw std::runtime_error(message); \
+            throw std::runtime_error(message);  \
         } \
-    } while (0)
+    } while(0)
 
 #define ETERNAL_ASSERT_LOG(condition, message) \
     do { \

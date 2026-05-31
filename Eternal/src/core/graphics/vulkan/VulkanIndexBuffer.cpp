@@ -5,7 +5,7 @@ namespace Eternal {
         : m_VulkanPlatform(vulkanPlatform) {
         m_Buffer = std::make_unique<VulkanBuffer>(m_VulkanPlatform);
         m_Buffer->create(indices.size(), sizeof(uint32_t),
-                         vk::BufferUsageFlagBits::eVertexBuffer);
+                         vk::BufferUsageFlagBits::eIndexBuffer);
         m_Buffer->allocate(m_BufferProperties);
         m_Buffer->map();
         m_Buffer->write((void*) (indices.data()));

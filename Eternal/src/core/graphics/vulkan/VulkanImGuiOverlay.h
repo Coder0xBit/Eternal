@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/graphics/vulkan/VulkanPlatform.h"
-#include "core/graphics/vulkan/VulkanSwapChain.h"
+#include "core/graphics/vulkan/VulkanRenderer.h"
 #include "core/imgui/ImGuiOverlay.h"
 #include "core/window/Window.h"
 

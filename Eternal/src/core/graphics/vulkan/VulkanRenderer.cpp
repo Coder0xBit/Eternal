@@ -441,13 +441,13 @@ namespace Eternal {
                                                  &materialDescriptorSet, 0, nullptr);
             }
 
-            std::shared_ptr<VulkanBuffer> vertexBuffer = m_VulkanBufferManager->getVertexBuffer(entity.getUUID());
+            VulkanBuffer* vertexBuffer = m_VulkanBufferManager->getVertexBuffer(entity.getUUID());
             if (vertexBuffer) {
                 vk::DeviceSize offset = vk::DeviceSize(0);
                 commandBuffer.bindVertexBuffers(0, 1, vertexBuffer->getVkBuffer(), &offset);
             }
 
-            std::shared_ptr<VulkanBuffer> indexBuffer = m_VulkanBufferManager->getIndexBuffer(entity.getUUID());
+            VulkanBuffer* indexBuffer = m_VulkanBufferManager->getIndexBuffer(entity.getUUID());
             if (indexBuffer) {
                 commandBuffer.bindIndexBuffer(*(indexBuffer->getVkBuffer()), 0, vk::IndexType::eUint32);
                 commandBuffer.drawIndexed(indexBuffer->getElementCount(), 1, 0, 0, 0);

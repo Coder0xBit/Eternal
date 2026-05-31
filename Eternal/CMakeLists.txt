@@ -12,7 +12,7 @@ target_include_directories(EternalCore
 if (WIN32)
     # Windows-specific vendor libs
     target_link_directories(EternalCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../Vendor/lib)
-    target_link_libraries(EternalCore PUBLIC glfw3 vulkan-1 ImGui)
-elseif ()
+    target_link_libraries(EternalCore PUBLIC glew32s glfw3 vulkan-1 ImGui)
+else ()
     message(FATAL_ERROR "❌ Unsupported platform: Only Windows is supported right now.")
 endif ()

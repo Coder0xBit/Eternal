@@ -5,6 +5,8 @@
 #include "core/graphics/vulkan/VulkanBuffer.h"
 #include "core/scene/Scene.h"
 #include "core/scene/RenderComponent.h"
+#include "core/graphics/vulkan/VulkanVertexBuffer.h"
+#include "core/graphics/vulkan/VulkanIndexBuffer.h"
 
 namespace Eternal {
     class VulkanPlatform;
@@ -12,7 +14,9 @@ namespace Eternal {
     class VulkanBufferManager {
     public:
         using EntityId = uint32_t;
-        using VulkanEntityData = std::unordered_map<EntityId, std::shared_ptr<VulkanBuffer> >;
+        using VulkanEntityData = std::unordered_map<EntityId, std::shared_ptr<VulkanBuffer>>;
+        using VulkanVertexBuffers = std::unordered_map<EntityId, std::shared_ptr<VulkanVertexBuffer>>;
+        using VulkanIndexBuffers = std::unordered_map<EntityId, std::shared_ptr<VulkanIndexBuffer>>;
 
         struct UniformBuffer {
             alignas(16) glm::mat4 projection{1.0f};
@@ -22,18 +26,18 @@ namespace Eternal {
 
         VulkanBufferManager(VulkanPlatform* vulkanPlatform, Scene* scene);
 
-        std::shared_ptr<VulkanBuffer> getVertexBuffer(EntityId entityId) {
+        VulkanBuffer* getVertexBuffer(EntityId entityId) {
             auto it = m_VertexBuffers.find(entityId);
             if (it != m_VertexBuffers.end()) {
-                return it->second;
+                return it->second->getVulkanBuffer();
             }
             return nullptr;
         }
 
-        std::shared_ptr<VulkanBuffer> getIndexBuffer(EntityId entityId) {
+        VulkanBuffer* getIndexBuffer(EntityId entityId) {
             auto it = m_IndexBuffers.find(entityId);
             if (it != m_IndexBuffers.end()) {
-                return it->second;
+                return it->second->getVulkanBuffer();
             }
             return nullptr;
         }
@@ -59,8 +63,8 @@ namespace Eternal {
         }
 
         const VulkanEntityData& getUniformBuffers() { return m_UniformBuffers; }
-        const VulkanEntityData& getVertexBuffers() { return m_VertexBuffers; }
-        const VulkanEntityData& getIndexBuffers() { return m_IndexBuffers; }
+        const VulkanVertexBuffers& getVertexBuffers() { return m_VertexBuffers; }
+        const VulkanIndexBuffers& getIndexBuffers() { return m_IndexBuffers; }
 
         void addBuffer(EntityId entityId, const RenderComponent& renderComponent);
         void addUniformBuffer(EntityId entityId, const TransformComponent& transformComponent);
@@ -79,8 +83,8 @@ namespace Eternal {
 
         VulkanPlatform* m_VulkanPlatform;
 
-        VulkanEntityData m_VertexBuffers;
-        VulkanEntityData m_IndexBuffers;
+        VulkanVertexBuffers m_VertexBuffers;
+        VulkanIndexBuffers m_IndexBuffers;
         VulkanEntityData m_UniformBuffers;
     };
 }

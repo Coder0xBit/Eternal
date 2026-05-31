@@ -3,17 +3,14 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace Eternal {
-    std::shared_ptr<spdlog::logger> Logger::m_InternalLogger = nullptr;
+    std::shared_ptr<spdlog::logger> Logger::s_Logger = nullptr;
 
     void Logger::Init() {
-        std::vector<spdlog::sink_ptr> logSinks;
-        logSinks.emplace_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
+        spdlog::set_pattern("[%T] [%^%l%$] %v");
 
-        logSinks[0]->set_pattern("%^Eternal::%l [%T] %v%$");
-
-        m_InternalLogger = std::make_shared<spdlog::logger>("Eternal", begin(logSinks), end(logSinks));
-        spdlog::register_logger(m_InternalLogger);
-        m_InternalLogger->set_level(spdlog::level::trace);
-        m_InternalLogger->flush_on(spdlog::level::trace);
+        s_Logger = spdlog::stdout_color_mt("ETERNAL");
+        s_Logger->set_level(spdlog::level::trace);
     }
+
+
 }
