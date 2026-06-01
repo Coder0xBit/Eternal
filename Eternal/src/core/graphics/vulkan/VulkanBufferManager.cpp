@@ -1,6 +1,6 @@
 #include "core/graphics/vulkan/VulkanBufferManager.h"
 #include "core/graphics/vulkan/VulkanPlatform.h"
-#include "core/scene/RenderComponent.h"
+#include "core/scene/MeshComponent.h"
 #include "core/scene/Entity.h"
 
 namespace Eternal {
@@ -18,14 +18,14 @@ namespace Eternal {
         vk::MemoryPropertyFlags bufferProperties =
                 vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
 
-        for (auto& e: m_Scene->getAllEntityWith<Eternal::RenderComponent>()) {
+        for (auto& e: m_Scene->getAllEntityWith<Eternal::MeshComponent>()) {
             Eternal::Entity entity = Eternal::Entity(e, m_Scene);
             EntityId entityUUID = entity.getUUID();
 
             if (m_VertexBuffers.contains(entityUUID) || m_IndexBuffers.contains(entityUUID))
                 continue;
 
-            auto& component = entity.getComponent<Eternal::RenderComponent>();
+            auto& component = entity.getComponent<Eternal::MeshComponent>();
 
             addBuffer(entityUUID, component);
         }
@@ -43,7 +43,7 @@ namespace Eternal {
         }
     }
 
-    void VulkanBufferManager::addBuffer(EntityId entityId, const RenderComponent& renderComponent) {
+    void VulkanBufferManager::addBuffer(EntityId entityId, const MeshComponent& renderComponent) {
         // auto vertexBuffer = std::make_shared<VulkanBuffer>(m_VulkanPlatform);
         // vertexBuffer->create(renderComponent.getVertices().size(), sizeof(Eternal::Vertex),
         //                      vk::BufferUsageFlagBits::eVertexBuffer);

@@ -4,7 +4,7 @@
 #include "core/graphics/vulkan/VulkanPlatform.h"
 #include "core/graphics/vulkan/VulkanBuffer.h"
 #include "core/scene/Scene.h"
-#include "core/scene/RenderComponent.h"
+#include "core/scene/MeshComponent.h"
 #include "core/graphics/vulkan/VulkanVertexBuffer.h"
 #include "core/graphics/vulkan/VulkanIndexBuffer.h"
 
@@ -66,7 +66,7 @@ namespace Eternal {
         const VulkanVertexBuffers& getVertexBuffers() { return m_VertexBuffers; }
         const VulkanIndexBuffers& getIndexBuffers() { return m_IndexBuffers; }
 
-        void addBuffer(EntityId entityId, const RenderComponent& renderComponent);
+        void addBuffer(EntityId entityId, const MeshComponent& renderComponent);
         void addUniformBuffer(EntityId entityId, const TransformComponent& transformComponent);
 
         ~VulkanBufferManager();

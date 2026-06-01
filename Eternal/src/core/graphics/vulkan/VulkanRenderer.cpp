@@ -8,7 +8,7 @@
 #include "core/graphics/vulkan/VulkanPipelineCache.h"
 #include "core/scene/Entity.h"
 #include "core/scene/TransformComponent.h"
-#include "core/scene/RenderComponent.h"
+#include "core/scene/MeshComponent.h"
 
 namespace Eternal {
     VulkanRenderer::VulkanRenderer(const Builder& builder) {
@@ -110,8 +110,8 @@ namespace Eternal {
     }
 
     void VulkanRenderer::bindScene() {
-        m_Scene->onComponentAdded<Eternal::RenderComponent>(
-            [this](Eternal::Entity& entity, Eternal::RenderComponent& component) {
+        m_Scene->onComponentAdded<Eternal::MeshComponent>(
+            [this](Eternal::Entity& entity, Eternal::MeshComponent& component) {
                 m_VulkanBufferManager->addBuffer(entity.getUUID(), component);
             });
 
@@ -397,7 +397,7 @@ namespace Eternal {
 
         commandBuffer.setScissor(0, 1, &scissor);
 
-        for (const auto& [e, renderComponent]: m_Scene->getAllEntityWith<Eternal::RenderComponent>().each()) {
+        for (const auto& [e, renderComponent]: m_Scene->getAllEntityWith<Eternal::MeshComponent>().each()) {
             Eternal::Entity entity = Eternal::Entity(e, m_Scene);
 
             auto transform = entity.getComponent<Eternal::TransformComponent>();

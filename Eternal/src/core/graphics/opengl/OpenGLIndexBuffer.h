@@ -9,10 +9,10 @@ namespace Eternal {
         void bind() override;
         void unBind() override;
         uint32_t getCount() override;
-
         ~OpenGLIndexBuffer() override;
+
     private :
         uint32_t mIndexCount;
-        uint32_t mIndexBufferID;
+        uint32_t mIndexBufferID = 0;
     };
 }

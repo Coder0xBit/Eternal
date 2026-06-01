@@ -11,7 +11,7 @@ namespace Eternal {
         ~VulkanVertexBuffer() override;
         void bind() override;
         void unBind() override;
-        uint32_t getCount() override { return m_Buffer->getBufferSize(); }
+        uint32_t getSize() override { return m_Buffer->getBufferSize(); }
 
         // the lifetime of m_Buffer is handled by the VulkanVertexBuffer, do not delete after acquiring it
         VulkanBuffer* getVulkanBuffer() { return m_Buffer.get(); }

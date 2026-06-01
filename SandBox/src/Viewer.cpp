@@ -4,7 +4,7 @@
 
 #include "core/scene/Entity.h"
 #include "core/scene/TransformComponent.h"
-#include "core/scene/RenderComponent.h"
+#include "core/scene/MeshComponent.h"
 #include "core/event/EventDispatcher.h"
 #include "core/graphics/Vertex.h"
 
@@ -153,7 +153,7 @@ namespace Eternal {
         std::vector<uint32_t> triIndices = {0, 1, 2};
 
         Eternal::Entity model = m_Scene->createEntity("triangle");
-        model.addComponent<Eternal::RenderComponent>(triVertices, triIndices);
+        model.addComponent<Eternal::MeshComponent>(triVertices, triIndices);
         model.addComponent<Eternal::TransformComponent>(glm::vec3(0.0f, 10.0f, 0.0f));
     }
 

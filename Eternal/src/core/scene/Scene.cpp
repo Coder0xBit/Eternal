@@ -1,7 +1,7 @@
 #include "core/scene/Scene.h"
 #include "core/scene/Entity.h"
 #include "core/scene/MaterialComponent.h"
-#include "core/scene/RenderComponent.h"
+#include "core/scene/MeshComponent.h"
 #include "core/resource/Image.h"
 #include "core/resource/Mesh.h"
 #include "core/resource/ResourceManager.h"
@@ -25,7 +25,7 @@ namespace Eternal {
         Eternal::Logger::Info("Obj Vertices: {}", mesh->getVertices().size());
 
         Eternal::Entity model = createEntity(entity.name);
-        model.addComponent<Eternal::RenderComponent>(mesh->getVertices(), mesh->getIndices());
+        model.addComponent<Eternal::MeshComponent>(mesh->getVertices(), mesh->getIndices());
         model.addComponent<Eternal::TransformComponent>(entity.initialPosition);
 
         if (entity.texturePath.empty()) return;

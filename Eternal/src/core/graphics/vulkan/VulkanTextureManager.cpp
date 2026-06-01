@@ -1,5 +1,5 @@
 #include "core/graphics/vulkan/VulkanTextureManager.h"
-#include "core/scene/RenderComponent.h"
+#include "core/scene/MeshComponent.h"
 #include "core/scene/Entity.h"
 
 namespace Eternal {
@@ -10,7 +10,7 @@ namespace Eternal {
     }
 
     void VulkanTextureManager::initialize() {
-        for (auto& e: m_Scene->getAllEntityWith<Eternal::RenderComponent>()) {
+        for (auto& e: m_Scene->getAllEntityWith<Eternal::MeshComponent>()) {
             Eternal::Entity entity = Eternal::Entity(e, m_Scene);
             EntityId entityUUID = entity.getUUID();
 
