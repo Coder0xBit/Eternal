@@ -4,25 +4,26 @@
 #include "core/scene/Entity.h"
 
 namespace Eternal {
-    VulkanBufferManager::VulkanBufferManager(VulkanPlatform* vulkanPlatform, Scene* scene) : m_VulkanPlatform(vulkanPlatform) {
-        m_Scene = scene;
+    VulkanBufferManager::VulkanBufferManager(VulkanPlatform* vulkanPlatform, Scene* scene) : mVulkanPlatform(
+        vulkanPlatform) {
+        mScene = scene;
         initializeBuffers();
     }
 
     VulkanBufferManager::~VulkanBufferManager() {
-        m_VertexBuffers.clear();
-        m_IndexBuffers.clear();
+        mVertexBuffers.clear();
+        mIndexBuffers.clear();
     }
 
     void VulkanBufferManager::initializeBuffers() {
         vk::MemoryPropertyFlags bufferProperties =
                 vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
 
-        for (auto& e: m_Scene->getAllEntityWith<Eternal::MeshComponent>()) {
-            Eternal::Entity entity = Eternal::Entity(e, m_Scene);
+        for (auto& e: mScene->getAllEntityWith<Eternal::MeshComponent>()) {
+            Eternal::Entity entity = Eternal::Entity(e, mScene);
             EntityId entityUUID = entity.getUUID();
 
-            if (m_VertexBuffers.contains(entityUUID) || m_IndexBuffers.contains(entityUUID))
+            if (mVertexBuffers.contains(entityUUID) || mIndexBuffers.contains(entityUUID))
                 continue;
 
             auto& component = entity.getComponent<Eternal::MeshComponent>();
@@ -30,11 +31,11 @@ namespace Eternal {
             addBuffer(entityUUID, component);
         }
 
-        for (auto& e: m_Scene->getAllEntityWith<Eternal::TransformComponent>()) {
-            Eternal::Entity entity = Eternal::Entity(e, m_Scene);
+        for (auto& e: mScene->getAllEntityWith<Eternal::TransformComponent>()) {
+            Eternal::Entity entity = Eternal::Entity(e, mScene);
             EntityId entityUUID = entity.getUUID();
 
-            if (m_UniformBuffers.contains(entityUUID))
+            if (mUniformBuffers.contains(entityUUID))
                 continue;
 
             auto& component = entity.getComponent<Eternal::TransformComponent>();
@@ -44,36 +45,30 @@ namespace Eternal {
     }
 
     void VulkanBufferManager::addBuffer(EntityId entityId, const MeshComponent& renderComponent) {
-        // auto vertexBuffer = std::make_shared<VulkanBuffer>(m_VulkanPlatform);
-        // vertexBuffer->create(renderComponent.getVertices().size(), sizeof(Eternal::Vertex),
-        //                      vk::BufferUsageFlagBits::eVertexBuffer);
-        // vertexBuffer->allocate(m_BufferProperties);
-        // vertexBuffer->map();
-        // vertexBuffer->write((void*) (renderComponent.getVertices().data()));
-
         std::vector<Eternal::Vertex> vertices = renderComponent.getVertices();
-        auto vertexBuffer = std::make_shared<VulkanVertexBuffer>(m_VulkanPlatform, vertices);
+        auto vertexBuffer = VertexBuffer::Builder()
+                .graphicsPlatform(mVulkanPlatform)
+                .backend(Backend::Vulkan)
+                .attribute({0, VertexAttribute::POSITON, ElementType::FLOAT3, sizeof(float) * 3, false})
+                .attribute({1, VertexAttribute::COLOR, ElementType::FLOAT3, sizeof(float) * 3, false})
+                .attribute({2, VertexAttribute::NORMAL, ElementType::FLOAT3, sizeof(float) * 3, false})
+                .attribute({3, VertexAttribute::UV, ElementType::FLOAT3, sizeof(float) * 2, false})
+                .build();
 
-        m_VertexBuffers[entityId] = vertexBuffer;
-
-        // auto indexBuffer = std::make_shared<VulkanBuffer>(m_VulkanPlatform);
-        // indexBuffer->create(renderComponent.getIndices().size(), sizeof(uint32_t),
-        //                     vk::BufferUsageFlagBits::eIndexBuffer);
-        // indexBuffer->allocate(m_BufferProperties);
-        // indexBuffer->map();
-        // indexBuffer->write((void*) (renderComponent.getIndices().data()));
+        vertexBuffer->setBuffer(vertices);
+        mVertexBuffers[entityId] = std::move(vertexBuffer);
 
         std::vector<uint32_t> indices = renderComponent.getIndices();
-        auto indexBuffer = std::make_shared<VulkanIndexBuffer>(m_VulkanPlatform, indices);
+        auto indexBuffer = std::make_shared<VulkanIndexBuffer>(mVulkanPlatform, indices);
 
-        m_IndexBuffers[entityId] = indexBuffer;
+        mIndexBuffers[entityId] = indexBuffer;
     }
 
     void VulkanBufferManager::addUniformBuffer(EntityId entityId, const TransformComponent& transformComponent) {
-        auto uniformBuffer = std::make_shared<VulkanBuffer>(m_VulkanPlatform);
+        auto uniformBuffer = std::make_shared<VulkanBuffer>(mVulkanPlatform);
         uniformBuffer->create(1, sizeof(UniformBuffer), vk::BufferUsageFlagBits::eUniformBuffer);
-        uniformBuffer->allocate(m_UniformBufferProperties);
+        uniformBuffer->allocate(mUniformBufferProperties);
         uniformBuffer->map();
-        m_UniformBuffers[entityId] = uniformBuffer;
+        mUniformBuffers[entityId] = uniformBuffer;
     }
 }

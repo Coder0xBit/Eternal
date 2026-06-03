@@ -6,13 +6,13 @@ namespace Eternal {
 	struct NameComponent {
 	public:
 		NameComponent() = default;
-		NameComponent(std::string name) : m_Name(name) {}
+		NameComponent(std::string name) : mName(name) {}
 		~NameComponent() = default;
-		const char* getName() { return m_Name.c_str(); }
-		void setName(const std::string& name) { m_Name = name; }
-		void setName(const char* name) { m_Name = name; }
+		const char* getName() { return mName.c_str(); }
+		void setName(const std::string& name) { mName = name; }
+		void setName(const char* name) { mName = name; }
 
 	private:
-		std::string m_Name = "Entity";
+		std::string mName = "Entity";
 	};
 }

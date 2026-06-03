@@ -9,6 +9,6 @@ namespace Eternal {
 		virtual void shutdown() = 0;
 
 	protected:
-		bool m_IsRunning = false;
+		bool mIsRunning = false;
 	};
 }

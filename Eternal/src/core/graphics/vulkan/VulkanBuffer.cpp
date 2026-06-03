@@ -3,23 +3,23 @@
 
 namespace Eternal {
     void VulkanBuffer::create(uint32_t elementCount, uint32_t elementSize, vk::BufferUsageFlagBits usage) {
-        vk::Device logicalDevice = m_VulkanPlatform->getLogicalDevice();
-        m_ElementCount = elementCount;
-        m_BufferSize = elementSize * m_ElementCount;
+        vk::Device logicalDevice = mVulkanPlatform->getLogicalDevice();
+        mElementCount = elementCount;
+        mBufferSize = elementSize * mElementCount;
 
         vk::BufferCreateInfo bufferInfo = vk::BufferCreateInfo()
-                .setSize(m_BufferSize)
+                .setSize(mBufferSize)
                 .setUsage(usage)
                 .setSharingMode(vk::SharingMode::eExclusive);
 
-        m_Buffer = logicalDevice.createBuffer(bufferInfo);
+        mBuffer = logicalDevice.createBuffer(bufferInfo);
     }
 
     void VulkanBuffer::allocate(vk::MemoryPropertyFlags properties) {
-        vk::Device logicalDevice = m_VulkanPlatform->getLogicalDevice();
-        vk::PhysicalDevice physicalDevice = m_VulkanPlatform->getPhysicalDevice();
+        vk::Device logicalDevice = mVulkanPlatform->getLogicalDevice();
+        vk::PhysicalDevice physicalDevice = mVulkanPlatform->getPhysicalDevice();
 
-        vk::MemoryRequirements memRequirements = logicalDevice.getBufferMemoryRequirements(m_Buffer);
+        vk::MemoryRequirements memRequirements = logicalDevice.getBufferMemoryRequirements(mBuffer);
 
         uint32_t memoryTypeIndex = VulkanPlatform::getMemoryType(physicalDevice, properties,
                                                                  memRequirements.memoryTypeBits);
@@ -29,43 +29,43 @@ namespace Eternal {
                 .setAllocationSize(memRequirements.size)
                 .setMemoryTypeIndex(memoryTypeIndex);
 
-        m_Memory = logicalDevice.allocateMemory(allocInfo);
-        logicalDevice.bindBufferMemory(m_Buffer, m_Memory, 0);
+        mMemory = logicalDevice.allocateMemory(allocInfo);
+        logicalDevice.bindBufferMemory(mBuffer, mMemory, 0);
     }
 
     void VulkanBuffer::map() {
-        vk::Device logicalDevice = m_VulkanPlatform->getLogicalDevice();
-        if (!m_MappedMemory) {
-            m_MappedMemory = logicalDevice.mapMemory(m_Memory, 0, m_BufferSize);
+        vk::Device logicalDevice = mVulkanPlatform->getLogicalDevice();
+        if (!mMappedMemory) {
+            mMappedMemory = logicalDevice.mapMemory(mMemory, 0, mBufferSize);
         }
     }
 
     void VulkanBuffer::unMap() {
-        vk::Device logicalDevice = m_VulkanPlatform->getLogicalDevice();
-        logicalDevice.unmapMemory(m_Memory);
-        m_MappedMemory = nullptr;
+        vk::Device logicalDevice = mVulkanPlatform->getLogicalDevice();
+        logicalDevice.unmapMemory(mMemory);
+        mMappedMemory = nullptr;
     }
 
     void VulkanBuffer::write(void* data) {
-        ETERNAL_ASSERT(m_MappedMemory != nullptr, "Memory should be mapped first, forgot call map(..) maybe ?");
-        memcpy(m_MappedMemory, data, (size_t) m_BufferSize);
+        ETERNAL_ASSERT(mMappedMemory != nullptr, "Memory should be mapped first, forgot call map(..) maybe ?");
+        memcpy(mMappedMemory, data, (size_t) mBufferSize);
     }
 
     VulkanBuffer::~VulkanBuffer() {
-        vk::Device logicalDevice = m_VulkanPlatform->getLogicalDevice();
+        vk::Device logicalDevice = mVulkanPlatform->getLogicalDevice();
         if (isCurrentlyMapped()) {
             Eternal::Logger::Info("Buffer was previously mapped, internally unmapping");
             unMap();
         }
 
-        if (m_Memory) {
-            logicalDevice.freeMemory(m_Memory);
+        if (mMemory) {
+            logicalDevice.freeMemory(mMemory);
         }
 
-        if (m_Buffer) {
-            logicalDevice.destroyBuffer(m_Buffer);
+        if (mBuffer) {
+            logicalDevice.destroyBuffer(mBuffer);
         }
 
-        m_MappedMemory = nullptr;
+        mMappedMemory = nullptr;
     }
 }

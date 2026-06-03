@@ -1,10 +1,10 @@
 #include "core/input/InputDispatcher.h"
 
 namespace Eternal {
-    InputDispatcher::InputDispatcher(Eternal::Window* window) : m_Window(window) {
+    InputDispatcher::InputDispatcher(Eternal::Window* window) : mWindow(window) {
     }
 
     bool InputDispatcher::isKeyPressed(Eternal::KeyCode keycode) const {
-        return m_Window->isKeyPressed(keycode);
+        return mWindow->isKeyPressed(keycode);
     }
 }

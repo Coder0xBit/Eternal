@@ -7,23 +7,23 @@ namespace Eternal {
     class Mesh {
     public:
         Mesh(std::shared_ptr<VertexBuffer> vertexBuffer, std::shared_ptr<IndexBuffer> indexBuffer)
-            : m_VertexBuffer(std::move(vertexBuffer)), m_IndexBuffer(std::move(indexBuffer)) {
+            : mVertexBuffer(std::move(vertexBuffer)), mIndexBuffer(std::move(indexBuffer)) {
         }
 
         const std::shared_ptr<VertexBuffer>& getVertexBuffer() const {
-            return m_VertexBuffer;
+            return mVertexBuffer;
         }
 
         const std::shared_ptr<IndexBuffer>& getIndexBuffer() const {
-            return m_IndexBuffer;
+            return mIndexBuffer;
         }
 
         uint32_t getIndexCount() const {
-            return m_IndexBuffer->getCount();
+            return mIndexBuffer->getCount();
         }
 
     private:
-        std::shared_ptr<VertexBuffer> m_VertexBuffer;
-        std::shared_ptr<IndexBuffer> m_IndexBuffer;
+        std::shared_ptr<VertexBuffer> mVertexBuffer;
+        std::shared_ptr<IndexBuffer> mIndexBuffer;
     };
 }

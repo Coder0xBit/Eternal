@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/graphics/Timer.h"
-#include "core/Camera.hpp"
+#include "core/Camera.h"
 
 namespace Eternal {
     class FrameInfo {

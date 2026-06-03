@@ -15,7 +15,7 @@ namespace Eternal {
     public:
         using EntityId = uint32_t;
         using VulkanEntityData = std::unordered_map<EntityId, std::shared_ptr<VulkanBuffer>>;
-        using VulkanVertexBuffers = std::unordered_map<EntityId, std::shared_ptr<VulkanVertexBuffer>>;
+        using VulkanVertexBuffers = std::unordered_map<EntityId, std::shared_ptr<VertexBuffer>>;
         using VulkanIndexBuffers = std::unordered_map<EntityId, std::shared_ptr<VulkanIndexBuffer>>;
 
         struct UniformBuffer {
@@ -27,44 +27,45 @@ namespace Eternal {
         VulkanBufferManager(VulkanPlatform* vulkanPlatform, Scene* scene);
 
         VulkanBuffer* getVertexBuffer(EntityId entityId) {
-            auto it = m_VertexBuffers.find(entityId);
-            if (it != m_VertexBuffers.end()) {
-                return it->second->getVulkanBuffer();
+            auto it = mVertexBuffers.find(entityId);
+            if (it != mVertexBuffers.end()) {
+                VulkanVertexBuffer* vulkanVertexBuffer = static_cast<VulkanVertexBuffer*>(it->second.get());
+                return vulkanVertexBuffer->getVulkanBuffer();
             }
             return nullptr;
         }
 
         VulkanBuffer* getIndexBuffer(EntityId entityId) {
-            auto it = m_IndexBuffers.find(entityId);
-            if (it != m_IndexBuffers.end()) {
+            auto it = mIndexBuffers.find(entityId);
+            if (it != mIndexBuffers.end()) {
                 return it->second->getVulkanBuffer();
             }
             return nullptr;
         }
 
         std::shared_ptr<VulkanBuffer> getUniformBuffer(EntityId entityId) {
-            auto it = m_UniformBuffers.find(entityId);
-            if (it != m_UniformBuffers.end()) {
+            auto it = mUniformBuffers.find(entityId);
+            if (it != mUniformBuffers.end()) {
                 return it->second;
             }
             return nullptr;
         }
 
         uint32_t getVertexBufferCount() const {
-            return static_cast<uint32_t>(m_VertexBuffers.size());
+            return static_cast<uint32_t>(mVertexBuffers.size());
         }
 
         uint32_t getIndexBufferCount() const {
-            return static_cast<uint32_t>(m_IndexBuffers.size());
+            return static_cast<uint32_t>(mIndexBuffers.size());
         }
 
         uint32_t getUniformBufferCount() const {
-            return static_cast<uint32_t>(m_UniformBuffers.size());
+            return static_cast<uint32_t>(mUniformBuffers.size());
         }
 
-        const VulkanEntityData& getUniformBuffers() { return m_UniformBuffers; }
-        const VulkanVertexBuffers& getVertexBuffers() { return m_VertexBuffers; }
-        const VulkanIndexBuffers& getIndexBuffers() { return m_IndexBuffers; }
+        const VulkanEntityData& getUniformBuffers() { return mUniformBuffers; }
+        const VulkanVertexBuffers& getVertexBuffers() { return mVertexBuffers; }
+        const VulkanIndexBuffers& getIndexBuffers() { return mIndexBuffers; }
 
         void addBuffer(EntityId entityId, const MeshComponent& renderComponent);
         void addUniformBuffer(EntityId entityId, const TransformComponent& transformComponent);
@@ -74,17 +75,17 @@ namespace Eternal {
     private:
         void initializeBuffers();
 
-        Scene* m_Scene;
+        Scene* mScene;
 
-        vk::MemoryPropertyFlags m_BufferProperties =
+        vk::MemoryPropertyFlags mBufferProperties =
                 vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-        vk::MemoryPropertyFlags m_UniformBufferProperties =
+        vk::MemoryPropertyFlags mUniformBufferProperties =
                 vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
 
-        VulkanPlatform* m_VulkanPlatform;
+        VulkanPlatform* mVulkanPlatform;
 
-        VulkanVertexBuffers m_VertexBuffers;
-        VulkanIndexBuffers m_IndexBuffers;
-        VulkanEntityData m_UniformBuffers;
+        VulkanVertexBuffers mVertexBuffers;
+        VulkanIndexBuffers mIndexBuffers;
+        VulkanEntityData mUniformBuffers;
     };
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ranges>
+
 #include "utils/Base.h"
 #include "core/resource/Resource.h"
 
@@ -15,17 +17,17 @@ namespace Eternal {
         }
 
         ~ResourceManager() {
-            for (auto& [path, resourcePtr]: m_Resources) {
+            for (auto& resourcePtr: mResources | std::views::values) {
                 delete resourcePtr;
             }
-            m_Resources.clear();
+            mResources.clear();
         }
 
     public:
         template<typename ResourceType, std::enable_if_t<std::is_base_of_v<Resource, ResourceType>, int>  = 0>
         ResourceType* loadResource(const std::string& path) {
-            auto it = m_Resources.find(path);
-            if (it != m_Resources.end()) {
+            auto it = mResources.find(path);
+            if (it != mResources.end()) {
                 return dynamic_cast<ResourceType*>(it->second);
             }
 
@@ -36,7 +38,7 @@ namespace Eternal {
             }
 
             resource->setPath(path);
-            m_Resources[path] = resource;
+            mResources[path] = resource;
             return resource;
         }
 
@@ -44,7 +46,7 @@ namespace Eternal {
         std::future<ResourceType*> loadResourceAsync(const std::string& path) {
             return std::async(std::launch::async,
                               [this, path]() -> ResourceType* {
-                                  std::lock_guard<std::mutex> lock(m_Mutex);
+                                  std::lock_guard<std::mutex> lock(mMutex);
                                   return this->loadResource<ResourceType>(path);
                               }
             );
@@ -52,10 +54,10 @@ namespace Eternal {
 
         void unloadResource(Resource* resource) {
             if (resource) {
-                auto it = m_Resources.find(resource->getPath());
-                if (it != m_Resources.end()) {
+                auto it = mResources.find(resource->getPath());
+                if (it != mResources.end()) {
                     delete it->second;
-                    m_Resources.erase(it);
+                    mResources.erase(it);
                 }
             }
         }
@@ -63,7 +65,7 @@ namespace Eternal {
     private:
         ResourceManager() = default;
 
-        std::unordered_map<std::string, Resource*> m_Resources;
-        std::mutex m_Mutex;
+        std::unordered_map<std::string, Resource*> mResources;
+        std::mutex mMutex;
     };
 }

@@ -40,7 +40,7 @@ namespace Eternal {
         VulkanDescriptorPool& operator=(const VulkanDescriptorPool&) = delete;
         ~VulkanDescriptorPool();
 
-        vk::DescriptorPool getDescriptorPool() const { return m_DescriptorPool; }
+        vk::DescriptorPool getDescriptorPool() const { return mDescriptorPool; }
         void reset();
         vk::DescriptorSet allocate(const VulkanDescriptorSetLayout& descriptorSetLayout);
         std::vector<vk::DescriptorSet> allocate(uint32_t descriptorSetCount,
@@ -49,14 +49,14 @@ namespace Eternal {
         void free(vk::DescriptorSet* descriptorSet);
         void free(const std::vector<vk::DescriptorSet>& descriptorSets);
 
-        const std::vector<vk::DescriptorPoolSize>& getPoolSizes() const { return m_PoolSizes; }
+        const std::vector<vk::DescriptorPoolSize>& getPoolSizes() const { return mPoolSizes; }
 
     private:
-        vk::Device m_LogicalDevice;
-        vk::DescriptorPool m_DescriptorPool;
+        vk::Device mLogicalDevice;
+        vk::DescriptorPool mDescriptorPool;
 
-        std::vector<vk::DescriptorPoolSize> m_PoolSizes;
+        std::vector<vk::DescriptorPoolSize> mPoolSizes;
 
-        uint32_t m_MaxSets;
+        uint32_t mMaxSets;
     };
 }

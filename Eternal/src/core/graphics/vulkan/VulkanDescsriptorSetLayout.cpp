@@ -28,26 +28,26 @@ namespace Eternal {
 	}
 
 	VulkanDescriptorSetLayout::VulkanDescriptorSetLayout(const Builder& builder) {
-		m_LogicalDevice = builder->logicalDevice;
-		m_Binding = builder->bindings;
+		mLogicalDevice = builder->logicalDevice;
+		mBinding = builder->bindings;
 
 		std::vector<vk::DescriptorSetLayoutBinding> bindings;
-		bindings.reserve(m_Binding.size());
+		bindings.reserve(mBinding.size());
 
-		for (const auto& [binding, layoutBinding] : m_Binding)
+		for (const auto& [binding, layoutBinding] : mBinding)
 			bindings.push_back(layoutBinding);
 
 		vk::DescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo = vk::DescriptorSetLayoutCreateInfo()
 			.setBindings(bindings);
 
-		m_DescriptorSetLayout = m_LogicalDevice.createDescriptorSetLayout(descriptorSetLayoutCreateInfo);
+		mDescriptorSetLayout = mLogicalDevice.createDescriptorSetLayout(descriptorSetLayoutCreateInfo);
 	}
 
 	VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout() {
-		if (m_DescriptorSetLayout) {
-			m_LogicalDevice.destroyDescriptorSetLayout(m_DescriptorSetLayout);
-			m_DescriptorSetLayout = nullptr;
+		if (mDescriptorSetLayout) {
+			mLogicalDevice.destroyDescriptorSetLayout(mDescriptorSetLayout);
+			mDescriptorSetLayout = nullptr;
 		}
-		m_Binding.clear();
+		mBinding.clear();
 	}
 }

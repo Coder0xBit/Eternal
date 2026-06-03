@@ -19,23 +19,23 @@ namespace Eternal {
 		void addTexture(EntityId entityId, const MaterialComponent& materialComponent);
 
 		std::shared_ptr<VulkanTexture> getTexture(EntityId entityId) const {
-			if (auto it = m_Textures.find(entityId); it != m_Textures.end()) {
+			if (auto it = mTextures.find(entityId); it != mTextures.end()) {
 				return it->second;
 			}
 			return nullptr;
 		}
 
-		const VulkanTextureContainer& getTextures() const { return m_Textures; }
+		const VulkanTextureContainer& getTextures() const { return mTextures; }
 
 	private:
 		void initialize();
 		void initializeTexture(std::shared_ptr<VulkanTexture> vulkanTexture) const;
 		void createCommandPool();
 
-		vk::CommandPool m_CommandPool;
+		vk::CommandPool mCommandPool;
 
-		Eternal::VulkanPlatform* m_VulkanPlatform = nullptr;
-		Scene* m_Scene = nullptr;
-		VulkanTextureContainer m_Textures;
+		Eternal::VulkanPlatform* mVulkanPlatform = nullptr;
+		Scene* mScene = nullptr;
+		VulkanTextureContainer mTextures;
 	};
 }

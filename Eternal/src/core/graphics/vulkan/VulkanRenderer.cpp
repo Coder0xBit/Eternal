@@ -12,22 +12,22 @@
 
 namespace Eternal {
     VulkanRenderer::VulkanRenderer(const Builder& builder) {
-        m_Platform = dynamic_cast<VulkanPlatform*>(builder->platform);
-        m_Window = builder->window;
-        m_Scene = builder->scene;
+        mPlatform = dynamic_cast<VulkanPlatform*>(builder->platform);
+        mWindow = builder->window;
+        mScene = builder->scene;
 
-        ETERNAL_ASSERT(m_Scene != nullptr, "Scene is null");
-        ETERNAL_ASSERT(m_Platform != nullptr, "Platform is null");
-        ETERNAL_ASSERT(m_Window != nullptr, "Window is null");
+        ETERNAL_ASSERT(mScene != nullptr, "Scene is null");
+        ETERNAL_ASSERT(mPlatform != nullptr, "Platform is null");
+        ETERNAL_ASSERT(mWindow != nullptr, "Window is null");
 
         initialize();
     }
 
-    VulkanRenderer::VulkanRenderer(VulkanPlatform* platform, Window* window, Scene* scene) : m_Scene(scene),
-        m_Platform(platform), m_Window(window) {
-        ETERNAL_ASSERT(m_Scene != nullptr, "Scene is null");
-        ETERNAL_ASSERT(m_Platform != nullptr, "Platform is null");
-        ETERNAL_ASSERT(m_Window != nullptr, "Window is null");
+    VulkanRenderer::VulkanRenderer(VulkanPlatform* platform, Window* window, Scene* scene) : mScene(scene),
+        mPlatform(platform), mWindow(window) {
+        ETERNAL_ASSERT(mScene != nullptr, "Scene is null");
+        ETERNAL_ASSERT(mPlatform != nullptr, "Platform is null");
+        ETERNAL_ASSERT(mWindow != nullptr, "Window is null");
 
         initialize();
     }
@@ -35,31 +35,31 @@ namespace Eternal {
     void VulkanRenderer::initialize() {
         bindScene();
 
-        auto swapchain = m_Platform->createSwapChain(m_Window);
-        m_VulkanSwapChain = dynamic_cast<VulkanSwapChain*>(swapchain);
-        m_SwapChainDetails = m_VulkanSwapChain->getSwapChainDetails();
+        auto swapchain = mPlatform->createSwapChain(mWindow);
+        mVulkanSwapChain = dynamic_cast<VulkanSwapChain*>(swapchain);
+        mSwapChainDetails = mVulkanSwapChain->getSwapChainDetails();
 
-        if (!m_VulkanSwapChain) {
+        if (!mVulkanSwapChain) {
             Eternal::Logger::Error("Failed to create Vulkan SwapChain");
             return;
         }
 
-        m_LogicalDevice = m_Platform->getLogicalDevice();
+        mLogicalDevice = mPlatform->getLogicalDevice();
 
-        m_PhysicalDevice = m_Platform->getPhysicalDevice();
+        mPhysicalDevice = mPlatform->getPhysicalDevice();
 
-        m_VulkanBufferManager = Memory::Allocate<VulkanBufferManager>(m_Platform, m_Scene);
-        m_VulkanTextureManager = Memory::Allocate<VulkanTextureManager>(m_Platform, m_Scene);
+        mVulkanBufferManager = Memory::Allocate<VulkanBufferManager>(mPlatform, mScene);
+        mVulkanTextureManager = Memory::Allocate<VulkanTextureManager>(mPlatform, mScene);
 
-        m_PipelineCache = Memory::Allocate<VulkanPipelineCache>(m_Platform);
+        mPipelineCache = Memory::Allocate<VulkanPipelineCache>(mPlatform);
 
-        m_DescriptorPool = VulkanDescriptorPool::Builder(m_LogicalDevice)
+        mDescriptorPool = VulkanDescriptorPool::Builder(mLogicalDevice)
                 .addPoolSize({vk::DescriptorType::eUniformBuffer, e_MaxEntities})
                 .addPoolSize({vk::DescriptorType::eCombinedImageSampler, e_MaxEntities})
                 .setMaxSets(e_MaxEntities)
                 .build();
 
-        m_PipelineLayoutCache = Memory::Allocate<VulkanPipelineLayoutCache>(m_DescriptorPool, m_Platform);
+        mPipelineLayoutCache = Memory::Allocate<VulkanPipelineLayoutCache>(mDescriptorPool, mPlatform);
 
         createDepthImageView();
         createRenderPass();
@@ -72,52 +72,52 @@ namespace Eternal {
     }
 
     VulkanRenderer::~VulkanRenderer() {
-        m_LogicalDevice.waitIdle();
+        mLogicalDevice.waitIdle();
 
-        for (auto semaphore: m_ImageAvailableSemaphores) {
-            m_LogicalDevice.destroySemaphore(semaphore);
+        for (auto semaphore: mImageAvailableSemaphores) {
+            mLogicalDevice.destroySemaphore(semaphore);
         }
 
-        for (auto semaphore: m_RenderFinishedSemaphores) {
-            m_LogicalDevice.destroySemaphore(semaphore);
+        for (auto semaphore: mRenderFinishedSemaphores) {
+            mLogicalDevice.destroySemaphore(semaphore);
         }
 
-        for (auto fence: m_InFlightFences) {
-            m_LogicalDevice.destroyFence(fence);
+        for (auto fence: mInFlightFences) {
+            mLogicalDevice.destroyFence(fence);
         }
 
-        m_Platform->destroyCommandPool(m_CommandPool);
+        mPlatform->destroyCommandPool(mCommandPool);
 
-        Memory::Deallocate(m_PipelineLayoutCache);
-        Memory::Deallocate(m_PipelineCache);
+        Memory::Deallocate(mPipelineLayoutCache);
+        Memory::Deallocate(mPipelineCache);
         destroyRenderPass();
         destroyDepthImageView();
         destroyFrameBuffers();
-        Memory::Deallocate(m_VulkanSwapChain);
+        Memory::Deallocate(mVulkanSwapChain);
 
-        //m_UniformBuffers.clear();
+        //mUniformBuffers.clear();
 
-        m_UniformDescriptorSets.clear();
-        m_MaterialDescriptorSets.clear();
+        mUniformDescriptorSets.clear();
+        mMaterialDescriptorSets.clear();
 
-        Memory::Deallocate(m_DescriptorPool);
+        Memory::Deallocate(mDescriptorPool);
 
-        Memory::Deallocate(m_VulkanTextureManager);
+        Memory::Deallocate(mVulkanTextureManager);
 
-        Memory::Deallocate(m_VulkanBufferManager);
+        Memory::Deallocate(mVulkanBufferManager);
 
-        m_LogicalDevice.destroy();
+        mLogicalDevice.destroy();
     }
 
     void VulkanRenderer::bindScene() {
-        m_Scene->onComponentAdded<Eternal::MeshComponent>(
+        mScene->onComponentAdded<Eternal::MeshComponent>(
             [this](Eternal::Entity& entity, Eternal::MeshComponent& component) {
-                m_VulkanBufferManager->addBuffer(entity.getUUID(), component);
+                mVulkanBufferManager->addBuffer(entity.getUUID(), component);
             });
 
-        m_Scene->onComponentAdded<Eternal::TransformComponent>(
+        mScene->onComponentAdded<Eternal::TransformComponent>(
             [this](Eternal::Entity& entity, Eternal::TransformComponent& component) {
-                m_VulkanBufferManager->addUniformBuffer(entity.getUUID(), component);
+                mVulkanBufferManager->addUniformBuffer(entity.getUUID(), component);
             });
     }
 
@@ -125,38 +125,38 @@ namespace Eternal {
     }
 
     void VulkanRenderer::destroyRenderPass() {
-        if (m_RenderPass) {
-            m_LogicalDevice.destroyRenderPass(m_RenderPass);
-            m_RenderPass = nullptr;
+        if (mRenderPass) {
+            mLogicalDevice.destroyRenderPass(mRenderPass);
+            mRenderPass = nullptr;
         }
     }
 
     void VulkanRenderer::destroyFrameBuffers() {
-        for (auto frameBuffer: m_FrameBuffers) {
-            m_LogicalDevice.destroyFramebuffer(frameBuffer);
+        for (auto frameBuffer: mFrameBuffers) {
+            mLogicalDevice.destroyFramebuffer(frameBuffer);
         }
-        m_FrameBuffers.clear();
+        mFrameBuffers.clear();
     }
 
     void VulkanRenderer::destroyDepthImageView() {
-        if (m_DepthImageView) {
-            m_LogicalDevice.destroyImageView(m_DepthImageView);
-            m_DepthImageView = nullptr;
+        if (mDepthImageView) {
+            mLogicalDevice.destroyImageView(mDepthImageView);
+            mDepthImageView = nullptr;
         }
 
-        if (m_DepthImage) {
-            m_LogicalDevice.destroyImage(m_DepthImage);
-            m_DepthImage = nullptr;
+        if (mDepthImage) {
+            mLogicalDevice.destroyImage(mDepthImage);
+            mDepthImage = nullptr;
         }
 
-        if (m_DepthImageMemory) {
-            m_LogicalDevice.freeMemory(m_DepthImageMemory);
-            m_DepthImageMemory = nullptr;
+        if (mDepthImageMemory) {
+            mLogicalDevice.freeMemory(mDepthImageMemory);
+            mDepthImageMemory = nullptr;
         }
     }
 
     void VulkanRenderer::createRenderPass() {
-        VulkanSwapChain::SwapChainDetails swapChainDetails = m_VulkanSwapChain->getSwapChainDetails();
+        VulkanSwapChain::SwapChainDetails swapChainDetails = mVulkanSwapChain->getSwapChainDetails();
         vk::AttachmentDescription colorAttachment = vk::AttachmentDescription()
                 .setFormat(swapChainDetails.surfaceFormat.format)
                 .setSamples(vk::SampleCountFlagBits::e1)
@@ -197,26 +197,26 @@ namespace Eternal {
                 .setSubpassCount(1)
                 .setPSubpasses(&subPass);
 
-        m_RenderPass = m_LogicalDevice.createRenderPass(renderPassCreateInfo);
+        mRenderPass = mLogicalDevice.createRenderPass(renderPassCreateInfo);
     }
 
     void VulkanRenderer::createDepthImageView() {
         vk::ImageCreateInfo imageCreateInfo = vk::ImageCreateInfo()
                 .setImageType(vk::ImageType::e2D)
                 .setFormat(vk::Format::eD32Sfloat)
-                .setExtent({m_SwapChainDetails.extent.width, m_SwapChainDetails.extent.height, 1})
+                .setExtent({mSwapChainDetails.extent.width, mSwapChainDetails.extent.height, 1})
                 .setMipLevels(1)
                 .setArrayLayers(1)
                 .setSamples(vk::SampleCountFlagBits::e1)
                 .setTiling(vk::ImageTiling::eOptimal)
                 .setUsage(vk::ImageUsageFlagBits::eDepthStencilAttachment);
 
-        m_DepthImage = m_LogicalDevice.createImage(imageCreateInfo);
+        mDepthImage = mLogicalDevice.createImage(imageCreateInfo);
 
-        vk::MemoryRequirements memRequirements = m_LogicalDevice.getImageMemoryRequirements(m_DepthImage);
+        vk::MemoryRequirements memRequirements = mLogicalDevice.getImageMemoryRequirements(mDepthImage);
 
         uint32_t memoryTypeIndex = VulkanPlatform::getMemoryType(
-            m_PhysicalDevice,
+            mPhysicalDevice,
             vk::MemoryPropertyFlagBits::eDeviceLocal,
             memRequirements.memoryTypeBits
         );
@@ -227,43 +227,43 @@ namespace Eternal {
                 .setAllocationSize(memRequirements.size)
                 .setMemoryTypeIndex(memoryTypeIndex);
 
-        m_DepthImageMemory = m_LogicalDevice.allocateMemory(allocInfo);
+        mDepthImageMemory = mLogicalDevice.allocateMemory(allocInfo);
 
-        m_LogicalDevice.bindImageMemory(m_DepthImage, m_DepthImageMemory, 0);
+        mLogicalDevice.bindImageMemory(mDepthImage, mDepthImageMemory, 0);
 
         vk::ImageViewCreateInfo imageViewCreateInfo = vk::ImageViewCreateInfo()
-                .setImage(m_DepthImage)
+                .setImage(mDepthImage)
                 .setViewType(vk::ImageViewType::e2D)
                 .setFormat(vk::Format::eD32Sfloat)
                 .setSubresourceRange({vk::ImageAspectFlagBits::eDepth, 0, 1, 0, 1});
 
-        m_DepthImageView = m_LogicalDevice.createImageView(imageViewCreateInfo);
+        mDepthImageView = mLogicalDevice.createImageView(imageViewCreateInfo);
     }
 
     void VulkanRenderer::createFrameBuffers() {
-        const std::vector<vk::ImageView>& swapChainImages = m_VulkanSwapChain->getImageViews();
-        m_FrameBuffers.resize(swapChainImages.size());
+        const std::vector<vk::ImageView>& swapChainImages = mVulkanSwapChain->getImageViews();
+        mFrameBuffers.resize(swapChainImages.size());
 
         for (uint32_t i = 0; i < swapChainImages.size(); i++) {
-            vk::ImageView attachment[] = {swapChainImages[i], m_DepthImageView};
+            vk::ImageView attachment[] = {swapChainImages[i], mDepthImageView};
 
             vk::FramebufferCreateInfo frameBufferInfo = vk::FramebufferCreateInfo()
-                    .setRenderPass(m_RenderPass)
+                    .setRenderPass(mRenderPass)
                     .setAttachments(attachment)
-                    .setWidth(m_SwapChainDetails.extent.width)
-                    .setHeight(m_SwapChainDetails.extent.height)
+                    .setWidth(mSwapChainDetails.extent.width)
+                    .setHeight(mSwapChainDetails.extent.height)
                     .setLayers(1);
 
-            m_FrameBuffers[i] = m_LogicalDevice.createFramebuffer(frameBufferInfo);
+            mFrameBuffers[i] = mLogicalDevice.createFramebuffer(frameBufferInfo);
         }
     }
 
     void VulkanRenderer::initializeDescriptors() {
-        auto uboDescriptorSetLayout = m_PipelineLayoutCache->getUboDescriptorSetLayout();
-        auto uniformBuffers = m_VulkanBufferManager->getUniformBuffers();
+        auto uboDescriptorSetLayout = mPipelineLayoutCache->getUboDescriptorSetLayout();
+        auto uniformBuffers = mVulkanBufferManager->getUniformBuffers();
         for (auto& [entityId, uniformBuffer]: uniformBuffers) {
-            vk::DescriptorSet descriptorSet = m_DescriptorPool->allocate(*uboDescriptorSetLayout);
-            m_UniformDescriptorSets[entityId] = descriptorSet;
+            vk::DescriptorSet descriptorSet = mDescriptorPool->allocate(*uboDescriptorSetLayout);
+            mUniformDescriptorSets[entityId] = descriptorSet;
 
             vk::DescriptorBufferInfo bufferInfo = vk::DescriptorBufferInfo()
                     .setBuffer(*uniformBuffer->getVkBuffer())
@@ -277,14 +277,14 @@ namespace Eternal {
                     .setDescriptorType(vk::DescriptorType::eUniformBuffer)
                     .setDescriptorCount(1)
                     .setPBufferInfo(&bufferInfo);
-            m_LogicalDevice.updateDescriptorSets(writeDescriptorSet, nullptr);
+            mLogicalDevice.updateDescriptorSets(writeDescriptorSet, nullptr);
         }
 
-        auto materialDescriptorSetLayout = m_PipelineLayoutCache->getMaterialDescriptorSetLayout();
-        auto textures = m_VulkanTextureManager->getTextures();
+        auto materialDescriptorSetLayout = mPipelineLayoutCache->getMaterialDescriptorSetLayout();
+        auto textures = mVulkanTextureManager->getTextures();
         for (auto& [entityId, texture]: textures) {
-            vk::DescriptorSet descriptorSet = m_DescriptorPool->allocate(*materialDescriptorSetLayout);
-            m_MaterialDescriptorSets[entityId] = descriptorSet;
+            vk::DescriptorSet descriptorSet = mDescriptorPool->allocate(*materialDescriptorSetLayout);
+            mMaterialDescriptorSets[entityId] = descriptorSet;
 
             vk::DescriptorImageInfo imageInfo = vk::DescriptorImageInfo()
                     .setImageLayout(vk::ImageLayout::eShaderReadOnlyOptimal)
@@ -298,51 +298,51 @@ namespace Eternal {
                     .setDescriptorType(vk::DescriptorType::eCombinedImageSampler)
                     .setDescriptorCount(1)
                     .setPImageInfo(&imageInfo);
-            m_LogicalDevice.updateDescriptorSets(writeDescriptorSet, nullptr);
+            mLogicalDevice.updateDescriptorSets(writeDescriptorSet, nullptr);
         }
     }
 
     void VulkanRenderer::createCommandPool() {
-        m_CommandPool = m_Platform->createCommandPool(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
+        mCommandPool = mPlatform->createCommandPool(vk::CommandPoolCreateFlagBits::eResetCommandBuffer);
     }
 
     void VulkanRenderer::createCommandBuffers() {
-        m_CommandBuffers = m_Platform->allocateCommandBuffers(m_CommandPool, vk::CommandBufferLevel::ePrimary,
+        mCommandBuffers = mPlatform->allocateCommandBuffers(mCommandPool, vk::CommandBufferLevel::ePrimary,
                                                               MAX_FRAMES_IN_FLIGHT);
     }
 
     void VulkanRenderer::createSemaphores() {
-        m_ImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
-        m_RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+        mImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
+        mRenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 
         for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             vk::SemaphoreCreateInfo semaphoreCreateInfo = vk::SemaphoreCreateInfo();
 
-            m_ImageAvailableSemaphores[i] = m_LogicalDevice.createSemaphore(semaphoreCreateInfo);
-            m_RenderFinishedSemaphores[i] = m_LogicalDevice.createSemaphore(semaphoreCreateInfo);
+            mImageAvailableSemaphores[i] = mLogicalDevice.createSemaphore(semaphoreCreateInfo);
+            mRenderFinishedSemaphores[i] = mLogicalDevice.createSemaphore(semaphoreCreateInfo);
         }
     }
 
     void VulkanRenderer::createFences() {
-        m_InFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+        mInFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
 
         for (uint32_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             vk::FenceCreateInfo fenceCreateInfo = vk::FenceCreateInfo().setFlags(vk::FenceCreateFlagBits::eSignaled);
-            m_InFlightFences[i] = m_LogicalDevice.createFence(fenceCreateInfo);
+            mInFlightFences[i] = mLogicalDevice.createFence(fenceCreateInfo);
         }
     }
 
     void VulkanRenderer::handleWindowResize() {
-        if (m_Window->isMinimized())
+        if (mWindow->isMinimized())
             return;
 
-        m_VulkanSwapChain->setShouldRecreate(false);
+        mVulkanSwapChain->setShouldRecreate(false);
 
-        m_LogicalDevice.waitForFences(1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT16_MAX);
-        m_LogicalDevice.resetFences(1, &m_InFlightFences[m_CurrentFrame]);
+        mLogicalDevice.waitForFences(1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT16_MAX);
+        mLogicalDevice.resetFences(1, &mInFlightFences[mCurrentFrame]);
 
-        m_VulkanSwapChain->recreate();
-        m_SwapChainDetails = m_VulkanSwapChain->getSwapChainDetails();
+        mVulkanSwapChain->recreate();
+        mSwapChainDetails = mVulkanSwapChain->getSwapChainDetails();
         destroyRenderPass();
         destroyDepthImageView();
         destroyFrameBuffers();
@@ -352,30 +352,30 @@ namespace Eternal {
     }
 
     FrameInfo* VulkanRenderer::beginFrame() {
-        if (m_Window->isMinimized())
+        if (mWindow->isMinimized())
             return nullptr;
 
-        m_VulkanSwapChain->acquire(m_ImageAvailableSemaphores[m_CurrentFrame], &m_CurrentImageIndex);
+        mVulkanSwapChain->acquire(mImageAvailableSemaphores[mCurrentFrame], &mCurrentImageIndex);
 
-        if (m_VulkanSwapChain->shouldRecreate()) {
+        if (mVulkanSwapChain->shouldRecreate()) {
             handleWindowResize();
             return nullptr;
         }
 
-        m_LogicalDevice.waitForFences(1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT16_MAX);
-        m_LogicalDevice.resetFences(1, &m_InFlightFences[m_CurrentFrame]);
+        mLogicalDevice.waitForFences(1, &mInFlightFences[mCurrentFrame], VK_TRUE, UINT16_MAX);
+        mLogicalDevice.resetFences(1, &mInFlightFences[mCurrentFrame]);
 
-        m_CurrentCommandBuffer = m_CommandBuffers[m_CurrentFrame];
-        m_CurrentCommandBuffer.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
+        mCurrentCommandBuffer = mCommandBuffers[mCurrentFrame];
+        mCurrentCommandBuffer.reset(vk::CommandBufferResetFlagBits::eReleaseResources);
 
-        beginRecording(m_CurrentCommandBuffer);
-        return Memory::Allocate<VulkanFrameInfo>(m_CurrentCommandBuffer, m_CurrentImageIndex);
+        beginRecording(mCurrentCommandBuffer);
+        return Memory::Allocate<VulkanFrameInfo>(mCurrentCommandBuffer, mCurrentImageIndex);
     }
 
     void VulkanRenderer::render(Eternal::Camera* camera) {
-        vk::CommandBuffer commandBuffer = m_CurrentCommandBuffer;
+        vk::CommandBuffer commandBuffer = mCurrentCommandBuffer;
 
-        VulkanSwapChain::SwapChainDetails swapChainDetails = m_VulkanSwapChain->getSwapChainDetails();
+        VulkanSwapChain::SwapChainDetails swapChainDetails = mVulkanSwapChain->getSwapChainDetails();
 
         VulkanBufferManager::UniformBuffer sceneUbo;
         sceneUbo.projection = camera->getProjection();
@@ -397,8 +397,8 @@ namespace Eternal {
 
         commandBuffer.setScissor(0, 1, &scissor);
 
-        for (const auto& [e, renderComponent]: m_Scene->getAllEntityWith<Eternal::MeshComponent>().each()) {
-            Eternal::Entity entity = Eternal::Entity(e, m_Scene);
+        for (const auto& [e, renderComponent]: mScene->getAllEntityWith<Eternal::MeshComponent>().each()) {
+            Eternal::Entity entity = Eternal::Entity(e, mScene);
 
             auto transform = entity.getComponent<Eternal::TransformComponent>();
             auto material = entity.tryGetComponent<Eternal::MaterialComponent>();
@@ -411,43 +411,43 @@ namespace Eternal {
             };
 
             vk::PipelineLayout pipelineLayout;
-            pipelineLayout = m_PipelineLayoutCache->getOrCreatePipelineLayout(pipelineLayoutKey);
+            pipelineLayout = mPipelineLayoutCache->getOrCreatePipelineLayout(pipelineLayoutKey);
 
             PipelineKey pipelineKey = {
                 .pipelineLayoutMask = material != nullptr
                                           ? material->getPipelineLayoutBitMask()
                                           : eDefaultPipelineLayoutBitMask,
                 .pipelineLayout = pipelineLayout,
-                .renderPass = m_RenderPass,
+                .renderPass = mRenderPass,
                 .material = material,
             };
 
-            vk::Pipeline pipeline = m_PipelineCache->getOrCreate(pipelineKey);
+            vk::Pipeline pipeline = mPipelineCache->getOrCreate(pipelineKey);
             commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
 
-            std::shared_ptr<VulkanBuffer> uniformBuffer = m_VulkanBufferManager->getUniformBuffer(entity.getUUID());
+            std::shared_ptr<VulkanBuffer> uniformBuffer = mVulkanBufferManager->getUniformBuffer(entity.getUUID());
 
             if (uniformBuffer) {
                 uniformBuffer->write(&sceneUbo);
             }
 
-            auto descriptorSet = m_UniformDescriptorSets[entity.getUUID()];
+            auto descriptorSet = mUniformDescriptorSets[entity.getUUID()];
             commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 0, 1,
                                              &descriptorSet, 0, nullptr);
 
             if (material) {
-                auto materialDescriptorSet = m_MaterialDescriptorSets[entity.getUUID()];
+                auto materialDescriptorSet = mMaterialDescriptorSets[entity.getUUID()];
                 commandBuffer.bindDescriptorSets(vk::PipelineBindPoint::eGraphics, pipelineLayout, 1, 1,
                                                  &materialDescriptorSet, 0, nullptr);
             }
 
-            VulkanBuffer* vertexBuffer = m_VulkanBufferManager->getVertexBuffer(entity.getUUID());
+            VulkanBuffer* vertexBuffer = mVulkanBufferManager->getVertexBuffer(entity.getUUID());
             if (vertexBuffer) {
                 vk::DeviceSize offset = vk::DeviceSize(0);
                 commandBuffer.bindVertexBuffers(0, 1, vertexBuffer->getVkBuffer(), &offset);
             }
 
-            VulkanBuffer* indexBuffer = m_VulkanBufferManager->getIndexBuffer(entity.getUUID());
+            VulkanBuffer* indexBuffer = mVulkanBufferManager->getIndexBuffer(entity.getUUID());
             if (indexBuffer) {
                 commandBuffer.bindIndexBuffer(*(indexBuffer->getVkBuffer()), 0, vk::IndexType::eUint32);
                 commandBuffer.drawIndexed(indexBuffer->getElementCount(), 1, 0, 0, 0);
@@ -456,7 +456,7 @@ namespace Eternal {
     }
 
     void VulkanRenderer::endFrame() {
-        vk::CommandBuffer commandBuffer = m_CurrentCommandBuffer;
+        vk::CommandBuffer commandBuffer = mCurrentCommandBuffer;
 
         endRecoding(commandBuffer);
 
@@ -464,29 +464,29 @@ namespace Eternal {
 
         vk::SubmitInfo submitInfo = vk::SubmitInfo()
                 .setWaitSemaphoreCount(1)
-                .setPWaitSemaphores(&m_ImageAvailableSemaphores[m_CurrentFrame])
+                .setPWaitSemaphores(&mImageAvailableSemaphores[mCurrentFrame])
                 .setPWaitDstStageMask(waitStages)
                 .setCommandBufferCount(1)
                 .setPCommandBuffers(&commandBuffer)
                 .setSignalSemaphoreCount(1)
-                .setPSignalSemaphores(&m_RenderFinishedSemaphores[m_CurrentFrame]);
+                .setPSignalSemaphores(&mRenderFinishedSemaphores[mCurrentFrame]);
 
-        auto graphicsQueue = m_Platform->getGraphicsQueue();
+        auto graphicsQueue = mPlatform->getGraphicsQueue();
 
-        vk::Result result = graphicsQueue.submit(1, &submitInfo, m_InFlightFences[m_CurrentFrame]);
+        vk::Result result = graphicsQueue.submit(1, &submitInfo, mInFlightFences[mCurrentFrame]);
 
-        m_VulkanSwapChain->present(m_RenderFinishedSemaphores[m_CurrentFrame], m_CurrentImageIndex);
+        mVulkanSwapChain->present(mRenderFinishedSemaphores[mCurrentFrame], mCurrentImageIndex);
 
-        if (m_VulkanSwapChain->shouldRecreate()) {
+        if (mVulkanSwapChain->shouldRecreate()) {
             handleWindowResize();
             return;
         }
 
-        m_CurrentFrame = (m_CurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+        mCurrentFrame = (mCurrentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
     }
 
     void VulkanRenderer::beginRecording(vk::CommandBuffer commandBuffer) {
-        VulkanSwapChain::SwapChainDetails swapChainDetails = m_VulkanSwapChain->getSwapChainDetails();
+        VulkanSwapChain::SwapChainDetails swapChainDetails = mVulkanSwapChain->getSwapChainDetails();
 
         vk::CommandBufferBeginInfo commandBufferBeginInfo = vk::CommandBufferBeginInfo();
 
@@ -503,8 +503,8 @@ namespace Eternal {
         std::array<vk::ClearValue, 2> clearValues = {clearValue, depthStencil};
 
         vk::RenderPassBeginInfo renderPassBeginInfo = vk::RenderPassBeginInfo()
-                .setRenderPass(m_RenderPass)
-                .setFramebuffer(m_FrameBuffers[m_CurrentImageIndex])
+                .setRenderPass(mRenderPass)
+                .setFramebuffer(mFrameBuffers[mCurrentImageIndex])
                 .setRenderArea(renderArea)
                 .setClearValues(clearValues);
 

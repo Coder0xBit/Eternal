@@ -29,13 +29,13 @@ namespace Eternal {
 
         ~VulkanRenderer() override;
 
-        VulkanPlatform* getPlatform() const { return m_Platform; }
+        VulkanPlatform* getPlatform() const { return mPlatform; }
 
-        SwapChain* getSwapChain() const override { return m_VulkanSwapChain; }
+        SwapChain* getSwapChain() const override { return mVulkanSwapChain; }
 
         FrameInfo* beginFrame() override;
 
-        vk::RenderPass getRenderPass() const { return m_RenderPass; }
+        vk::RenderPass getRenderPass() const { return mRenderPass; }
 
         void render(Eternal::Camera* camera) override;
 
@@ -76,50 +76,50 @@ namespace Eternal {
 
         void destroyDepthImageView();
 
-        Scene* m_Scene = nullptr;
-        VulkanPlatform* m_Platform = nullptr;
-        VulkanSwapChain* m_VulkanSwapChain = nullptr;
-        VulkanSwapChain::SwapChainDetails m_SwapChainDetails = {};
+        Scene* mScene = nullptr;
+        VulkanPlatform* mPlatform = nullptr;
+        VulkanSwapChain* mVulkanSwapChain = nullptr;
+        VulkanSwapChain::SwapChainDetails mSwapChainDetails = {};
 
-        vk::Viewport m_Viewport;
-        vk::Rect2D m_Scissor;
+        vk::Viewport mViewport;
+        vk::Rect2D mScissor;
 
-        vk::RenderPass m_RenderPass = nullptr;
+        vk::RenderPass mRenderPass = nullptr;
 
-        vk::Image m_DepthImage;
-        vk::DeviceMemory m_DepthImageMemory;
-        vk::ImageView m_DepthImageView;
+        vk::Image mDepthImage;
+        vk::DeviceMemory mDepthImageMemory;
+        vk::ImageView mDepthImageView;
 
-        std::vector<vk::Framebuffer> m_FrameBuffers;
+        std::vector<vk::Framebuffer> mFrameBuffers;
 
-        Eternal::VulkanBufferManager* m_VulkanBufferManager = nullptr;
-        Eternal::VulkanTextureManager* m_VulkanTextureManager = nullptr;
-        Eternal::Window* m_Window = nullptr;
+        Eternal::VulkanBufferManager* mVulkanBufferManager = nullptr;
+        Eternal::VulkanTextureManager* mVulkanTextureManager = nullptr;
+        Eternal::Window* mWindow = nullptr;
 
-        std::vector<vk::Semaphore> m_ImageAvailableSemaphores;
-        std::vector<vk::Semaphore> m_RenderFinishedSemaphores;
-        std::vector<vk::Fence> m_InFlightFences;
+        std::vector<vk::Semaphore> mImageAvailableSemaphores;
+        std::vector<vk::Semaphore> mRenderFinishedSemaphores;
+        std::vector<vk::Fence> mInFlightFences;
 
-        uint32_t m_CurrentFrame = 0;
+        uint32_t mCurrentFrame = 0;
 
-        vk::CommandPool m_CommandPool = nullptr;
-        std::vector<vk::CommandBuffer> m_CommandBuffers;
-        vk::CommandBuffer m_CurrentCommandBuffer = nullptr;
+        vk::CommandPool mCommandPool = nullptr;
+        std::vector<vk::CommandBuffer> mCommandBuffers;
+        vk::CommandBuffer mCurrentCommandBuffer = nullptr;
 
-        uint32_t m_CurrentImageIndex = 0;
+        uint32_t mCurrentImageIndex = 0;
 
-        vk::Device m_LogicalDevice = nullptr;
-        vk::PhysicalDevice m_PhysicalDevice = nullptr;
-        PushConstants m_PushConstants;
+        vk::Device mLogicalDevice = nullptr;
+        vk::PhysicalDevice mPhysicalDevice = nullptr;
+        PushConstants mPushConstants;
 
-        std::vector<std::shared_ptr<VulkanBuffer> > m_UniformBuffers;
-        VulkanDescriptorPool* m_DescriptorPool = nullptr;
-        std::unordered_map<uint32_t, vk::DescriptorSet> m_UniformDescriptorSets;
-        std::unordered_map<uint32_t, vk::DescriptorSet> m_MaterialDescriptorSets;
+        std::vector<std::shared_ptr<VulkanBuffer> > mUniformBuffers;
+        VulkanDescriptorPool* mDescriptorPool = nullptr;
+        std::unordered_map<uint32_t, vk::DescriptorSet> mUniformDescriptorSets;
+        std::unordered_map<uint32_t, vk::DescriptorSet> mMaterialDescriptorSets;
 
-        Eternal::VulkanPipelineCache* m_PipelineCache = nullptr;
-        Eternal::VulkanPipelineLayoutCache* m_PipelineLayoutCache = nullptr;
-        vk::Pipeline* m_BoundPipeline = nullptr;
-        Eternal::Timer* m_Timer = nullptr;
+        Eternal::VulkanPipelineCache* mPipelineCache = nullptr;
+        Eternal::VulkanPipelineLayoutCache* mPipelineLayoutCache = nullptr;
+        vk::Pipeline* mBoundPipeline = nullptr;
+        Eternal::Timer* mTimer = nullptr;
     };
 }

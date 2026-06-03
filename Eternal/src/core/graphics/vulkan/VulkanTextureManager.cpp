@@ -4,17 +4,17 @@
 
 namespace Eternal {
     VulkanTextureManager::VulkanTextureManager(Eternal::VulkanPlatform* vulkanPlatform, Scene* scene)
-        : m_VulkanPlatform(vulkanPlatform), m_Scene(scene) {
+        : mVulkanPlatform(vulkanPlatform), mScene(scene) {
         createCommandPool();
         initialize();
     }
 
     void VulkanTextureManager::initialize() {
-        for (auto& e: m_Scene->getAllEntityWith<Eternal::MeshComponent>()) {
-            Eternal::Entity entity = Eternal::Entity(e, m_Scene);
+        for (auto& e: mScene->getAllEntityWith<Eternal::MeshComponent>()) {
+            Eternal::Entity entity = Eternal::Entity(e, mScene);
             EntityId entityUUID = entity.getUUID();
 
-            if (m_Textures.contains(entityUUID) && m_Textures[entityUUID] != nullptr)
+            if (mTextures.contains(entityUUID) && mTextures[entityUUID] != nullptr)
                 continue;
 
             if (auto component = entity.tryGetComponent<Eternal::MaterialComponent>()) {
@@ -24,33 +24,33 @@ namespace Eternal {
     }
 
     VulkanTextureManager::~VulkanTextureManager() {
-        m_VulkanPlatform->destroyCommandPool(m_CommandPool);
+        mVulkanPlatform->destroyCommandPool(mCommandPool);
     }
 
     void VulkanTextureManager::addTexture(EntityId entityId, const MaterialComponent& materialComponent) {
         const Eternal::Image* albedoTextureImage = materialComponent.getAlbedoTexture();
         if (albedoTextureImage == nullptr) {
-            m_Textures[entityId] = nullptr;
+            mTextures[entityId] = nullptr;
             return;
         }
 
         std::shared_ptr<VulkanTexture> vulkanTexture =
-                std::make_shared<VulkanTexture>(m_VulkanPlatform, albedoTextureImage);
+                std::make_shared<VulkanTexture>(mVulkanPlatform, albedoTextureImage);
 
         initializeTexture(vulkanTexture);
 
-        m_Textures[entityId] = vulkanTexture;
+        mTextures[entityId] = vulkanTexture;
     }
 
     void VulkanTextureManager::initializeTexture(std::shared_ptr<VulkanTexture> vulkanTexture) const {
-        vk::Queue graphicsQueue = m_VulkanPlatform->getGraphicsQueue();
-        m_VulkanPlatform->executeOneCommand(m_CommandPool, graphicsQueue,
+        vk::Queue graphicsQueue = mVulkanPlatform->getGraphicsQueue();
+        mVulkanPlatform->executeOneCommand(mCommandPool, graphicsQueue,
                                             [&](vk::CommandBuffer commandBuffer) {
                                                 vulkanTexture->recordUploadCommand(commandBuffer);
                                             });
     }
 
     void VulkanTextureManager::createCommandPool() {
-        m_CommandPool = m_VulkanPlatform->createCommandPool(vk::CommandPoolCreateFlagBits::eTransient);
+        mCommandPool = mVulkanPlatform->createCommandPool(vk::CommandPoolCreateFlagBits::eTransient);
     }
 }

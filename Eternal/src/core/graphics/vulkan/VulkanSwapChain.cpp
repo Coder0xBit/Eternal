@@ -11,14 +11,14 @@ namespace Eternal {
         vk::Extent2D extent,
         uint32_t graphicsQueueFamilyIndex,
         uint32_t presentQueueFamilyIndex
-    ) : m_VkInstance(instance),
-        m_LogicalDevice(logicalDevice),
-        m_PhysicalDevice(physicalDevice),
-        m_PresentQueue(queue),
-        m_Surface(surface),
-        m_FallBackExtent(extent),
-        m_GraphicsQueueFamilyIndex(graphicsQueueFamilyIndex),
-        m_PresentQueueFamilyIndex(presentQueueFamilyIndex) {
+    ) : mVkInstance(instance),
+        mLogicalDevice(logicalDevice),
+        mPhysicalDevice(physicalDevice),
+        mPresentQueue(queue),
+        mSurface(surface),
+        mFallBackExtent(extent),
+        mGraphicsQueueFamilyIndex(graphicsQueueFamilyIndex),
+        mPresentQueueFamilyIndex(presentQueueFamilyIndex) {
         create();
     }
 
@@ -27,9 +27,9 @@ namespace Eternal {
     }
 
     vk::Result VulkanSwapChain::acquire(vk::Semaphore imageReadySemaphore, uint32_t* imageIndex) {
-        vk::Result result = m_LogicalDevice.acquireNextImageKHR(m_SwapChain, std::numeric_limits<uint64_t>::max(),
+        vk::Result result = mLogicalDevice.acquireNextImageKHR(mSwapChain, std::numeric_limits<uint64_t>::max(),
                                                                 imageReadySemaphore, nullptr, imageIndex);
-        m_ShouldRecreate = result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR;
+        mShouldRecreate = result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR;
         return result;
     }
 
@@ -38,22 +38,22 @@ namespace Eternal {
                 .setWaitSemaphoreCount(1)
                 .setPWaitSemaphores(&renderFinishedSemaphore)
                 .setSwapchainCount(1)
-                .setPSwapchains(&m_SwapChain)
+                .setPSwapchains(&mSwapChain)
                 .setPImageIndices(&imageIndex);
 
-        vk::Result result = m_PresentQueue.presentKHR(&presentInfo);
-        m_ShouldRecreate = result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR;
+        vk::Result result = mPresentQueue.presentKHR(&presentInfo);
+        mShouldRecreate = result == vk::Result::eErrorOutOfDateKHR || result == vk::Result::eSuboptimalKHR;
         return result;
     }
 
     void VulkanSwapChain::recreate() {
-        m_ShouldRecreate = false;
+        mShouldRecreate = false;
         destroy();
         create();
     }
 
     void VulkanSwapChain::create() {
-        vk::SurfaceCapabilitiesKHR capabilities = m_PhysicalDevice.getSurfaceCapabilitiesKHR(m_Surface);
+        vk::SurfaceCapabilitiesKHR capabilities = mPhysicalDevice.getSurfaceCapabilitiesKHR(mSurface);
 
         vk::SurfaceFormatKHR format = selectSwapChainSurfaceFormat();
 
@@ -63,32 +63,32 @@ namespace Eternal {
         vk::Extent2D extent = selectSwapChainExtent(capabilities);
         Eternal::Logger::Info("Selected Extent: {}x{}", extent.width, extent.height);
 
-        m_SwapChainDetails.capabilities = capabilities;
-        m_SwapChainDetails.surfaceFormat = format;
-        m_SwapChainDetails.presentMode = presentMode;
-        m_SwapChainDetails.extent = extent;
+        mSwapChainDetails.capabilities = capabilities;
+        mSwapChainDetails.surfaceFormat = format;
+        mSwapChainDetails.presentMode = presentMode;
+        mSwapChainDetails.extent = extent;
 
-        uint32_t swapChainImageCount = m_SwapChainDetails.capabilities.minImageCount;
-        if (m_SwapChainDetails.capabilities.maxImageCount > 0 && swapChainImageCount > m_SwapChainDetails.capabilities.
+        uint32_t swapChainImageCount = mSwapChainDetails.capabilities.minImageCount;
+        if (mSwapChainDetails.capabilities.maxImageCount > 0 && swapChainImageCount > mSwapChainDetails.capabilities.
             maxImageCount) {
-            swapChainImageCount = m_SwapChainDetails.capabilities.maxImageCount;
+            swapChainImageCount = mSwapChainDetails.capabilities.maxImageCount;
         }
 
         vk::SwapchainCreateInfoKHR swapChainCreateInfo = vk::SwapchainCreateInfoKHR()
-                .setSurface(m_Surface)
+                .setSurface(mSurface)
                 .setMinImageCount(swapChainImageCount)
-                .setImageFormat(m_SwapChainDetails.surfaceFormat.format)
-                .setImageColorSpace(m_SwapChainDetails.surfaceFormat.colorSpace)
-                .setImageExtent(m_SwapChainDetails.extent)
+                .setImageFormat(mSwapChainDetails.surfaceFormat.format)
+                .setImageColorSpace(mSwapChainDetails.surfaceFormat.colorSpace)
+                .setImageExtent(mSwapChainDetails.extent)
                 .setImageArrayLayers(1)
                 .setImageUsage(vk::ImageUsageFlagBits::eColorAttachment);
 
         std::vector<uint32_t> queueFamilyIndices = {
-            m_GraphicsQueueFamilyIndex,
-            m_PresentQueueFamilyIndex
+            mGraphicsQueueFamilyIndex,
+            mPresentQueueFamilyIndex
         };
 
-        if (m_GraphicsQueueFamilyIndex != m_PresentQueueFamilyIndex) {
+        if (mGraphicsQueueFamilyIndex != mPresentQueueFamilyIndex) {
             swapChainCreateInfo
                     .setImageSharingMode(vk::SharingMode::eConcurrent)
                     .setQueueFamilyIndexCount(2)
@@ -99,13 +99,13 @@ namespace Eternal {
         }
 
         swapChainCreateInfo
-                .setPreTransform(m_SwapChainDetails.capabilities.currentTransform)
+                .setPreTransform(mSwapChainDetails.capabilities.currentTransform)
                 .setCompositeAlpha(vk::CompositeAlphaFlagBitsKHR::eOpaque)
-                .setPresentMode(m_SwapChainDetails.presentMode)
+                .setPresentMode(mSwapChainDetails.presentMode)
                 .setClipped(VK_TRUE)
                 .setOldSwapchain(VK_NULL_HANDLE);
 
-        m_SwapChain = m_LogicalDevice.createSwapchainKHR(swapChainCreateInfo);
+        mSwapChain = mLogicalDevice.createSwapchainKHR(swapChainCreateInfo);
 
         createImageViews();
         // createDepthImageView();
@@ -114,48 +114,48 @@ namespace Eternal {
     }
 
     void VulkanSwapChain::destroy() {
-        m_ShouldRecreate = false;
+        mShouldRecreate = false;
 
-        m_LogicalDevice.waitIdle();
+        mLogicalDevice.waitIdle();
 
-        for (auto imageView: m_SwapChainImageViews) {
-            m_LogicalDevice.destroyImageView(imageView);
+        for (auto imageView: mSwapChainImageViews) {
+            mLogicalDevice.destroyImageView(imageView);
         }
-        m_SwapChainImages.clear();
+        mSwapChainImages.clear();
 
-        // for (auto frameBuffer: m_SwapChainFrameBuffers) {
-        //     m_LogicalDevice.destroyFramebuffer(frameBuffer);
+        // for (auto frameBuffer: mSwapChainFrameBuffers) {
+        //     mLogicalDevice.destroyFramebuffer(frameBuffer);
         // }
-        // m_SwapChainFrameBuffers.clear();
+        // mSwapChainFrameBuffers.clear();
         //
-        // if (m_DepthImageView) {
-        //     m_LogicalDevice.destroyImageView(m_DepthImageView);
-        //     m_DepthImageView = nullptr;
-        // }
-        //
-        // if (m_DepthImage) {
-        //     m_LogicalDevice.destroyImage(m_DepthImage);
-        //     m_DepthImage = nullptr;
+        // if (mDepthImageView) {
+        //     mLogicalDevice.destroyImageView(mDepthImageView);
+        //     mDepthImageView = nullptr;
         // }
         //
-        // if (m_DepthImageMemory) {
-        //     m_LogicalDevice.freeMemory(m_DepthImageMemory);
-        //     m_DepthImageMemory = nullptr;
+        // if (mDepthImage) {
+        //     mLogicalDevice.destroyImage(mDepthImage);
+        //     mDepthImage = nullptr;
         // }
         //
-        // if (m_RenderPass) {
-        //     m_LogicalDevice.destroyRenderPass(m_RenderPass);
-        //     m_RenderPass = nullptr;
+        // if (mDepthImageMemory) {
+        //     mLogicalDevice.freeMemory(mDepthImageMemory);
+        //     mDepthImageMemory = nullptr;
+        // }
+        //
+        // if (mRenderPass) {
+        //     mLogicalDevice.destroyRenderPass(mRenderPass);
+        //     mRenderPass = nullptr;
         // }
 
-        if (m_SwapChain) {
-            m_LogicalDevice.destroySwapchainKHR(m_SwapChain);
-            m_SwapChain = nullptr;
+        if (mSwapChain) {
+            mLogicalDevice.destroySwapchainKHR(mSwapChain);
+            mSwapChain = nullptr;
         }
     }
 
     vk::SurfaceFormatKHR VulkanSwapChain::selectSwapChainSurfaceFormat() {
-        std::vector<vk::SurfaceFormatKHR> availableFormats = m_PhysicalDevice.getSurfaceFormatsKHR(m_Surface);
+        std::vector<vk::SurfaceFormatKHR> availableFormats = mPhysicalDevice.getSurfaceFormatsKHR(mSurface);
         for (const vk::SurfaceFormatKHR& availableFormat: availableFormats) {
             if (availableFormat.format == vk::Format::eB8G8R8A8Unorm && availableFormat.colorSpace ==
                 vk::ColorSpaceKHR::eSrgbNonlinear) {
@@ -167,7 +167,7 @@ namespace Eternal {
     }
 
     vk::PresentModeKHR VulkanSwapChain::selectSwapChainPresentMode() {
-        std::vector<vk::PresentModeKHR> availablePresentModes = m_PhysicalDevice.getSurfacePresentModesKHR(m_Surface);
+        std::vector<vk::PresentModeKHR> availablePresentModes = mPhysicalDevice.getSurfacePresentModesKHR(mSurface);
         for (const auto& availablePresentMode: availablePresentModes) {
             if (availablePresentMode == vk::PresentModeKHR::eMailbox) {
                 return availablePresentMode;
@@ -181,16 +181,16 @@ namespace Eternal {
         if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max()) {
             return capabilities.currentExtent;
         } else {
-            return m_FallBackExtent;
+            return mFallBackExtent;
         }
     }
 
     void VulkanSwapChain::createImageViews() {
-        m_SwapChainImages = m_LogicalDevice.getSwapchainImagesKHR(m_SwapChain);
+        mSwapChainImages = mLogicalDevice.getSwapchainImagesKHR(mSwapChain);
 
-        m_SwapChainImageViews.resize(m_SwapChainImages.size());
+        mSwapChainImageViews.resize(mSwapChainImages.size());
 
-        for (uint32_t i = 0; i < m_SwapChainImages.size(); i++) {
+        for (uint32_t i = 0; i < mSwapChainImages.size(); i++) {
             vk::ImageSubresourceRange imageSubResourceRange = vk::ImageSubresourceRange()
                     .setAspectMask(vk::ImageAspectFlagBits::eColor)
                     .setBaseMipLevel(0)
@@ -199,13 +199,13 @@ namespace Eternal {
                     .setLayerCount(1);
 
             vk::ImageViewCreateInfo imageViewCreateInfo = vk::ImageViewCreateInfo()
-                    .setImage(m_SwapChainImages[i])
+                    .setImage(mSwapChainImages[i])
                     .setViewType(vk::ImageViewType::e2D)
-                    .setFormat(m_SwapChainDetails.surfaceFormat.format)
+                    .setFormat(mSwapChainDetails.surfaceFormat.format)
                     .setComponents(vk::ComponentMapping())
                     .setSubresourceRange(imageSubResourceRange);
 
-            m_SwapChainImageViews[i] = m_LogicalDevice.createImageView(imageViewCreateInfo);
+            mSwapChainImageViews[i] = mLogicalDevice.createImageView(imageViewCreateInfo);
         }
     }
 }

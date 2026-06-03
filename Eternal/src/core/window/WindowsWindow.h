@@ -17,11 +17,11 @@ namespace Eternal {
 
         void onUpdate() override;
 
-        virtual uint32_t getHeight() const override { return m_Data.height; }
+        virtual uint32_t getHeight() const override { return mData.height; }
 
-        virtual uint32_t getWidth() const override { return m_Data.width; }
+        virtual uint32_t getWidth() const override { return mData.width; }
 
-        virtual void* getNativeWindow() const override { return m_Window; }
+        virtual void* getNativeWindow() const override { return mWindow; }
 
         virtual void setCursorInputMode(CursorInputMode inputMode) override;
 
@@ -29,14 +29,14 @@ namespace Eternal {
 
         virtual void shutDown() const override;
 
-        bool isMinimized() const override { return m_Data.height == 0 || m_Data.width == 0; }
+        bool isMinimized() const override { return mData.height == 0 || mData.width == 0; }
 
         virtual float getAspectRatio() const override {
-            return static_cast<float>(m_Data.width) / static_cast<float>(m_Data.height);
+            return static_cast<float>(mData.width) / static_cast<float>(mData.height);
         }
 
         virtual void setEventCallBack(const EventCallback& callback) override {
-            m_Data.eventCallback = callback;
+            mData.eventCallback = callback;
         }
 
         virtual vk::SurfaceKHR createWindowSurface(vk::Instance instance) const override;
@@ -48,7 +48,7 @@ namespace Eternal {
         virtual bool isKeyPressed(Eternal::KeyCode keycode) const override;
 
     private:
-        GLFWwindow* m_Window = nullptr;
+        GLFWwindow* mWindow = nullptr;
 
         struct WindowData {
             std::string title;
@@ -59,6 +59,6 @@ namespace Eternal {
             EventCallback eventCallback;
         };
 
-        WindowData m_Data;
+        WindowData mData;
     };
 }

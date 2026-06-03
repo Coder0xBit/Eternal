@@ -8,13 +8,13 @@
 
 namespace Eternal {
     VulkanImGuiOverlay::VulkanImGuiOverlay(const Builder& builder) {
-        m_VulkanPlatform = dynamic_cast<VulkanPlatform*>(builder->platform);
-        m_VulkanRenderer = dynamic_cast<VulkanRenderer*>(builder->renderer);
-        m_Window = builder->window;
+        mVulkanPlatform = dynamic_cast<VulkanPlatform*>(builder->platform);
+        mVulkanRenderer = dynamic_cast<VulkanRenderer*>(builder->renderer);
+        mWindow = builder->window;
 
-        ETERNAL_ASSERT(m_VulkanPlatform != nullptr, "VulkanImGuiLayer :: VulkanPlatform is null");
-        ETERNAL_ASSERT(m_VulkanRenderer != nullptr, "VulkanImGuiLayer :: Renderer is null");
-        ETERNAL_ASSERT(m_Window != nullptr, "VulkanImGuiLayer :: Window is null");
+        ETERNAL_ASSERT(mVulkanPlatform != nullptr, "VulkanImGuiLayer :: VulkanPlatform is null");
+        ETERNAL_ASSERT(mVulkanRenderer != nullptr, "VulkanImGuiLayer :: Renderer is null");
+        ETERNAL_ASSERT(mWindow != nullptr, "VulkanImGuiLayer :: Window is null");
 
         init();
     }
@@ -25,11 +25,11 @@ namespace Eternal {
         ImGui::StyleColorsDark();
 
         ImGui_ImplVulkan_InitInfo initInfo{};
-        initInfo.Instance = m_VulkanPlatform->getVkInstance();
-        initInfo.PhysicalDevice = m_VulkanPlatform->getPhysicalDevice();
-        initInfo.Device = m_VulkanPlatform->getLogicalDevice();
-        initInfo.Queue = m_VulkanPlatform->getGraphicsQueue();
-        initInfo.RenderPass = m_VulkanRenderer->getRenderPass();
+        initInfo.Instance = mVulkanPlatform->getVkInstance();
+        initInfo.PhysicalDevice = mVulkanPlatform->getPhysicalDevice();
+        initInfo.Device = mVulkanPlatform->getLogicalDevice();
+        initInfo.Queue = mVulkanPlatform->getGraphicsQueue();
+        initInfo.RenderPass = mVulkanRenderer->getRenderPass();
         initInfo.DescriptorPoolSize = 2;
         initInfo.MinImageCount = 2;
         initInfo.ImageCount = 2;
@@ -37,13 +37,13 @@ namespace Eternal {
         initInfo.Allocator = nullptr;
         ImGui_ImplVulkan_Init(&initInfo);
 
-        GLFWwindow* nativeWindow = static_cast<GLFWwindow*>(m_Window->getNativeWindow());
+        GLFWwindow* nativeWindow = static_cast<GLFWwindow*>(mWindow->getNativeWindow());
         ImGui_ImplGlfw_InitForVulkan(nativeWindow, true);
         ImGui_ImplVulkan_CreateFontsTexture();
     }
 
     VulkanImGuiOverlay::~VulkanImGuiOverlay() {
-        vk::Device device = m_VulkanPlatform->getLogicalDevice();
+        vk::Device device = mVulkanPlatform->getLogicalDevice();
         device.waitIdle();
         ImGui_ImplVulkan_Shutdown();
         ImGui_ImplGlfw_Shutdown();

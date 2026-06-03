@@ -3,29 +3,29 @@
 
 namespace Eternal {
     VulkanTexture::VulkanTexture(Eternal::VulkanPlatform* vulkanPlatform, const Eternal::Image* imageResource) {
-        m_VulkanPlatform = vulkanPlatform;
-        m_ImageResource = imageResource;
-        m_Device = vulkanPlatform->getLogicalDevice();
-        m_PhysicalDevice = vulkanPlatform->getPhysicalDevice();
+        mVulkanPlatform = vulkanPlatform;
+        mImageResource = imageResource;
+        mDevice = vulkanPlatform->getLogicalDevice();
+        mPhysicalDevice = vulkanPlatform->getPhysicalDevice();
 
-        m_Width = imageResource->getWidth();
-        m_Height = imageResource->getHeight();
+        mWidth = imageResource->getWidth();
+        mHeight = imageResource->getHeight();
 
         create();
     }
 
     VulkanTexture::~VulkanTexture() {
-        if (m_ImageView) {
-            m_Device.destroyImageView(m_ImageView);
+        if (mImageView) {
+            mDevice.destroyImageView(mImageView);
         }
-        if (m_Image) {
-            m_Device.destroyImage(m_Image);
+        if (mImage) {
+            mDevice.destroyImage(mImage);
         }
-        if (m_Memory) {
-            m_Device.freeMemory(m_Memory);
+        if (mMemory) {
+            mDevice.freeMemory(mMemory);
         }
-        if (m_Sampler) {
-            m_Device.destroySampler(m_Sampler);
+        if (mSampler) {
+            mDevice.destroySampler(mSampler);
         }
     }
 
@@ -42,28 +42,28 @@ namespace Eternal {
                 .setBufferImageHeight(0)
                 .setImageSubresource(subresourceRange)
                 .setImageOffset({0, 0, 0})
-                .setImageExtent({(uint32_t) m_Width, (uint32_t) m_Height, 1});
+                .setImageExtent({(uint32_t) mWidth, (uint32_t) mHeight, 1});
 
         return region;
     }
 
     void VulkanTexture::prepareStagingBuffer() {
-        int pixelCount = m_ImageResource->getPixelCount();
-        int channel = m_ImageResource->getChannels();
+        int pixelCount = mImageResource->getPixelCount();
+        int channel = mImageResource->getChannels();
 
-        m_StagingBuffer = std::make_shared<VulkanBuffer>(m_VulkanPlatform);
-        m_StagingBuffer->create(pixelCount, channel, vk::BufferUsageFlagBits::eTransferSrc);
-        m_StagingBuffer->allocate(m_BufferProperties);
-        m_StagingBuffer->map();
-        m_StagingBuffer->write(m_ImageResource->getData());
-        m_StagingBuffer->unMap();
+        mStagingBuffer = std::make_shared<VulkanBuffer>(mVulkanPlatform);
+        mStagingBuffer->create(pixelCount, channel, vk::BufferUsageFlagBits::eTransferSrc);
+        mStagingBuffer->allocate(mBufferProperties);
+        mStagingBuffer->map();
+        mStagingBuffer->write(mImageResource->getData());
+        mStagingBuffer->unMap();
     }
 
     void VulkanTexture::createImage() {
         vk::ImageCreateInfo imageCreateInfo;
         imageCreateInfo.imageType = vk::ImageType::e2D;
-        imageCreateInfo.extent.width = m_Width;
-        imageCreateInfo.extent.height = m_Height;
+        imageCreateInfo.extent.width = mWidth;
+        imageCreateInfo.extent.height = mHeight;
         imageCreateInfo.extent.depth = 1;
         imageCreateInfo.mipLevels = 1;
         imageCreateInfo.arrayLayers = 1;
@@ -74,19 +74,19 @@ namespace Eternal {
         imageCreateInfo.samples = vk::SampleCountFlagBits::e1;
         imageCreateInfo.sharingMode = vk::SharingMode::eExclusive;
 
-        m_Image = m_Device.createImage(imageCreateInfo);
+        mImage = mDevice.createImage(imageCreateInfo);
     }
 
     void VulkanTexture::allocateMemory() {
-        vk::MemoryRequirements memoryRequirements = m_Device.getImageMemoryRequirements(m_Image);
+        vk::MemoryRequirements memoryRequirements = mDevice.getImageMemoryRequirements(mImage);
 
         vk::MemoryAllocateInfo memoryAllocateInfo;
         memoryAllocateInfo.allocationSize = memoryRequirements.size;
         memoryAllocateInfo.memoryTypeIndex = VulkanPlatform::getMemoryType(
-            m_PhysicalDevice, vk::MemoryPropertyFlagBits::eDeviceLocal, memoryRequirements.memoryTypeBits);
+            mPhysicalDevice, vk::MemoryPropertyFlagBits::eDeviceLocal, memoryRequirements.memoryTypeBits);
 
-        m_Memory = m_Device.allocateMemory(memoryAllocateInfo);
-        m_Device.bindImageMemory(m_Image, m_Memory, 0);
+        mMemory = mDevice.allocateMemory(memoryAllocateInfo);
+        mDevice.bindImageMemory(mImage, mMemory, 0);
     }
 
     void VulkanTexture::createImageView() {
@@ -98,17 +98,17 @@ namespace Eternal {
                 .setLayerCount(1);
 
         vk::ImageViewCreateInfo imageViewCreateInfo = vk::ImageViewCreateInfo()
-                .setImage(m_Image)
+                .setImage(mImage)
                 .setViewType(vk::ImageViewType::e2D)
-                .setFormat(m_Format)
+                .setFormat(mFormat)
                 .setComponents(vk::ComponentMapping())
                 .setSubresourceRange(imageSubResourceRange);
 
-        m_ImageView = m_Device.createImageView(imageViewCreateInfo);
+        mImageView = mDevice.createImageView(imageViewCreateInfo);
     }
 
     void VulkanTexture::createSampler() {
-        vk::PhysicalDeviceProperties props = m_PhysicalDevice.getProperties();
+        vk::PhysicalDeviceProperties props = mPhysicalDevice.getProperties();
         vk::SamplerCreateInfo samplerInfo = vk::SamplerCreateInfo()
                 .setMagFilter(vk::Filter::eLinear)
                 .setMinFilter(vk::Filter::eLinear)
@@ -123,7 +123,7 @@ namespace Eternal {
                 .setCompareOp(vk::CompareOp::eAlways)
                 .setMipmapMode(vk::SamplerMipmapMode::eLinear);
 
-        m_Sampler = m_Device.createSampler(samplerInfo);
+        mSampler = mDevice.createSampler(samplerInfo);
     }
 
     void VulkanTexture::create() {
@@ -136,17 +136,17 @@ namespace Eternal {
 
     void VulkanTexture::recordUploadCommand(vk::CommandBuffer commandBuffer) const { {
             VulkanTexture::LayoutTransitionInfo layoutTransitionInfo =
-                    getLayoutTransitionInfo(m_Format, vk::ImageLayout::eUndefined,
+                    getLayoutTransitionInfo(mFormat, vk::ImageLayout::eUndefined,
                                             vk::ImageLayout::eTransferDstOptimal);
             commandBuffer.pipelineBarrier(layoutTransitionInfo.sourceStage, layoutTransitionInfo.destinationStage, {},
                                           {}, {}, {layoutTransitionInfo.imageMemoryBarrier});
         } {
             vk::BufferImageCopy region = getRegionForCopy();
-            auto stagingBuffer = m_StagingBuffer->getVkBuffer();
-            commandBuffer.copyBufferToImage(*stagingBuffer, m_Image, vk::ImageLayout::eTransferDstOptimal, region);
+            auto stagingBuffer = mStagingBuffer->getVkBuffer();
+            commandBuffer.copyBufferToImage(*stagingBuffer, mImage, vk::ImageLayout::eTransferDstOptimal, region);
         } {
             VulkanTexture::LayoutTransitionInfo layoutTransitionInfo =
-                    getLayoutTransitionInfo(m_Format, vk::ImageLayout::eTransferDstOptimal,
+                    getLayoutTransitionInfo(mFormat, vk::ImageLayout::eTransferDstOptimal,
                                             vk::ImageLayout::eShaderReadOnlyOptimal);
             commandBuffer.pipelineBarrier(layoutTransitionInfo.sourceStage, layoutTransitionInfo.destinationStage, {},
                                           {}, {}, {layoutTransitionInfo.imageMemoryBarrier});
@@ -167,7 +167,7 @@ namespace Eternal {
                 .setNewLayout(newLayout)
                 .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
                 .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-                .setImage(m_Image)
+                .setImage(mImage)
                 .setSubresourceRange(subresourceRange);
 
         vk::PipelineStageFlags sourceStage;

@@ -1,14 +1,11 @@
 #include "core/graphics/opengl/OpenGLVertexBuffer.h"
-
-#include "GLEW/glew.h"
+#include "core/graphics/opengl/OpenGLUtils.h"
 
 namespace Eternal {
-    OpenGLVertexBuffer::OpenGLVertexBuffer(const std::vector<Eternal::Vertex>& vertices) {
-        mVertices = vertices;
+    OpenGLVertexBuffer::OpenGLVertexBuffer(
+        VertexBufferLayout* bufferLayout
+    ) : VertexBuffer(bufferLayout) {
         glGenBuffers(1, &mVertexBufferID);
-        OpenGLVertexBuffer::bind();
-        glBufferData(GL_ARRAY_BUFFER, sizeof(mVertices), mVertices.data(), GL_STATIC_DRAW);
-        OpenGLVertexBuffer::unBind();
     }
 
     void OpenGLVertexBuffer::bind() {
@@ -19,7 +16,14 @@ namespace Eternal {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
+    void OpenGLVertexBuffer::setBuffer(const std::vector<Eternal::Vertex>& vertices) {
+        bind();
+        mSize = vertices.size();
+        glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices.data(), GL_STATIC_DRAW);
+        unBind();
+    }
+
     uint32_t OpenGLVertexBuffer::getSize() {
-        return mVertices.size();
+        return mSize;
     }
 }

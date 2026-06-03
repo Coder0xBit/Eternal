@@ -9,7 +9,7 @@
 namespace Eternal {
     class VulkanBuffer {
     public:
-        VulkanBuffer(VulkanPlatform* vulkanPlatform) : m_VulkanPlatform(vulkanPlatform) {
+        VulkanBuffer(VulkanPlatform* vulkanPlatform) : mVulkanPlatform(vulkanPlatform) {
         }
 
         VulkanBuffer(const VulkanBuffer&) = delete;
@@ -21,22 +21,22 @@ namespace Eternal {
         void map();
         void unMap();
         void write(void* data);
-        bool isCurrentlyMapped() const { return m_MappedMemory != nullptr; }
-        void* mappedMemory() const { return m_MappedMemory; }
-        const uint32_t& getElementCount() const { return m_ElementCount; }
-        uint32_t getBufferSize() const { return m_BufferSize; }
+        bool isCurrentlyMapped() const { return mMappedMemory != nullptr; }
+        void* mappedMemory() const { return mMappedMemory; }
+        const uint32_t& getElementCount() const { return mElementCount; }
+        uint32_t getBufferSize() const { return mBufferSize; }
 
         vk::Buffer* getVkBuffer() {
-            ETERNAL_ASSERT_LOG(m_Buffer, "Buffer is not created yet, call create() first");
-            return &m_Buffer;
+            ETERNAL_ASSERT_LOG(mBuffer, "Buffer is not created yet, call create() first");
+            return &mBuffer;
         }
 
     private:
-        vk::Buffer m_Buffer = nullptr;
-        VulkanPlatform* m_VulkanPlatform = nullptr;
-        vk::DeviceMemory m_Memory = nullptr;
-        void* m_MappedMemory = nullptr;
-        uint32_t m_ElementCount = 0;
-        uint32_t m_BufferSize = 0;
+        vk::Buffer mBuffer = nullptr;
+        VulkanPlatform* mVulkanPlatform = nullptr;
+        vk::DeviceMemory mMemory = nullptr;
+        void* mMappedMemory = nullptr;
+        uint32_t mElementCount = 0;
+        uint32_t mBufferSize = 0;
     };
 }

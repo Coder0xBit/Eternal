@@ -5,29 +5,29 @@
 #include <ranges>
 
 namespace Eternal {
-    VulkanPipelineCache::VulkanPipelineCache(VulkanPlatform* platform) : m_Platform(platform) {
+    VulkanPipelineCache::VulkanPipelineCache(VulkanPlatform* platform) : mPlatform(platform) {
     }
 
     VulkanPipelineCache::~VulkanPipelineCache() {
-        m_PipelineCache.clear();
+        mPipelineCache.clear();
     }
 
     vk::Pipeline VulkanPipelineCache::getOrCreate(PipelineKey pipelineKey) {
-        if (m_PipelineCache.contains(pipelineKey)) {
-            return m_PipelineCache[pipelineKey]->getPipeline();
+        if (mPipelineCache.contains(pipelineKey)) {
+            return mPipelineCache[pipelineKey]->getPipeline();
         }
 
-        vk::Device logicalDevice = m_Platform->getLogicalDevice();
+        vk::Device logicalDevice = mPlatform->getLogicalDevice();
         bool isSamplerAttached = IS_BIT_SET(pipelineKey.pipelineLayoutMask, PipelineParams::SAMPLER);
         bool hasMaterial = pipelineKey.material != nullptr;
         std::string fragShader = hasMaterial ? "frag_texture_mapping.spv" : "common_fragment.spv";
 
         std::string vertexShader = "common_vertex.spv";
 
-        vk::ShaderModule vertexShaderModule = m_Platform->loadShader(
+        vk::ShaderModule vertexShaderModule = mPlatform->loadShader(
             logicalDevice, "res/shader/bin/" + vertexShader);
 
-        vk::ShaderModule fragmentShaderModule = m_Platform->loadShader(
+        vk::ShaderModule fragmentShaderModule = mPlatform->loadShader(
             logicalDevice, "res/shader/bin/" + fragShader);
 
         vk::PipelineLayout pipelineLayout = pipelineKey.pipelineLayout;
@@ -41,7 +41,7 @@ namespace Eternal {
         vulkanPipeline->create();
         logicalDevice.destroyShaderModule(vertexShaderModule);
         logicalDevice.destroyShaderModule(fragmentShaderModule);
-        auto [it , inserted] = m_PipelineCache.emplace(pipelineKey, vulkanPipeline);
+        auto [it , inserted] = mPipelineCache.emplace(pipelineKey, vulkanPipeline);
         return it->second->getPipeline();
     }
 }

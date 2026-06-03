@@ -9,16 +9,16 @@ namespace Eternal {
         MeshComponent() = default;
 
         MeshComponent(std::vector<Eternal::Vertex> vertices, std::vector<uint32_t> indices)
-            : m_Vertices(vertices), m_Indices(indices) {
+            : mVertices(vertices), mIndices(indices) {
         }
 
         ~MeshComponent() = default;
 
-        const std::vector<Eternal::Vertex>& getVertices() const { return m_Vertices; }
-        const std::vector<uint32_t>& getIndices() const { return m_Indices; }
+        const std::vector<Eternal::Vertex>& getVertices() const { return mVertices; }
+        const std::vector<uint32_t>& getIndices() const { return mIndices; }
 
     private:
-        std::vector<Eternal::Vertex> m_Vertices;
-        std::vector<uint32_t> m_Indices;
+        std::vector<Eternal::Vertex> mVertices;
+        std::vector<uint32_t> mIndices;
     };
 }

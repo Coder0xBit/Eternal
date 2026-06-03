@@ -12,50 +12,50 @@ namespace Eternal {
         Entity() = default;
 
         explicit Entity(entt::entity entityHandle, Eternal::Scene* scene)
-            : m_EntityHandle(entityHandle), m_Scene(scene) {
+            : mEntityHandle(entityHandle), mScene(scene) {
         }
 
         template<typename T, typename... Args>
         T& addComponent(Args&&... args) {
-            T& component = m_Scene->m_Registry.emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
-            m_Scene->notifyObservers<T>(*this, component);
+            T& component = mScene->mRegistry.emplace<T>(mEntityHandle, std::forward<Args>(args)...);
+            mScene->notifyObservers<T>(*this, component);
             return component;
         }
 
         template<typename T, typename... Args>
         T& addOrReplaceComponent(Args&&... args) {
-            T& component = m_Scene->m_Registry.emplace_or_replace<T>(m_EntityHandle, std::forward<Args>(args)...);
-            m_Scene->notifyObservers<T>(*this, component);
+            T& component = mScene->mRegistry.emplace_or_replace<T>(mEntityHandle, std::forward<Args>(args)...);
+            mScene->notifyObservers<T>(*this, component);
             return component;
         }
 
         template<typename T>
         T& getComponent() {
-            return m_Scene->m_Registry.get<T>(m_EntityHandle);
+            return mScene->mRegistry.get<T>(mEntityHandle);
         }
 
         template<typename T>
         T* tryGetComponent() {
-            return m_Scene->m_Registry.try_get<T>(m_EntityHandle);
+            return mScene->mRegistry.try_get<T>(mEntityHandle);
         }
 
         template<typename T>
         void removeComponent() {
-            m_Scene->m_Registry.remove<T>(m_EntityHandle);
+            mScene->mRegistry.remove<T>(mEntityHandle);
         }
 
         UUID getUUID() {
-            auto& idComponent = m_Scene->m_Registry.get<IdComponent>(m_EntityHandle);
+            auto& idComponent = mScene->mRegistry.get<IdComponent>(mEntityHandle);
             return idComponent.getId();
         }
 
         std::string getName() {
-            auto& nameComponent = m_Scene->m_Registry.get<NameComponent>(m_EntityHandle);
+            auto& nameComponent = mScene->mRegistry.get<NameComponent>(mEntityHandle);
             return nameComponent.getName();
         }
 
     private:
-        entt::entity m_EntityHandle;
-        Eternal::Scene* m_Scene = nullptr;
+        entt::entity mEntityHandle;
+        Eternal::Scene* mScene = nullptr;
     };
 }

@@ -12,6 +12,7 @@ namespace Eternal {
     };
 
     struct Attribute {
+        uint32_t location = 0;
         VertexAttribute vertexAttribute = VertexAttribute::POSITON;
         ElementType type = ElementType::FLOAT3;
         uint32_t size = 0;

@@ -8,7 +8,7 @@
 
 namespace Eternal {
     Entity Eternal::Scene::createEntity(std::string name) {
-        auto entityHandle = m_Registry.create();
+        auto entityHandle = mRegistry.create();
         Entity entity(entityHandle, this);
         entity.addComponent<Eternal::IdComponent>();
         entity.addComponent<Eternal::NameComponent>(name);

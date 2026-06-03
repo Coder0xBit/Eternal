@@ -11,15 +11,15 @@ namespace Eternal {
         ~VulkanIndexBuffer() override;
         void bind() override;
         void unBind() override;
-        uint32_t getCount() override { return m_Buffer->getBufferSize(); }
+        uint32_t getCount() override { return mBuffer->getBufferSize(); }
 
-        // the lifetime of m_Buffer is handled by the VulkanIndexBuffer, do not delete after acquiring it
-        VulkanBuffer* getVulkanBuffer() { return m_Buffer.get(); }
+        // the lifetime of mBuffer is handled by the VulkanIndexBuffer, do not delete after acquiring it
+        VulkanBuffer* getVulkanBuffer() { return mBuffer.get(); }
 
     private :
-        std::unique_ptr<VulkanBuffer> m_Buffer;
-        vk::MemoryPropertyFlags m_BufferProperties =
+        std::unique_ptr<VulkanBuffer> mBuffer;
+        vk::MemoryPropertyFlags mBufferProperties =
         vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-        VulkanPlatform* m_VulkanPlatform;
+        VulkanPlatform* mVulkanPlatform;
     };
 }

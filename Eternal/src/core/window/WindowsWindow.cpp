@@ -7,9 +7,9 @@
 
 namespace Eternal {
     WindowsWindow::WindowsWindow(const Builder& builder) {
-        m_Data.title = builder->title;
-        m_Data.height = builder->height;
-        m_Data.width = builder->width;
+        mData.title = builder->title;
+        mData.height = builder->height;
+        mData.width = builder->width;
 
         glfwInit();
 
@@ -18,20 +18,20 @@ namespace Eternal {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
 
-        m_Window = glfwCreateWindow(m_Data.width, m_Data.height, m_Data.title.c_str(), nullptr, nullptr);
-        ETERNAL_ASSERT(m_Window != nullptr, "Failed to create GLFW window");
+        mWindow = glfwCreateWindow(mData.width, mData.height, mData.title.c_str(), nullptr, nullptr);
+        ETERNAL_ASSERT(mWindow != nullptr, "Failed to create GLFW window");
 
-        glfwSetWindowUserPointer(m_Window, &m_Data);
+        glfwSetWindowUserPointer(mWindow, &mData);
 
-        // glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        // glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-        glfwSetFramebufferSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
+        glfwSetFramebufferSizeCallback(mWindow, [](GLFWwindow* window, int width, int height) {
             const WindowData& windowData = *(static_cast<WindowData*>(glfwGetWindowUserPointer(window)));\
             WindowResizeEvent event(width, height);
             windowData.eventCallback(event);
         });
 
-        glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+        glfwSetKeyCallback(mWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
             const WindowData& windowData = *(static_cast<WindowData*>(glfwGetWindowUserPointer(window)));
             switch (action) {
                 case GLFW_PRESS: {
@@ -53,14 +53,14 @@ namespace Eternal {
             }
         });
 
-        glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double xpos, double ypos) {
+        glfwSetCursorPosCallback(mWindow, [](GLFWwindow* window, double xpos, double ypos) {
             WindowData& windowData = *(static_cast<WindowData*>(glfwGetWindowUserPointer(window)));
             MouseMovedEvent event(xpos, ypos);
             windowData.eventCallback(event);
         });
 
         Logger::Info("Current Working Path {} , Accessing Window Icon", std::filesystem::current_path().string());
-        setWindowIcon(WINDOW_ICON_PATH, m_Window);
+        setWindowIcon(WINDOW_ICON_PATH, mWindow);
 
         Eternal::Logger::Info("Window Created");
     }
@@ -76,16 +76,16 @@ namespace Eternal {
         } else {
             cursorInputMode = GLFW_CURSOR_NORMAL;
         }
-        glfwSetInputMode(m_Window, GLFW_CURSOR, cursorInputMode);
+        glfwSetInputMode(mWindow, GLFW_CURSOR, cursorInputMode);
     }
 
     bool WindowsWindow::shouldClose() const {
-        return glfwWindowShouldClose(m_Window);
+        return glfwWindowShouldClose(mWindow);
     }
 
     void WindowsWindow::shutDown() const {
-        if (m_Window != nullptr) {
-            glfwDestroyWindow(m_Window);
+        if (mWindow != nullptr) {
+            glfwDestroyWindow(mWindow);
         } else {
             Eternal::Logger::Error("mWindow Pointer is null");
         }
@@ -96,10 +96,10 @@ namespace Eternal {
     }
 
     vk::SurfaceKHR WindowsWindow::createWindowSurface(vk::Instance instance) const {
-        ETERNAL_ASSERT(m_Window != nullptr, "Window is null");
+        ETERNAL_ASSERT(mWindow != nullptr, "Window is null");
 
         vk::SurfaceKHR surface = nullptr;
-        if (glfwCreateWindowSurface(instance, m_Window, nullptr, reinterpret_cast<VkSurfaceKHR*>(&surface)) !=
+        if (glfwCreateWindowSurface(instance, mWindow, nullptr, reinterpret_cast<VkSurfaceKHR*>(&surface)) !=
             VK_SUCCESS) {
             Eternal::Logger::Error("Failed to create window surface");
             return nullptr;
@@ -108,9 +108,9 @@ namespace Eternal {
     }
 
     vk::Extent2D WindowsWindow::getExtent() const {
-        ETERNAL_ASSERT(m_Window != nullptr, "Window is null");
+        ETERNAL_ASSERT(mWindow != nullptr, "Window is null");
         int width = 0, height = 0;
-        glfwGetFramebufferSize(m_Window, &width, &height);
+        glfwGetFramebufferSize(mWindow, &width, &height);
         return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
     }
 
@@ -126,7 +126,7 @@ namespace Eternal {
     }
 
     bool WindowsWindow::isKeyPressed(Eternal::KeyCode keycode) const {
-        auto state = glfwGetKey(m_Window, keycode);
+        auto state = glfwGetKey(mWindow, keycode);
         return state == GLFW_PRESS;
     }
 

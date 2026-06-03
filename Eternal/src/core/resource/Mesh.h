@@ -10,12 +10,12 @@ namespace Eternal {
         Mesh(const Mesh& other) = delete;
         Mesh& operator=(const Mesh&) = delete;
         bool load(const std::string& path) override;
-        const std::vector<Eternal::Vertex>& getVertices() const { return m_Vertices; }
-        const std::vector<uint32_t>& getIndices() const { return m_Indices; }
+        const std::vector<Eternal::Vertex>& getVertices() const { return mVertices; }
+        const std::vector<uint32_t>& getIndices() const { return mIndices; }
         virtual ~Mesh();
 
     private:
-        std::vector<Eternal::Vertex> m_Vertices;
-        std::vector<uint32_t> m_Indices;
+        std::vector<Eternal::Vertex> mVertices;
+        std::vector<uint32_t> mIndices;
     };
 }

@@ -3,6 +3,7 @@
 #include "utils/Base.h"
 #include "core/event/Event.h"
 #include "core/input/KeyCodes.h"
+#include "core/Context.h"
 
 #include <vulkan/vulkan.hpp>
 
@@ -47,7 +48,7 @@ namespace Eternal {
             Builder& operator=(Builder const& rhs) noexcept;
             Builder& operator=(Builder&& rhs) noexcept;
             Builder& title(const std::string& title) noexcept;
-            Builder& width(uint32_t witdth) noexcept;
+            Builder& width(uint32_t width) noexcept;
             Builder& height(uint32_t height) noexcept;
             std::unique_ptr<Window> build() const noexcept;
         };
@@ -55,6 +56,6 @@ namespace Eternal {
         static std::unique_ptr<Window> create(const Builder& builder);
 
     protected:
-        bool m_IsWindowResized = false;
+        bool mIsWindowResized = false;
     };
 }

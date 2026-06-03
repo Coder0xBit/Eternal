@@ -1,5 +1,5 @@
 #pragma once
-#include <GLEW/glew.h>
+
 #include "core/graphics/IndexBuffer.h"
 
 namespace Eternal {

@@ -27,7 +27,7 @@ namespace Eternal {
 
         template<typename... Components>
         auto getAllEntityWith() {
-            return m_Registry.view<Components...>();
+            return mRegistry.view<Components...>();
         }
 
         template<typename T>
@@ -38,24 +38,24 @@ namespace Eternal {
                 callback(entity, *static_cast<T*>(component));
             };
 
-            m_ComponentAddedObservers[typeIndex].emplace_back(callbackFunction);
+            mComponentAddedObservers[typeIndex].emplace_back(callbackFunction);
         }
 
     private:
         template<typename T>
         void notifyObservers(Entity& entity, T& component) {
-            auto it = m_ComponentAddedObservers.find(std::type_index(typeid(T)));
-            if (it != m_ComponentAddedObservers.end()) {
+            auto it = mComponentAddedObservers.find(std::type_index(typeid(T)));
+            if (it != mComponentAddedObservers.end()) {
                 for (const auto& observer: it->second) {
                     observer(entity, &component);
                 }
             }
         }
 
-        entt::registry m_Registry;
+        entt::registry mRegistry;
 
         using ObserverFunction = std::function<void(Entity&, void*)>;
-        std::unordered_map<std::type_index, std::vector<ObserverFunction> > m_ComponentAddedObservers;
+        std::unordered_map<std::type_index, std::vector<ObserverFunction> > mComponentAddedObservers;
 
         friend class Entity;
     };

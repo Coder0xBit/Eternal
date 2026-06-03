@@ -37,13 +37,13 @@ namespace Eternal {
         VulkanDescriptorSetLayout(const Builder& builder);
         VulkanDescriptorSetLayout(const VulkanDescriptorSetLayout&) = delete;
         VulkanDescriptorSetLayout& operator=(const VulkanDescriptorSetLayout&) = delete;
-        const vk::DescriptorSetLayout& getDescriptorSetLayout() const { return m_DescriptorSetLayout; }
-        const VulkanDescriptorBinding& getBindings() const { return m_Binding; }
+        const vk::DescriptorSetLayout& getDescriptorSetLayout() const { return mDescriptorSetLayout; }
+        const VulkanDescriptorBinding& getBindings() const { return mBinding; }
         ~VulkanDescriptorSetLayout();
 
     private:
-        vk::Device m_LogicalDevice;
-        VulkanDescriptorBinding m_Binding;
-        vk::DescriptorSetLayout m_DescriptorSetLayout;
+        vk::Device mLogicalDevice;
+        VulkanDescriptorBinding mBinding;
+        vk::DescriptorSetLayout mDescriptorSetLayout;
     };
 }

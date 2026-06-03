@@ -2,15 +2,11 @@
 
 namespace Eternal {
     VulkanVertexBuffer::VulkanVertexBuffer(
-        VulkanPlatform* vulkanPlatform,
-        const std::vector<Eternal::Vertex>& vertices)
-        : m_VulkanPlatform(vulkanPlatform) {
-        m_Buffer = std::make_unique<VulkanBuffer>(m_VulkanPlatform);
-        m_Buffer->create(vertices.size(), sizeof(Eternal::Vertex),
-                         vk::BufferUsageFlagBits::eVertexBuffer);
-        m_Buffer->allocate(m_BufferProperties);
-        m_Buffer->map();
-        m_Buffer->write((void*) (vertices.data()));
+        GraphicsPlatform* graphicsPlatform,
+        VertexBufferLayout* bufferLayout
+    ) : VertexBuffer(bufferLayout) {
+        mVulkanPlatform = static_cast<VulkanPlatform*>(graphicsPlatform);
+        mBuffer = std::make_unique<VulkanBuffer>(mVulkanPlatform);
     }
 
     VulkanVertexBuffer::~VulkanVertexBuffer() {
@@ -20,5 +16,13 @@ namespace Eternal {
     }
 
     void VulkanVertexBuffer::unBind() {
+    }
+
+    void VulkanVertexBuffer::setBuffer(const std::vector<Eternal::Vertex>& vertices) {
+        mBuffer->create(vertices.size(), sizeof(Eternal::Vertex),
+                        vk::BufferUsageFlagBits::eVertexBuffer);
+        mBuffer->allocate(mBufferProperties);
+        mBuffer->map();
+        mBuffer->write((void*) (vertices.data()));
     }
 }

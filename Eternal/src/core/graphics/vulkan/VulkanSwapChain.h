@@ -31,13 +31,13 @@ namespace Eternal {
         vk::Result acquire(vk::Semaphore imageReadySemaphore, uint32_t* imageIndex);
         vk::Result present(vk::Semaphore renderFinishedSemaphore, uint32_t imageIndex);
         void recreate();
-        const SwapChainDetails& getSwapChainDetails() { return m_SwapChainDetails; }
-        const std::vector<vk::ImageView>& getImageViews() { return m_SwapChainImageViews; }
-        const std::vector<vk::Image>& getImages() { return m_SwapChainImages; }
-        vk::SwapchainKHR getSwapChain() { return m_SwapChain; }
-        vk::SurfaceKHR getSurface() { return m_Surface; }
-        bool shouldRecreate() const { return m_ShouldRecreate; }
-        void setShouldRecreate(bool shouldRecreate) { m_ShouldRecreate = shouldRecreate; }
+        const SwapChainDetails& getSwapChainDetails() { return mSwapChainDetails; }
+        const std::vector<vk::ImageView>& getImageViews() { return mSwapChainImageViews; }
+        const std::vector<vk::Image>& getImages() { return mSwapChainImages; }
+        vk::SwapchainKHR getSwapChain() { return mSwapChain; }
+        vk::SurfaceKHR getSurface() { return mSurface; }
+        bool shouldRecreate() const { return mShouldRecreate; }
+        void setShouldRecreate(bool shouldRecreate) { mShouldRecreate = shouldRecreate; }
         void destroy();
 
     private:
@@ -47,19 +47,19 @@ namespace Eternal {
         vk::Extent2D selectSwapChainExtent(const vk::SurfaceCapabilitiesKHR& capabilities);
         void createImageViews();
 
-        bool m_ShouldRecreate = false;
-        vk::Instance m_VkInstance = nullptr;
-        vk::Device m_LogicalDevice = nullptr;
-        vk::PhysicalDevice m_PhysicalDevice = nullptr;
-        vk::Queue m_PresentQueue = nullptr;
-        uint32_t m_GraphicsQueueFamilyIndex = INVALID_VK_INDEX;
-        uint32_t m_PresentQueueFamilyIndex = INVALID_VK_INDEX;
-        vk::SurfaceKHR m_Surface = nullptr;
-        vk::Extent2D m_FallBackExtent;
-        std::vector<vk::Image> m_SwapChainImages;
-        std::vector<vk::ImageView> m_SwapChainImageViews;
+        bool mShouldRecreate = false;
+        vk::Instance mVkInstance = nullptr;
+        vk::Device mLogicalDevice = nullptr;
+        vk::PhysicalDevice mPhysicalDevice = nullptr;
+        vk::Queue mPresentQueue = nullptr;
+        uint32_t mGraphicsQueueFamilyIndex = INVALID_VK_INDEX;
+        uint32_t mPresentQueueFamilyIndex = INVALID_VK_INDEX;
+        vk::SurfaceKHR mSurface = nullptr;
+        vk::Extent2D mFallBackExtent;
+        std::vector<vk::Image> mSwapChainImages;
+        std::vector<vk::ImageView> mSwapChainImageViews;
 
-        vk::SwapchainKHR m_SwapChain = nullptr;
-        SwapChainDetails m_SwapChainDetails = {};
+        vk::SwapchainKHR mSwapChain = nullptr;
+        SwapChainDetails mSwapChainDetails = {};
     };
 }

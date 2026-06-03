@@ -72,10 +72,10 @@ namespace Eternal {
                 }
 
                 if (uniqueVertices.count(vertex) == 0) {
-                    uniqueVertices[vertex] = static_cast<uint32_t>(m_Vertices.size());
-                    m_Vertices.push_back(vertex);
+                    uniqueVertices[vertex] = static_cast<uint32_t>(mVertices.size());
+                    mVertices.push_back(vertex);
                 }
-                m_Indices.push_back(uniqueVertices[vertex]);
+                mIndices.push_back(uniqueVertices[vertex]);
             }
         }
 
@@ -83,7 +83,7 @@ namespace Eternal {
     }
 
     Mesh::~Mesh() {
-        m_Vertices.clear();
-        m_Indices.clear();
+        mVertices.clear();
+        mIndices.clear();
     }
 }

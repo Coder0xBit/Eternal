@@ -6,16 +6,16 @@ namespace Eternal {
     class Timestep {
     public:
         Timestep(double time = 0.0f)
-            : m_Time(time) {
+            : mTime(time) {
         }
 
-        operator double() const { return m_Time; }
+        operator double() const { return mTime; }
 
-        double seconds() const { return m_Time; }
-        double milliSeconds() const { return m_Time * 1000.0f; }
+        double seconds() const { return mTime; }
+        double milliSeconds() const { return mTime * 1000.0f; }
 
     private:
-        double m_Time;
+        double mTime;
     };
 
     class Timer {
@@ -25,18 +25,18 @@ namespace Eternal {
         ~Timer() = default;
 
         void start() {
-            m_LastFrameTime = std::chrono::high_resolution_clock::now();
+            mLastFrameTime = std::chrono::high_resolution_clock::now();
         }
 
         Timestep tick() {
             auto now = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double> delta = now - m_LastFrameTime;
-            m_LastFrameTime = now;
+            std::chrono::duration<double> delta = now - mLastFrameTime;
+            mLastFrameTime = now;
             Timestep timeStep(delta.count());
             return timeStep;
         }
 
     private:
-        std::chrono::time_point<std::chrono::high_resolution_clock> m_LastFrameTime;
+        std::chrono::time_point<std::chrono::high_resolution_clock> mLastFrameTime;
     };
 }

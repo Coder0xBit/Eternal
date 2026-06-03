@@ -27,15 +27,15 @@ namespace Eternal {
 
         vk::PipelineLayout getOrCreatePipelineLayout(PipelineLayoutCacheKey pipelineLayoutCacheKey);
 
-        VulkanDescriptorSetLayout* getUboDescriptorSetLayout() const { return m_UniformBufferDescriptorSetLayout; }
-        VulkanDescriptorSetLayout* getMaterialDescriptorSetLayout() const { return m_MaterialDescriptorSetLayout; }
+        VulkanDescriptorSetLayout* getUboDescriptorSetLayout() const { return mUniformBufferDescriptorSetLayout; }
+        VulkanDescriptorSetLayout* getMaterialDescriptorSetLayout() const { return mMaterialDescriptorSetLayout; }
 
     private :
-        VulkanPlatform* m_Platform = nullptr;
-        vk::Device m_LogicalDevice;
-        VulkanDescriptorPool* m_DescriptorPool = nullptr;
-        PipelineLayoutContainer m_PipelineLayoutCache;
-        VulkanDescriptorSetLayout* m_UniformBufferDescriptorSetLayout = nullptr;
-        VulkanDescriptorSetLayout* m_MaterialDescriptorSetLayout = nullptr;
+        VulkanPlatform* mPlatform = nullptr;
+        vk::Device mLogicalDevice;
+        VulkanDescriptorPool* mDescriptorPool = nullptr;
+        PipelineLayoutContainer mPipelineLayoutCache;
+        VulkanDescriptorSetLayout* mUniformBufferDescriptorSetLayout = nullptr;
+        VulkanDescriptorSetLayout* mMaterialDescriptorSetLayout = nullptr;
     };
 }

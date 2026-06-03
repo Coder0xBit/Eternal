@@ -31,73 +31,73 @@ namespace Eternal {
     }
 
     VulkanDescriptorPool::VulkanDescriptorPool(const Builder& builder) {
-        m_LogicalDevice = builder->logicalDevice;
-        m_MaxSets = builder->maxSets;
+        mLogicalDevice = builder->logicalDevice;
+        mMaxSets = builder->maxSets;
 
-        m_PoolSizes.reserve(m_PoolSizes.size());
+        mPoolSizes.reserve(mPoolSizes.size());
 
         for (const auto& poolSize: builder->poolSizes) {
             vk::DescriptorPoolSize descriptorPoolSize = vk::DescriptorPoolSize()
                     .setType(poolSize.type)
                     .setDescriptorCount(poolSize.descriptorCount);
-            m_PoolSizes.push_back(descriptorPoolSize);
+            mPoolSizes.push_back(descriptorPoolSize);
         }
 
         vk::DescriptorPoolCreateInfo descriptorPoolCreateInfo = vk::DescriptorPoolCreateInfo()
-                .setMaxSets(m_MaxSets)
-                .setPoolSizes(m_PoolSizes);
+                .setMaxSets(mMaxSets)
+                .setPoolSizes(mPoolSizes);
 
-        m_DescriptorPool = m_LogicalDevice.createDescriptorPool(descriptorPoolCreateInfo);
+        mDescriptorPool = mLogicalDevice.createDescriptorPool(descriptorPoolCreateInfo);
     }
 
     VulkanDescriptorPool::~VulkanDescriptorPool() {
-        if (m_DescriptorPool) {
-            m_LogicalDevice.destroyDescriptorPool(m_DescriptorPool);
-            m_DescriptorPool = nullptr;
+        if (mDescriptorPool) {
+            mLogicalDevice.destroyDescriptorPool(mDescriptorPool);
+            mDescriptorPool = nullptr;
         }
-        m_PoolSizes.clear();
+        mPoolSizes.clear();
     }
 
     void VulkanDescriptorPool::reset() {
-        m_LogicalDevice.resetDescriptorPool(m_DescriptorPool, vk::DescriptorPoolResetFlags());
+        mLogicalDevice.resetDescriptorPool(mDescriptorPool, vk::DescriptorPoolResetFlags());
     }
 
     vk::DescriptorSet VulkanDescriptorPool::allocate(const VulkanDescriptorSetLayout& descriptorSetLayout) {
         auto descriptorLayout = descriptorSetLayout.getDescriptorSetLayout();
 
         vk::DescriptorSetAllocateInfo descriptorSetAllocateInfo = vk::DescriptorSetAllocateInfo()
-                .setDescriptorPool(m_DescriptorPool)
+                .setDescriptorPool(mDescriptorPool)
                 .setDescriptorSetCount(1)
                 .setSetLayouts(descriptorLayout);
 
-        vk::DescriptorSet descriptorSet = m_LogicalDevice.allocateDescriptorSets(descriptorSetAllocateInfo)[0];
+        vk::DescriptorSet descriptorSet = mLogicalDevice.allocateDescriptorSets(descriptorSetAllocateInfo)[0];
         return descriptorSet;
     }
 
     std::vector<vk::DescriptorSet> VulkanDescriptorPool::allocate(uint32_t descriptorSetCount,
                                                                   const VulkanDescriptorSetLayout&
                                                                   descriptorSetLayout) {
-        ETERNAL_ASSERT(descriptorSetCount <= m_MaxSets, "Descriptor set count exceeds max sets");
+        ETERNAL_ASSERT(descriptorSetCount <= mMaxSets, "Descriptor set count exceeds max sets");
 
         std::vector<vk::DescriptorSetLayout> descriptorLayouts(descriptorSetCount,
                                                                descriptorSetLayout.getDescriptorSetLayout());
 
         vk::DescriptorSetAllocateInfo descriptorSetAllocateInfo = vk::DescriptorSetAllocateInfo()
-                .setDescriptorPool(m_DescriptorPool)
+                .setDescriptorPool(mDescriptorPool)
                 .setDescriptorSetCount(descriptorSetCount)
                 .setSetLayouts(descriptorLayouts);
 
-        auto descSets = m_LogicalDevice.allocateDescriptorSets(descriptorSetAllocateInfo);
+        auto descSets = mLogicalDevice.allocateDescriptorSets(descriptorSetAllocateInfo);
 
         ETERNAL_ASSERT(descSets.size() == descriptorSetCount, "Failed to allocate descriptor sets");
         return descSets;
     }
 
     void VulkanDescriptorPool::free(vk::DescriptorSet* descriptorSet) {
-        m_LogicalDevice.freeDescriptorSets(m_DescriptorPool, 1, descriptorSet);
+        mLogicalDevice.freeDescriptorSets(mDescriptorPool, 1, descriptorSet);
     }
 
     void VulkanDescriptorPool::free(const std::vector<vk::DescriptorSet>& descriptorSets) {
-        m_LogicalDevice.freeDescriptorSets(m_DescriptorPool, descriptorSets.size(), descriptorSets.data());
+        mLogicalDevice.freeDescriptorSets(mDescriptorPool, descriptorSets.size(), descriptorSets.data());
     }
 }

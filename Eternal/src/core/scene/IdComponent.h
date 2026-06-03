@@ -5,16 +5,16 @@
 namespace Eternal {
     struct IdComponent {
     public:
-        IdComponent() : m_Id(UUID()) {
+        IdComponent() : mId(UUID()) {
         }
 
-        IdComponent(const UUID& id) : m_Id(id) {
+        IdComponent(const UUID& id) : mId(id) {
         }
 
         IdComponent(const IdComponent&) = default;
-        UUID getId() { return m_Id; }
+        UUID getId() { return mId; }
 
     private:
-        UUID m_Id;
+        UUID mId;
     };
 }

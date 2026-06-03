@@ -20,14 +20,14 @@ namespace Eternal {
 		std::streampos size = stream.tellg();
 		stream.seekg(0, std::ios_base::beg);
 
-		m_Blob.resize(size);
-		stream.read(m_Blob.data(), size);
+		mBlob.resize(size);
+		stream.read(mBlob.data(), size);
 		stream.close();
 
 		return true;
 	}
 
 	ShaderProgram::~ShaderProgram() {
-		m_Blob.clear();
+		mBlob.clear();
 	}
 }

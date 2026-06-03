@@ -6,7 +6,7 @@
 #include "core/window/Window.h"
 #include "core/scene/Scene.h"
 #include "core/event/KeyEvents.h"
-#include "core/Camera.hpp"
+#include "core/Camera.h"
 #include "core/graphics/Renderer.h"
 #include "core/graphics/Timer.h"
 
@@ -38,17 +38,17 @@ namespace Eternal {
             void acknowledge() { lastApplied = captured; }
         };
 
-        std::unique_ptr<Eternal::GraphicsPlatform> m_GraphicsPlatform;
-        std::unique_ptr<Eternal::Renderer> m_Renderer;
-        std::unique_ptr<Eternal::Window> m_Window;
-        std::unique_ptr<Eternal::InputDispatcher> m_InputDispatcher;
-        std::unique_ptr<Eternal::Scene> m_Scene;
-        std::unique_ptr<Eternal::SwapChain> m_SwapChain;
-        std::unique_ptr<Eternal::ImGuiOverlay> m_ImGuiOverlay;
-        std::unique_ptr<Eternal::Camera> m_Camera;
-        std::unique_ptr<Eternal::Timer> m_Timer;
+        std::unique_ptr<Eternal::GraphicsPlatform> mGraphicsPlatform;
+        std::unique_ptr<Eternal::Renderer> mRenderer;
+        std::unique_ptr<Eternal::Window> mWindow;
+        std::unique_ptr<Eternal::InputDispatcher> mInputDispatcher;
+        std::unique_ptr<Eternal::Scene> mScene;
+        std::unique_ptr<Eternal::SwapChain> mSwapChain;
+        std::unique_ptr<Eternal::ImGuiOverlay> mImGuiOverlay;
+        std::unique_ptr<Eternal::Camera> mCamera;
+        std::unique_ptr<Eternal::Timer> mTimer;
 
-        InputCaptureState m_InputCapture;
-        Backend m_Backend = Backend::Vulkan;
+        InputCaptureState mInputCapture;
+        Backend mBackend = Backend::Vulkan;
     };
 }

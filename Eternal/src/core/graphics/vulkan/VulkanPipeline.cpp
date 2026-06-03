@@ -2,48 +2,48 @@
 
 namespace Eternal {
 	VulkanPipeline::VulkanPipeline(vk::Device logicalDevice)
-		: m_LogicalDevice(logicalDevice) {
+		: mLogicalDevice(logicalDevice) {
 	}
 
 	void VulkanPipeline::bindLayout(vk::PipelineLayout pipelineLayout) {
-		m_CreationRequirements.pipelineLayout = pipelineLayout;
+		mCreationRequirements.pipelineLayout = pipelineLayout;
 	}
 
 	void VulkanPipeline::bindRenderPass(vk::RenderPass renderPass) {
-		m_CreationRequirements.renderPass = renderPass;
+		mCreationRequirements.renderPass = renderPass;
 	}
 
 	void VulkanPipeline::bindVertexShader(vk::ShaderModule vertexShader) {
-		m_CreationRequirements.vertexShader = vertexShader;
+		mCreationRequirements.vertexShader = vertexShader;
 	}
 
 	void VulkanPipeline::bindFragmentShader(vk::ShaderModule fragmentShader) {
-		m_CreationRequirements.fragmentShader = fragmentShader;
+		mCreationRequirements.fragmentShader = fragmentShader;
 	}
 
 	void VulkanPipeline::bindVertexBindingDescriptions(const std::vector<vk::VertexInputBindingDescription>& bindingDescriptions) {
-		m_CreationRequirements.vertexInputBindingDescriptions = bindingDescriptions;
+		mCreationRequirements.vertexInputBindingDescriptions = bindingDescriptions;
 	}
 
 	void VulkanPipeline::bindVertexAttributeDescriptions(const std::vector<vk::VertexInputAttributeDescription>& attributeDescriptions) {
-		m_CreationRequirements.vertexInputAttributeDescriptions = attributeDescriptions;
+		mCreationRequirements.vertexInputAttributeDescriptions = attributeDescriptions;
 	}
 
 	void VulkanPipeline::create() {
-		create(m_CreationRequirements);
+		create(mCreationRequirements);
 	}
 
 	void VulkanPipeline::create(const PipelineCreationRequirements& pipelineCreationRequirements) {
-		m_CreationRequirements = pipelineCreationRequirements;
+		mCreationRequirements = pipelineCreationRequirements;
 
 		vk::PipelineShaderStageCreateInfo vertexShaderStageCreateInfo = vk::PipelineShaderStageCreateInfo()
 			.setStage(vk::ShaderStageFlagBits::eVertex)
-			.setModule(m_CreationRequirements.vertexShader)
+			.setModule(mCreationRequirements.vertexShader)
 			.setPName("main");
 
 		vk::PipelineShaderStageCreateInfo fragmentShaderStageCreateInfo = vk::PipelineShaderStageCreateInfo()
 			.setStage(vk::ShaderStageFlagBits::eFragment)
-			.setModule(m_CreationRequirements.fragmentShader)
+			.setModule(mCreationRequirements.fragmentShader)
 			.setPName("main");
 
 		std::vector<vk::PipelineShaderStageCreateInfo> shaderStages = {
@@ -99,8 +99,8 @@ namespace Eternal {
 			.setDynamicStates(dynamicState);
 
 		vk::PipelineVertexInputStateCreateInfo vertexInputInfo = vk::PipelineVertexInputStateCreateInfo()
-			.setVertexBindingDescriptions(m_CreationRequirements.vertexInputBindingDescriptions)
-			.setVertexAttributeDescriptions(m_CreationRequirements.vertexInputAttributeDescriptions);
+			.setVertexBindingDescriptions(mCreationRequirements.vertexInputBindingDescriptions)
+			.setVertexAttributeDescriptions(mCreationRequirements.vertexInputAttributeDescriptions);
 
 		vk::GraphicsPipelineCreateInfo graphicsPipelineCreateInfo = vk::GraphicsPipelineCreateInfo()
 			.setStages(shaderStages)
@@ -112,13 +112,13 @@ namespace Eternal {
 			.setPMultisampleState(&multiSampleStateCreateInfo)
 			.setPColorBlendState(&colorBlendStateCreateInfo)
 			.setPDynamicState(&dynamicStateCreateInfo)
-			.setLayout(m_CreationRequirements.pipelineLayout)
-			.setRenderPass(m_CreationRequirements.renderPass)
+			.setLayout(mCreationRequirements.pipelineLayout)
+			.setRenderPass(mCreationRequirements.renderPass)
 			.setSubpass(0);
 
 		try {
-			auto [result, graphicsPipeline] = m_LogicalDevice.createGraphicsPipeline(VK_NULL_HANDLE, graphicsPipelineCreateInfo, nullptr);
-			m_Pipeline = graphicsPipeline;
+			auto [result, graphicsPipeline] = mLogicalDevice.createGraphicsPipeline(VK_NULL_HANDLE, graphicsPipelineCreateInfo, nullptr);
+			mPipeline = graphicsPipeline;
 		}
 		catch (vk::SystemError& err) {
 			Eternal::Logger::Error("Graphics Pipeline Exception : {}", err.what());
@@ -126,10 +126,10 @@ namespace Eternal {
 	}
 
 	void VulkanPipeline::bind(vk::CommandBuffer commandBuffer) const {
-		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, m_Pipeline);
+		commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, mPipeline);
 	}
 
 	VulkanPipeline::~VulkanPipeline() {
-		m_LogicalDevice.destroyPipeline(m_Pipeline);
+		mLogicalDevice.destroyPipeline(mPipeline);
 	}
 }

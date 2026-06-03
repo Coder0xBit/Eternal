@@ -18,18 +18,18 @@ namespace Eternal {
         ~MaterialComponent() = default;
 
         MaterialComponent(Image* albedoTexture = nullptr) {
-            m_AlbedoTexture = albedoTexture;
-            if (m_AlbedoTexture) {
-                m_PipelineLayoutBitMask = m_PipelineLayoutBitMask |= PipelineParams::SAMPLER;
+            mAlbedoTexture = albedoTexture;
+            if (mAlbedoTexture) {
+                mPipelineLayoutBitMask = mPipelineLayoutBitMask |= PipelineParams::SAMPLER;
             }
         }
 
-        uint32_t getPipelineLayoutBitMask() const { return m_PipelineLayoutBitMask; }
+        uint32_t getPipelineLayoutBitMask() const { return mPipelineLayoutBitMask; }
 
-        const Image* getAlbedoTexture() const { return m_AlbedoTexture; }
+        const Image* getAlbedoTexture() const { return mAlbedoTexture; }
 
     private:
-        Image* m_AlbedoTexture = nullptr;
-        uint32_t m_PipelineLayoutBitMask = PipelineParams::UBO | PipelineParams::SAMPLER;
+        Image* mAlbedoTexture = nullptr;
+        uint32_t mPipelineLayoutBitMask = PipelineParams::UBO | PipelineParams::SAMPLER;
     };
 }

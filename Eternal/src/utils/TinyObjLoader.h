@@ -477,7 +477,7 @@ class MaterialFileReader : public MaterialReader {
  public:
   // Path could contain separator(';' in Windows, ':' in Posix)
   explicit MaterialFileReader(const std::string &mtl_basedir)
-      : m_mtlBaseDir(mtl_basedir) {}
+      : mmtlBaseDir(mtl_basedir) {}
   virtual ~MaterialFileReader() TINYOBJ_OVERRIDE {}
   virtual bool operator()(const std::string &matId,
                           std::vector<material_t> *materials,
@@ -485,7 +485,7 @@ class MaterialFileReader : public MaterialReader {
                           std::string *err) TINYOBJ_OVERRIDE;
 
  private:
-  std::string m_mtlBaseDir;
+  std::string mmtlBaseDir;
 };
 
 ///
@@ -494,7 +494,7 @@ class MaterialFileReader : public MaterialReader {
 class MaterialStreamReader : public MaterialReader {
  public:
   explicit MaterialStreamReader(std::istream &inStream)
-      : m_inStream(inStream) {}
+      : minStream(inStream) {}
   virtual ~MaterialStreamReader() TINYOBJ_OVERRIDE {}
   virtual bool operator()(const std::string &matId,
                           std::vector<material_t> *materials,
@@ -502,7 +502,7 @@ class MaterialStreamReader : public MaterialReader {
                           std::string *err) TINYOBJ_OVERRIDE;
 
  private:
-  std::istream &m_inStream;
+  std::istream &minStream;
 };
 
 // v2 API
@@ -2471,7 +2471,7 @@ bool MaterialFileReader::operator()(const std::string &matId,
                                     std::vector<material_t> *materials,
                                     std::map<std::string, int> *matMap,
                                     std::string *warn, std::string *err) {
-  if (!m_mtlBaseDir.empty()) {
+  if (!mmtlBaseDir.empty()) {
 #ifdef _WIN32
     char sep = ';';
 #else
@@ -2480,7 +2480,7 @@ bool MaterialFileReader::operator()(const std::string &matId,
 
     // https://stackoverflow.com/questions/5167625/splitting-a-c-stdstring-using-tokens-e-g
     std::vector<std::string> paths;
-    std::istringstream f(m_mtlBaseDir);
+    std::istringstream f(mmtlBaseDir);
 
     std::string s;
     while (getline(f, s, sep)) {
@@ -2500,7 +2500,7 @@ bool MaterialFileReader::operator()(const std::string &matId,
 
     std::stringstream ss;
     ss << "Material file [ " << matId
-       << " ] not found in a path : " << m_mtlBaseDir << "\n";
+       << " ] not found in a path : " << mmtlBaseDir << "\n";
     if (warn) {
       (*warn) += ss.str();
     }
@@ -2517,7 +2517,7 @@ bool MaterialFileReader::operator()(const std::string &matId,
 
     std::stringstream ss;
     ss << "Material file [ " << filepath
-       << " ] not found in a path : " << m_mtlBaseDir << "\n";
+       << " ] not found in a path : " << mmtlBaseDir << "\n";
     if (warn) {
       (*warn) += ss.str();
     }
@@ -2532,7 +2532,7 @@ bool MaterialStreamReader::operator()(const std::string &matId,
                                       std::string *warn, std::string *err) {
   (void)err;
   (void)matId;
-  if (!m_inStream) {
+  if (!minStream) {
     std::stringstream ss;
     ss << "Material stream in error state. \n";
     if (warn) {
@@ -2541,7 +2541,7 @@ bool MaterialStreamReader::operator()(const std::string &matId,
     return false;
   }
 
-  LoadMtl(matMap, materials, &m_inStream, warn, err);
+  LoadMtl(matMap, materials, &minStream, warn, err);
 
   return true;
 }

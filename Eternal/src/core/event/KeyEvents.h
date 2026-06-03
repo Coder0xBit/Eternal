@@ -6,26 +6,26 @@
 namespace Eternal {
     class KeyEvent : public Event {
     public :
-        KeyCode getKeyCode() const { return m_KeyCode; }
+        KeyCode getKeyCode() const { return mKeyCode; }
 
     protected:
-        KeyEvent(const KeyCode keyCode) : m_KeyCode(keyCode) {
+        KeyEvent(const KeyCode keyCode) : mKeyCode(keyCode) {
         }
 
-        KeyCode m_KeyCode;
+        KeyCode mKeyCode;
     };
 
     class KeyPressedEvent : public KeyEvent {
     public :
-        KeyPressedEvent(const KeyCode keyCode, const bool repeat) : KeyEvent(keyCode), m_IsRepeat(repeat) {
+        KeyPressedEvent(const KeyCode keyCode, const bool repeat) : KeyEvent(keyCode), mIsRepeat(repeat) {
         }
 
-        bool isRepeat() const { return m_IsRepeat; }
+        bool isRepeat() const { return mIsRepeat; }
 
         EVENT_CLASS_TYPE(KeyPressed)
 
     private :
-        bool m_IsRepeat;
+        bool mIsRepeat;
     };
 
     class KeyReleasedEvent : public KeyEvent {

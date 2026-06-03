@@ -31,12 +31,12 @@ namespace Eternal {
         void create();
         void create(const PipelineCreationRequirements& pipelineCreationRequirements);
         void bind(vk::CommandBuffer commandBuffer) const;
-        vk::Pipeline getPipeline() const { return m_Pipeline; }
+        vk::Pipeline getPipeline() const { return mPipeline; }
         ~VulkanPipeline();
 
     private:
-        vk::Device m_LogicalDevice = nullptr;
-        vk::Pipeline m_Pipeline = nullptr;
-        PipelineCreationRequirements m_CreationRequirements;
+        vk::Device mLogicalDevice = nullptr;
+        vk::Pipeline mPipeline = nullptr;
+        PipelineCreationRequirements mCreationRequirements;
     };
 }

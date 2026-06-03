@@ -13,11 +13,11 @@ namespace Eternal {
         ShaderProgram(const ShaderProgram&) = delete;
         ShaderProgram& operator=(const ShaderProgram&) = delete;
         bool load(const std::string& path) override;
-        const uint32_t* getBlob() { return reinterpret_cast<uint32_t*>(m_Blob.data()); }
-        size_t getBlobSize() const { return m_Blob.size(); }
+        const uint32_t* getBlob() { return reinterpret_cast<uint32_t*>(mBlob.data()); }
+        size_t getBlobSize() const { return mBlob.size(); }
         virtual ~ShaderProgram();
 
     private:
-        Blob m_Blob;
+        Blob mBlob;
     };
 }

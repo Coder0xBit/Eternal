@@ -28,32 +28,32 @@ namespace Eternal {
 
         void setPerspectiveProjection(float fovy, float aspect, float near, float far);
 
-        const glm::mat4& getProjection() const { return m_Projection; }
+        const glm::mat4& getProjection() const { return mProjection; }
 
         glm::mat4 getView() {
-            glm::mat4 cameraTranslation = glm::translate(glm::mat4(1.f), m_Position);
+            glm::mat4 cameraTranslation = glm::translate(glm::mat4(1.f), mPosition);
             glm::mat4 cameraRotation = getRotation();
             return glm::inverse(cameraTranslation * cameraRotation);
         }
 
         glm::mat4 getRotation() {
-            glm::quat pitchRotation = glm::angleAxis(m_Pitch, glm::vec3{1.f, 0.f, 0.f});
-            glm::quat yawRotation = glm::angleAxis(m_Yaw, glm::vec3{0.f, -1.f, 0.f});
+            glm::quat pitchRotation = glm::angleAxis(mPitch, glm::vec3{1.f, 0.f, 0.f});
+            glm::quat yawRotation = glm::angleAxis(mYaw, glm::vec3{0.f, -1.f, 0.f});
 
             return glm::toMat4(yawRotation * pitchRotation);
         }
 
-        glm::vec3& getPosition() { return m_Position; }
+        glm::vec3& getPosition() { return mPosition; }
 
-        void setPosition(glm::vec3 position) { m_Position = position; }
+        void setPosition(glm::vec3 position) { mPosition = position; }
 
-        float getPitch() const { return m_Pitch; }
+        float getPitch() const { return mPitch; }
 
-        void setPitch(float pitch) { m_Pitch = pitch; }
+        void setPitch(float pitch) { mPitch = pitch; }
 
-        float getYaw() const { return m_Yaw; }
+        float getYaw() const { return mYaw; }
 
-        void setYaw(float yaw) { m_Yaw = yaw; }
+        void setYaw(float yaw) { mYaw = yaw; }
 
         void onEvent(Event& event);
 
@@ -66,20 +66,20 @@ namespace Eternal {
 
         bool onMouseMove(const Eternal::MouseMovedEvent& event);
 
-        Eternal::InputDispatcher* m_InputDispatcher = nullptr;
+        Eternal::InputDispatcher* mInputDispatcher = nullptr;
 
-        glm::mat4 m_Projection{1.0f};
-        glm::vec3 m_Position = {0.0f, 0.0f, 0.0f};
-        glm::vec3 m_Velocity = {0.0f, 0.0f, 0.0f};
+        glm::mat4 mProjection{1.0f};
+        glm::vec3 mPosition = {0.0f, 0.0f, 0.0f};
+        glm::vec3 mVelocity = {0.0f, 0.0f, 0.0f};
 
-        float m_Yaw = 1.0f;
-        float m_Pitch = 0.0f;
-        float m_AspectRatio = 0.0f;
-        float m_MouseSensitivity = 0.002f;
+        float mYaw = 1.0f;
+        float mPitch = 0.0f;
+        float mAspectRatio = 0.0f;
+        float mMouseSensitivity = 0.002f;
 
         // mouse state
-        double m_LastX = 0.0;
-        double m_LastY = 0.0;
-        bool m_FirstMouse = true;
+        double mLastX = 0.0;
+        double mLastY = 0.0;
+        bool mFirstMouse = true;
     };
 }

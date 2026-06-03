@@ -6,16 +6,16 @@ namespace Eternal {
     class MouseMovedEvent : public Event {
     public :
         MouseMovedEvent(const float x, const float y)
-            : m_MouseX(x), m_MouseY(y) {
+            : mMouseX(x), mMouseY(y) {
         }
 
-        float GetX() const { return m_MouseX; }
-        float GetY() const { return m_MouseY; }
+        float GetX() const { return mMouseX; }
+        float GetY() const { return mMouseY; }
 
         EVENT_CLASS_TYPE(MouseMoved)
 
     private:
-        float m_MouseX = 0;
-        float m_MouseY = 0;
+        float mMouseX = 0;
+        float mMouseY = 0;
     };
 }

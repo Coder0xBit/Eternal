@@ -37,7 +37,7 @@ namespace Eternal {
         vk::Pipeline getOrCreate(PipelineKey pipelineKey);
 
     private :
-        VulkanPlatform* m_Platform = nullptr;
-        PipelineContainer m_PipelineCache;
+        VulkanPlatform* mPlatform = nullptr;
+        PipelineContainer mPipelineCache;
     };
 }

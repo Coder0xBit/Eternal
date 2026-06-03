@@ -15,9 +15,9 @@ namespace Eternal {
         void render(FrameInfo* frameInfo) override;
 
     private:
-        VulkanPlatform* m_VulkanPlatform = nullptr;
-        VulkanRenderer* m_VulkanRenderer = nullptr;
-        Window* m_Window = nullptr;
+        VulkanPlatform* mVulkanPlatform = nullptr;
+        VulkanRenderer* mVulkanRenderer = nullptr;
+        Window* mWindow = nullptr;
 
         void init();
     };

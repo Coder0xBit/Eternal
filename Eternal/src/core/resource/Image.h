@@ -14,19 +14,19 @@ namespace Eternal {
 		Image(const Image&) = delete;
 		Image& operator=(const Image&) = delete;
 		bool load(const std::string& path) override;
-		unsigned char* getData() const { return m_Data; }
+		unsigned char* getData() const { return mData; }
 		GLFWimage getGLFWImage();
-		int getWidth() const { return m_Width; }
-		int getHeight() const { return m_Height; }
-		int getPixelCount() const { return m_Width * m_Height; }
-		int getChannels() const { return m_Channels; }
+		int getWidth() const { return mWidth; }
+		int getHeight() const { return mHeight; }
+		int getPixelCount() const { return mWidth * mHeight; }
+		int getChannels() const { return mChannels; }
 		virtual ~Image();
 
 	private:
-		int m_Width = 0;
-		int m_Height = 0;
-		int m_Channels = 0;
-		unsigned char* m_Data = nullptr;
+		int mWidth = 0;
+		int mHeight = 0;
+		int mChannels = 0;
+		unsigned char* mData = nullptr;
 
 	};
 }

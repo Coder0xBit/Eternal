@@ -5,7 +5,7 @@
 #include "utils/Base.h"
 #include "core/graphics/vulkan/VulkanGraphicsContext.h"
 #include "core/graphics/GraphicsPlatform.h"
-#include "core/Camera.hpp"
+#include "core/Camera.h"
 
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
@@ -55,7 +55,7 @@ namespace Eternal {
                                       uint32_t typeBits);
 
     private:
-        std::string m_ApplicationName;
-        uint32_t m_Version = 0;
+        std::string mApplicationName;
+        uint32_t mVersion = 0;
     };
 }

@@ -9,18 +9,18 @@ namespace Eternal
 
 	bool Image::load(const std::string& path) {
 		/*stbi_set_flip_vertically_on_load(true);*/
-		m_Data = stbi_load(path.c_str(), &m_Width, &m_Height, &m_Channels, STBI_rgb_alpha);
+		mData = stbi_load(path.c_str(), &mWidth, &mHeight, &mChannels, STBI_rgb_alpha);
 
-		if (!m_Data)
+		if (!mData)
 		{
 			Eternal::Logger::Error("Failed to load icon, from this path {}", path);
 			return false;
 		}
 
-		if (m_Channels < DESIRED_IMAGE_CHANNELS)
+		if (mChannels < DESIRED_IMAGE_CHANNELS)
 		{
 			Eternal::Logger::Warn("Image loaded from path {} has less than 4 channels, reverting the channels to {}", path, DESIRED_IMAGE_CHANNELS);
-			m_Channels = DESIRED_IMAGE_CHANNELS;
+			mChannels = DESIRED_IMAGE_CHANNELS;
 		}
 
 		return true;
@@ -29,13 +29,13 @@ namespace Eternal
 	GLFWimage Image::getGLFWImage()
 	{
 		GLFWimage glfwImage;
-		glfwImage.width = m_Width;
-		glfwImage.height = m_Height;
-		glfwImage.pixels = m_Data;
+		glfwImage.width = mWidth;
+		glfwImage.height = mHeight;
+		glfwImage.pixels = mData;
 		return glfwImage;
 	}
 
 	Image::~Image() {
-		stbi_image_free(m_Data);
+		stbi_image_free(mData);
 	}
 }

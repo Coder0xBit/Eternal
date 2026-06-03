@@ -1,4 +1,6 @@
 #include "core/graphics/opengl/OpenGLIndexBuffer.h"
+#include "core/graphics/opengl/OpenGLUtils.h"
+
 
 namespace Eternal {
     OpenGLIndexBuffer::OpenGLIndexBuffer(const std::vector<uint32_t>& indices) {

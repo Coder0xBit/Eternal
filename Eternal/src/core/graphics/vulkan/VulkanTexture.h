@@ -16,14 +16,14 @@ namespace Eternal {
         VulkanTexture(Eternal::VulkanPlatform* vulkanPlatform, const Eternal::Image* imageResource);
         ~VulkanTexture();
 
-        std::shared_ptr<VulkanBuffer> getStagingBuffer() { return m_StagingBuffer; }
-        vk::Format getFormat() const { return m_Format; }
-        const vk::Image& getImage() const { return m_Image; }
-        int getWidth() const { return m_Width; }
-        int getHeight() const { return m_Height; }
+        std::shared_ptr<VulkanBuffer> getStagingBuffer() { return mStagingBuffer; }
+        vk::Format getFormat() const { return mFormat; }
+        const vk::Image& getImage() const { return mImage; }
+        int getWidth() const { return mWidth; }
+        int getHeight() const { return mHeight; }
         vk::BufferImageCopy getRegionForCopy() const;
-        vk::ImageView getImageView() const { return m_ImageView; }
-        vk::Sampler getSampler() const { return m_Sampler; }
+        vk::ImageView getImageView() const { return mImageView; }
+        vk::Sampler getSampler() const { return mSampler; }
 
         void create();
         void recordUploadCommand(vk::CommandBuffer commandBuffer) const;
@@ -31,10 +31,10 @@ namespace Eternal {
                                                      vk::ImageLayout newLayout) const;
 
     private:
-        const Eternal::Image* m_ImageResource;
-        std::shared_ptr<VulkanBuffer> m_StagingBuffer;
+        const Eternal::Image* mImageResource;
+        std::shared_ptr<VulkanBuffer> mStagingBuffer;
 
-        vk::MemoryPropertyFlags m_BufferProperties =
+        vk::MemoryPropertyFlags mBufferProperties =
                 vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
 
         void prepareStagingBuffer();
@@ -43,22 +43,22 @@ namespace Eternal {
         void createImageView();
         void createSampler();
 
-        vk::Device m_Device;
-        vk::PhysicalDevice m_PhysicalDevice;
+        vk::Device mDevice;
+        vk::PhysicalDevice mPhysicalDevice;
 
-        Eternal::VulkanPlatform* m_VulkanPlatform;
+        Eternal::VulkanPlatform* mVulkanPlatform;
 
-        vk::Image m_Image;
-        vk::DeviceSize m_ImageSize = 0;
-        vk::DeviceMemory m_Memory;
-        vk::ImageView m_ImageView;
-        vk::Sampler m_Sampler;
-        vk::DescriptorImageInfo m_DescriptorInfo;
+        vk::Image mImage;
+        vk::DeviceSize mImageSize = 0;
+        vk::DeviceMemory mMemory;
+        vk::ImageView mImageView;
+        vk::Sampler mSampler;
+        vk::DescriptorImageInfo mDescriptorInfo;
 
-        int m_Width = 0;
-        int m_Height = 0;
-        vk::Format m_Format = vk::Format::eR8G8B8A8Srgb;
+        int mWidth = 0;
+        int mHeight = 0;
+        vk::Format mFormat = vk::Format::eR8G8B8A8Srgb;
 
-        std::string m_DebugName = "test_texture_name";
+        std::string mDebugName = "test_texture_name";
     };
 }

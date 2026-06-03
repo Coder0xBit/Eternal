@@ -8,7 +8,7 @@
 
 namespace Eternal {
     VulkanPlatform::VulkanPlatform(const Builder& builder) {
-        m_ApplicationName = builder->applicationName;
+        mApplicationName = builder->applicationName;
 
         VulkanPlatform::initialize();
     }
@@ -18,21 +18,21 @@ namespace Eternal {
     }
 
     void VulkanPlatform::initialize() {
-        m_VkInstance = createInstance(m_ApplicationName);
-        m_PhysicalDevice = choosePhysicalDevice(m_VkInstance);
+        mVkInstance = createInstance(mApplicationName);
+        mPhysicalDevice = choosePhysicalDevice(mVkInstance);
     }
 
     vk::Instance VulkanPlatform::createInstance(const std::string& applicationName) {
         uint32_t version = 0;
-        vkEnumerateInstanceVersion(&m_Version);
+        vkEnumerateInstanceVersion(&mVersion);
 
-        Eternal::Logger::Info("Vulkan Variant {}", VK_API_VERSION_VARIANT(m_Version));
-        Eternal::Logger::Info("Vulkan Major {}", VK_API_VERSION_MAJOR(m_Version));
-        Eternal::Logger::Info("Vulkan Minor {}", VK_API_VERSION_MINOR(m_Version));
-        Eternal::Logger::Info("Vulkan Patch {}", VK_API_VERSION_PATCH(m_Version));
+        Eternal::Logger::Info("Vulkan Variant {}", VK_API_VERSION_VARIANT(mVersion));
+        Eternal::Logger::Info("Vulkan Major {}", VK_API_VERSION_MAJOR(mVersion));
+        Eternal::Logger::Info("Vulkan Minor {}", VK_API_VERSION_MINOR(mVersion));
+        Eternal::Logger::Info("Vulkan Patch {}", VK_API_VERSION_PATCH(mVersion));
 
         // Removing Patch
-        version = m_Version & ~(0xFFFU);
+        version = mVersion & ~(0xFFFU);
 
         vk::ApplicationInfo applicationInfo = vk::ApplicationInfo()
                 .setPApplicationName(applicationName.c_str())
@@ -135,11 +135,11 @@ namespace Eternal {
     }
 
     void VulkanPlatform::shutDown() {
-        if (m_Surface) {
-            m_VkInstance.destroySurfaceKHR(m_Surface);
+        if (mSurface) {
+            mVkInstance.destroySurfaceKHR(mSurface);
         }
 
-        m_VkInstance.destroy();
+        mVkInstance.destroy();
     }
 
     SwapChain* VulkanPlatform::createSwapChain(Window* window) {
@@ -150,25 +150,25 @@ namespace Eternal {
             return nullptr;
         }
 
-        m_Surface = vkWindow->createWindowSurface(m_VkInstance);
+        mSurface = vkWindow->createWindowSurface(mVkInstance);
 
         vk::Extent2D fallbackExtent = vkWindow->getExtent();
 
-        m_PresentQueueFamilyIndex = identifyPresentQueueFamilyIndex(m_PhysicalDevice, m_Surface);
-        ETERNAL_ASSERT(m_PresentQueueFamilyIndex != INVALID_VK_INDEX, "Present Queue Family Index is Invalid");
+        mPresentQueueFamilyIndex = identifyPresentQueueFamilyIndex(mPhysicalDevice, mSurface);
+        ETERNAL_ASSERT(mPresentQueueFamilyIndex != INVALID_VK_INDEX, "Present Queue Family Index is Invalid");
 
-        m_GraphicsQueueFamilyIndex = identifyGraphicsQueueFamilyIndex(m_PhysicalDevice, vk::QueueFlagBits::eGraphics);
-        ETERNAL_ASSERT(m_GraphicsQueueFamilyIndex != INVALID_VK_INDEX, "Graphics Queue Family Index is Invalid");
+        mGraphicsQueueFamilyIndex = identifyGraphicsQueueFamilyIndex(mPhysicalDevice, vk::QueueFlagBits::eGraphics);
+        ETERNAL_ASSERT(mGraphicsQueueFamilyIndex != INVALID_VK_INDEX, "Graphics Queue Family Index is Invalid");
 
-        m_LogicalDevice = createLogicalDevice(m_PhysicalDevice, m_GraphicsQueueFamilyIndex, m_PresentQueueFamilyIndex);
+        mLogicalDevice = createLogicalDevice(mPhysicalDevice, mGraphicsQueueFamilyIndex, mPresentQueueFamilyIndex);
 
-        m_PresentQueue = m_LogicalDevice.getQueue(m_PresentQueueFamilyIndex, m_PresentQueueIndex);
+        mPresentQueue = mLogicalDevice.getQueue(mPresentQueueFamilyIndex, mPresentQueueIndex);
 
-        m_GraphicsQueue = m_LogicalDevice.getQueue(m_GraphicsQueueFamilyIndex, m_GraphicsQueueIndex);
+        mGraphicsQueue = mLogicalDevice.getQueue(mGraphicsQueueFamilyIndex, mGraphicsQueueIndex);
 
-        return Memory::Allocate<VulkanSwapChain>(m_VkInstance, m_LogicalDevice, m_PhysicalDevice, m_PresentQueue,
-                                                 m_Surface, fallbackExtent, m_GraphicsQueueFamilyIndex,
-                                                 m_PresentQueueFamilyIndex);
+        return Memory::Allocate<VulkanSwapChain>(mVkInstance, mLogicalDevice, mPhysicalDevice, mPresentQueue,
+                                                 mSurface, fallbackExtent, mGraphicsQueueFamilyIndex,
+                                                 mPresentQueueFamilyIndex);
     }
 
     vk::ShaderModule VulkanPlatform::loadShader(const vk::Device& logicalDevice, const std::filesystem::path& path) {
@@ -309,9 +309,9 @@ namespace Eternal {
     vk::CommandPool VulkanPlatform::createCommandPool(vk::CommandPoolCreateFlags commandPoolCreateFlagBits) {
         vk::CommandPoolCreateInfo commandPoolCreateInfo = vk::CommandPoolCreateInfo()
                 .setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer)
-                .setQueueFamilyIndex(m_GraphicsQueueIndex);
+                .setQueueFamilyIndex(mGraphicsQueueIndex);
 
-        return m_LogicalDevice.createCommandPool(commandPoolCreateInfo);
+        return mLogicalDevice.createCommandPool(commandPoolCreateInfo);
     }
 
     std::vector<vk::CommandBuffer> VulkanPlatform::allocateCommandBuffers(
@@ -321,7 +321,7 @@ namespace Eternal {
                 .setLevel(level)
                 .setCommandBufferCount(count);
 
-        return m_LogicalDevice.allocateCommandBuffers(commandBufferAllocateInfo);
+        return mLogicalDevice.allocateCommandBuffers(commandBufferAllocateInfo);
     }
 
     vk::CommandBuffer VulkanPlatform::allocateCommandBuffer(vk::CommandPool commandPool, vk::CommandBufferLevel level) {
@@ -330,7 +330,7 @@ namespace Eternal {
     }
 
     void VulkanPlatform::destroyCommandPool(vk::CommandPool commandPool) {
-        m_LogicalDevice.destroyCommandPool(commandPool);
+        mLogicalDevice.destroyCommandPool(commandPool);
     }
 
     vk::CommandBuffer VulkanPlatform::beginSingleCommand(vk::CommandPool commandPool) {
@@ -339,7 +339,7 @@ namespace Eternal {
                 .setLevel(vk::CommandBufferLevel::ePrimary)
                 .setCommandBufferCount(1);
 
-        vk::CommandBuffer commandBuffer = m_LogicalDevice.allocateCommandBuffers(commandBufferAllocateInfo)[0];
+        vk::CommandBuffer commandBuffer = mLogicalDevice.allocateCommandBuffers(commandBufferAllocateInfo)[0];
 
         vk::CommandBufferBeginInfo beginInfo = vk::CommandBufferBeginInfo()
                 .setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit)
@@ -357,7 +357,7 @@ namespace Eternal {
 
         queue.submit(submitInfo, nullptr);
         queue.waitIdle();
-        m_LogicalDevice.freeCommandBuffers(commandPool, commandBuffer);
+        mLogicalDevice.freeCommandBuffers(commandPool, commandBuffer);
     }
 
     void VulkanPlatform::executeOneCommand(vk::CommandPool commandPool, vk::Queue queue,
