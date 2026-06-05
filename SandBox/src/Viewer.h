@@ -2,6 +2,9 @@
 
 #include "Application.h"
 
+#include "core/graphics/opengl/OpenGLPlatform.h"
+#include "core/graphics/opengl/OpenGLShader.h"
+
 #include "core/imgui/ImGuiOverlay.h"
 #include "core/window/Window.h"
 #include "core/scene/Scene.h"

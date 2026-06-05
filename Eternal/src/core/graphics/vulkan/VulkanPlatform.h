@@ -33,7 +33,7 @@ namespace Eternal {
         uint32_t identifyPresentQueueFamilyIndex(vk::PhysicalDevice& device, vk::SurfaceKHR& surface);
         vk::Device createLogicalDevice(vk::PhysicalDevice& device, uint32_t graphicsQueueFamilyIndex,
                                        uint32_t presentQueueFamilyIndex);
-        vk::ShaderModule loadShader(const vk::Device& logicalDevice, const std::filesystem::path& path);
+        vk::ShaderModule loadShader(const std::filesystem::path& path) const;
         bool validateExtensions(VkStringArray extensions);
         bool validateLayers(VkStringArray layers);
         bool checkDeviceExtensionSupport(const vk::PhysicalDevice& device, const VkStringArray requestedExtensions);

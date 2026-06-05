@@ -6,7 +6,7 @@
 namespace Eternal {
     class OpenGLVertexBuffer : public VertexBuffer {
     public:
-        OpenGLVertexBuffer(VertexBufferLayout* bufferLayout);
+        OpenGLVertexBuffer(VertexBufferLayout bufferLayout);
         void bind() override;
         void unBind() override;
         void setBuffer(const std::vector<Eternal::Vertex>& vertices) override;

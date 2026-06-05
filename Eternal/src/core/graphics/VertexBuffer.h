@@ -1,4 +1,6 @@
 #pragma once
+#include <utility>
+
 #include "core/graphics/GraphicsPlatform.h"
 #include "core/graphics/Vertex.h"
 #include "core/graphics/Backend.h"
@@ -8,7 +10,7 @@
 namespace Eternal {
     class VertexBuffer {
     public :
-        VertexBuffer(VertexBufferLayout* bufferLayout) : bufferLayout(bufferLayout) {
+        VertexBuffer(VertexBufferLayout bufferLayout) : bufferLayout(std::move(bufferLayout)) {
         }
 
         virtual ~VertexBuffer() = default;
@@ -17,10 +19,10 @@ namespace Eternal {
         virtual uint32_t getSize() = 0;
         virtual void setBuffer(const std::vector<Eternal::Vertex>& vertices) = 0;
 
-        VertexBufferLayout* bufferLayout;
+        VertexBufferLayout bufferLayout;
 
         struct BuilderDetails {
-            VertexBufferLayout* bufferLayout = nullptr;
+            VertexBufferLayout bufferLayout;
             GraphicsPlatform* graphicsPlatform = nullptr;
             Backend backend = Backend::Vulkan;
         };

@@ -1,10 +1,12 @@
+#include <utility>
+
 #include "core/graphics/vulkan/VulkanVertexBuffer.h"
 
 namespace Eternal {
     VulkanVertexBuffer::VulkanVertexBuffer(
         GraphicsPlatform* graphicsPlatform,
-        VertexBufferLayout* bufferLayout
-    ) : VertexBuffer(bufferLayout) {
+        VertexBufferLayout bufferLayout
+    ) : VertexBuffer(std::move(bufferLayout)) {
         mVulkanPlatform = static_cast<VulkanPlatform*>(graphicsPlatform);
         mBuffer = std::make_unique<VulkanBuffer>(mVulkanPlatform);
     }

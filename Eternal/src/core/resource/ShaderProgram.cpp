@@ -1,7 +1,7 @@
 #include "core/resource/ShaderProgram.h"
 
 namespace Eternal {
-	ShaderProgram::ShaderProgram() {}
+	ShaderProgram::ShaderProgram() = default;
 
 	bool ShaderProgram::load(const std::string& path) {
 		if (path.empty()) {

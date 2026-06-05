@@ -43,10 +43,7 @@ namespace Eternal {
     }
 
     VertexBuffer::Builder& VertexBuffer::Builder::attribute(Attribute attribute) noexcept {
-        if (mImpl->bufferLayout == nullptr) {
-            mImpl->bufferLayout = Memory::Allocate<VertexBufferLayout>();
-        }
-        mImpl->bufferLayout->attribute(attribute);
+        mImpl->bufferLayout.attribute(attribute);
         return *this;
     }
 

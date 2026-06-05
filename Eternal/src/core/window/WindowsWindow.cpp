@@ -21,6 +21,8 @@ namespace Eternal {
         mWindow = glfwCreateWindow(mData.width, mData.height, mData.title.c_str(), nullptr, nullptr);
         ETERNAL_ASSERT(mWindow != nullptr, "Failed to create GLFW window");
 
+        glfwMakeContextCurrent(mWindow);
+
         glfwSetWindowUserPointer(mWindow, &mData);
 
         // glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);

@@ -171,14 +171,17 @@ namespace Eternal {
                                                  mPresentQueueFamilyIndex);
     }
 
-    vk::ShaderModule VulkanPlatform::loadShader(const vk::Device& logicalDevice, const std::filesystem::path& path) {
-        ShaderProgram* shader = ResourceManager::get().loadResource<ShaderProgram>(path.string());
+    vk::ShaderModule VulkanPlatform::loadShader(const std::filesystem::path& path) const {
+        ETERNAL_ASSERT(mLogicalDevice, "Logical Device not created, call createSwapChain(...) function");
+        auto* shader = ResourceManager::get().loadResource<ShaderProgram>(path.string());
+
+        const uint32_t* shaderCode = reinterpret_cast<uint32_t*>(shader->getBlob().data());
 
         vk::ShaderModuleCreateInfo shaderModuleCreateInfo = vk::ShaderModuleCreateInfo()
                 .setCodeSize(shader->getBlobSize())
-                .setPCode(shader->getBlob());
+                .setPCode(shaderCode);
 
-        vk::ShaderModule shaderModule = logicalDevice.createShaderModule(shaderModuleCreateInfo);
+        vk::ShaderModule shaderModule = mLogicalDevice.createShaderModule(shaderModuleCreateInfo);
         return shaderModule;
     }
 

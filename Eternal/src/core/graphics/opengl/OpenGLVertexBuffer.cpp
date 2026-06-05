@@ -3,8 +3,8 @@
 
 namespace Eternal {
     OpenGLVertexBuffer::OpenGLVertexBuffer(
-        VertexBufferLayout* bufferLayout
-    ) : VertexBuffer(bufferLayout) {
+        VertexBufferLayout bufferLayout
+    ) : VertexBuffer(std::move(bufferLayout)) {
         glGenBuffers(1, &mVertexBufferID);
     }
 

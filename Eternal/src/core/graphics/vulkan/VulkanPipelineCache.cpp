@@ -24,11 +24,9 @@ namespace Eternal {
 
         std::string vertexShader = "common_vertex.spv";
 
-        vk::ShaderModule vertexShaderModule = mPlatform->loadShader(
-            logicalDevice, "res/shader/bin/" + vertexShader);
+        vk::ShaderModule vertexShaderModule = mPlatform->loadShader("res/shader/bin/" + vertexShader);
 
-        vk::ShaderModule fragmentShaderModule = mPlatform->loadShader(
-            logicalDevice, "res/shader/bin/" + fragShader);
+        vk::ShaderModule fragmentShaderModule = mPlatform->loadShader("res/shader/bin/" + fragShader);
 
         vk::PipelineLayout pipelineLayout = pipelineKey.pipelineLayout;
         vk::RenderPass renderPass = pipelineKey.renderPass;

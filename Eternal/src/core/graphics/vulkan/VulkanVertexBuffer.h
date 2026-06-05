@@ -8,7 +8,7 @@
 namespace Eternal {
     class VulkanVertexBuffer : public VertexBuffer {
     public:
-        VulkanVertexBuffer(GraphicsPlatform* graphicsPlatform, VertexBufferLayout* bufferLayout);
+        VulkanVertexBuffer(GraphicsPlatform* graphicsPlatform, VertexBufferLayout bufferLayout);
         ~VulkanVertexBuffer() override;
         void bind() override;
         void unBind() override;
