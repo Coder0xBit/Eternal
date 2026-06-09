@@ -23,6 +23,7 @@ namespace Eternal {
                 .title(std::string("Eternal Application"))
                 .height(800)
                 .width(1200)
+                .backend(mBackend)
                 .build();
 
         mInputDispatcher = std::make_unique<InputDispatcher>(mWindow.get());

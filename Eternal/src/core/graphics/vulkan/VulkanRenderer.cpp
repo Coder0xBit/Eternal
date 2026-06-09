@@ -4,7 +4,7 @@
 #include "core/graphics/vulkan/VulkanDescsriptorSetLayout.h"
 #include "core/graphics/vulkan/VulkanDescriptorPool.h"
 #include "core/graphics/vulkan/VulkanImGuiOverlay.h"
-#include "core/graphics/vulkan/VulkanBufferManager.h"
+#include "core/graphics/vulkan/VulkanUBOManager.h"
 #include "core/graphics/vulkan/VulkanPipelineCache.h"
 #include "core/scene/Entity.h"
 #include "core/scene/TransformComponent.h"
@@ -48,7 +48,16 @@ namespace Eternal {
 
         mPhysicalDevice = mPlatform->getPhysicalDevice();
 
-        mVulkanBufferManager = Memory::Allocate<VulkanBufferManager>(mPlatform, mScene);
+        mVulkanUBOManager = Memory::Allocate<VulkanUBOManager>(mPlatform, mScene);
+
+        mBufferManager = Memory::Allocate<BufferManager>(mPlatform, Backend::Vulkan);
+
+        for (const auto& [e , meshComponent]: mScene->getAllEntityWith<Eternal::MeshComponent>().each()) {
+            Eternal::Entity entity = Eternal::Entity(e, mScene);
+            MeshHandle meshHandle = mBufferManager->addBuffer(meshComponent);
+            entity.addComponent<RenderComponent>(meshHandle);
+        }
+
         mVulkanTextureManager = Memory::Allocate<VulkanTextureManager>(mPlatform, mScene);
 
         mPipelineCache = Memory::Allocate<VulkanPipelineCache>(mPlatform);
@@ -104,7 +113,8 @@ namespace Eternal {
 
         Memory::Deallocate(mVulkanTextureManager);
 
-        Memory::Deallocate(mVulkanBufferManager);
+        Memory::Deallocate(mVulkanUBOManager);
+        Memory::Deallocate(mBufferManager);
 
         mLogicalDevice.destroy();
     }
@@ -112,12 +122,13 @@ namespace Eternal {
     void VulkanRenderer::bindScene() {
         mScene->onComponentAdded<Eternal::MeshComponent>(
             [this](Eternal::Entity& entity, Eternal::MeshComponent& component) {
-                mVulkanBufferManager->addBuffer(entity.getUUID(), component);
+                MeshHandle meshHandle = mBufferManager->addBuffer(component);
+                entity.addComponent<RenderComponent>(meshHandle);
             });
 
         mScene->onComponentAdded<Eternal::TransformComponent>(
             [this](Eternal::Entity& entity, Eternal::TransformComponent& component) {
-                mVulkanBufferManager->addUniformBuffer(entity.getUUID(), component);
+                mVulkanUBOManager->addUniformBuffer(entity.getUUID(), component);
             });
     }
 
@@ -260,7 +271,7 @@ namespace Eternal {
 
     void VulkanRenderer::initializeDescriptors() {
         auto uboDescriptorSetLayout = mPipelineLayoutCache->getUboDescriptorSetLayout();
-        auto uniformBuffers = mVulkanBufferManager->getUniformBuffers();
+        auto uniformBuffers = mVulkanUBOManager->getUniformBuffers();
         for (auto& [entityId, uniformBuffer]: uniformBuffers) {
             vk::DescriptorSet descriptorSet = mDescriptorPool->allocate(*uboDescriptorSetLayout);
             mUniformDescriptorSets[entityId] = descriptorSet;
@@ -268,7 +279,7 @@ namespace Eternal {
             vk::DescriptorBufferInfo bufferInfo = vk::DescriptorBufferInfo()
                     .setBuffer(*uniformBuffer->getVkBuffer())
                     .setOffset(0)
-                    .setRange(sizeof(VulkanBufferManager::UniformBuffer));
+                    .setRange(sizeof(VulkanUBOManager::UniformBuffer));
 
             vk::WriteDescriptorSet writeDescriptorSet = vk::WriteDescriptorSet()
                     .setDstSet(descriptorSet)
@@ -308,7 +319,7 @@ namespace Eternal {
 
     void VulkanRenderer::createCommandBuffers() {
         mCommandBuffers = mPlatform->allocateCommandBuffers(mCommandPool, vk::CommandBufferLevel::ePrimary,
-                                                              MAX_FRAMES_IN_FLIGHT);
+                                                            MAX_FRAMES_IN_FLIGHT);
     }
 
     void VulkanRenderer::createSemaphores() {
@@ -377,7 +388,7 @@ namespace Eternal {
 
         VulkanSwapChain::SwapChainDetails swapChainDetails = mVulkanSwapChain->getSwapChainDetails();
 
-        VulkanBufferManager::UniformBuffer sceneUbo;
+        VulkanUBOManager::UniformBuffer sceneUbo;
         sceneUbo.projection = camera->getProjection();
         sceneUbo.view = camera->getView();
 
@@ -396,8 +407,9 @@ namespace Eternal {
                 .setExtent(swapChainDetails.extent);
 
         commandBuffer.setScissor(0, 1, &scissor);
+        auto view = mScene->getAllEntityWith<TransformComponent, RenderComponent>().each();
 
-        for (const auto& [e, renderComponent]: mScene->getAllEntityWith<Eternal::MeshComponent>().each()) {
+        for (const auto& [e, transformComponent , renderComponent]: view) {
             Eternal::Entity entity = Eternal::Entity(e, mScene);
 
             auto transform = entity.getComponent<Eternal::TransformComponent>();
@@ -425,7 +437,7 @@ namespace Eternal {
             vk::Pipeline pipeline = mPipelineCache->getOrCreate(pipelineKey);
             commandBuffer.bindPipeline(vk::PipelineBindPoint::eGraphics, pipeline);
 
-            std::shared_ptr<VulkanBuffer> uniformBuffer = mVulkanBufferManager->getUniformBuffer(entity.getUUID());
+            std::shared_ptr<VulkanBuffer> uniformBuffer = mVulkanUBOManager->getUniformBuffer(entity.getUUID());
 
             if (uniformBuffer) {
                 uniformBuffer->write(&sceneUbo);
@@ -441,16 +453,18 @@ namespace Eternal {
                                                  &materialDescriptorSet, 0, nullptr);
             }
 
-            VulkanBuffer* vertexBuffer = mVulkanBufferManager->getVertexBuffer(entity.getUUID());
-            if (vertexBuffer) {
+            VertexBuffer* vertexBuffer = mBufferManager->getVertexBuffer(renderComponent.getMeshHandle());
+            VulkanVertexBuffer* vulkanVertexBuffer = dynamic_cast<VulkanVertexBuffer*>(vertexBuffer);
+            if (VulkanBuffer* vertexVulkanBuffer = vulkanVertexBuffer->getVulkanBuffer()) {
                 vk::DeviceSize offset = vk::DeviceSize(0);
-                commandBuffer.bindVertexBuffers(0, 1, vertexBuffer->getVkBuffer(), &offset);
+                commandBuffer.bindVertexBuffers(0, 1, vertexVulkanBuffer->getVkBuffer(), &offset);
             }
 
-            VulkanBuffer* indexBuffer = mVulkanBufferManager->getIndexBuffer(entity.getUUID());
-            if (indexBuffer) {
-                commandBuffer.bindIndexBuffer(*(indexBuffer->getVkBuffer()), 0, vk::IndexType::eUint32);
-                commandBuffer.drawIndexed(indexBuffer->getElementCount(), 1, 0, 0, 0);
+            IndexBuffer* indexBuffer = mBufferManager->getIndexBuffer(renderComponent.getMeshHandle());
+            VulkanIndexBuffer* vulkanIndexBuffer = dynamic_cast<VulkanIndexBuffer*>(indexBuffer);
+            if (VulkanBuffer* indexVulkanBuffer = vulkanIndexBuffer->getVulkanBuffer()) {
+                commandBuffer.bindIndexBuffer(*(indexVulkanBuffer->getVkBuffer()), 0, vk::IndexType::eUint32);
+                commandBuffer.drawIndexed(indexVulkanBuffer->getElementCount(), 1, 0, 0, 0);
             }
         }
     }

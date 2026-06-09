@@ -6,6 +6,7 @@
 #include "core/graphics/vulkan/VulkanGraphicsContext.h"
 #include "core/graphics/GraphicsPlatform.h"
 #include "core/Camera.h"
+#include "core/window/Window.h"
 
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
@@ -50,6 +51,9 @@ namespace Eternal {
         void endSingleCommand(vk::CommandPool commandPool, vk::CommandBuffer commandBuffer, vk::Queue queue);
         void executeOneCommand(vk::CommandPool commandPool, vk::Queue queue,
                                const std::function<void(vk::CommandBuffer)>& function);
+
+        vk::SurfaceKHR createWindowSurface(Eternal::Window* window) const;
+        static vk::Extent2D getExtent(Eternal::Window* window);
 
         static uint32_t getMemoryType(vk::PhysicalDevice physicalDevice, vk::MemoryPropertyFlags properties,
                                       uint32_t typeBits);

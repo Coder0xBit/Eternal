@@ -1,10 +1,10 @@
 #include "core/graphics/vulkan/VulkanPlatform.h"
 #include "core/graphics/vulkan/VulkanConstants.h"
-#include "core/graphics/vulkan/VulkanWindow.h"
 #include "core/resource/ResourceManager.h"
 #include "core/resource/ShaderProgram.h"
 
 #include <set>
+#include <GLFW/glfw3.h>
 
 namespace Eternal {
     VulkanPlatform::VulkanPlatform(const Builder& builder) {
@@ -143,16 +143,8 @@ namespace Eternal {
     }
 
     SwapChain* VulkanPlatform::createSwapChain(Window* window) {
-        VulkanWindow* vkWindow = dynamic_cast<VulkanWindow*>(window);
-
-        if (!vkWindow) {
-            Eternal::Logger::Debug("Returning Null SwapChain, expecting VulkanWindow in createSwapChain(..)");
-            return nullptr;
-        }
-
-        mSurface = vkWindow->createWindowSurface(mVkInstance);
-
-        vk::Extent2D fallbackExtent = vkWindow->getExtent();
+        mSurface = createWindowSurface(window);
+        vk::Extent2D fallbackExtent = getExtent(window);
 
         mPresentQueueFamilyIndex = identifyPresentQueueFamilyIndex(mPhysicalDevice, mSurface);
         ETERNAL_ASSERT(mPresentQueueFamilyIndex != INVALID_VK_INDEX, "Present Queue Family Index is Invalid");
@@ -368,5 +360,30 @@ namespace Eternal {
         vk::CommandBuffer commandBuffer = beginSingleCommand(commandPool);
         function(commandBuffer);
         endSingleCommand(commandPool, commandBuffer, queue);
+    }
+
+    vk::SurfaceKHR VulkanPlatform::createWindowSurface(Eternal::Window* window) const {
+        ETERNAL_ASSERT(window != nullptr, "Window is null");
+        auto glfwWindow = static_cast<GLFWwindow*>(window->getNativeWindow());
+
+        vk::SurfaceKHR surface = nullptr;
+        if (glfwCreateWindowSurface(
+                mVkInstance,
+                glfwWindow,
+                nullptr,
+                reinterpret_cast<VkSurfaceKHR*>(&surface)) != VK_SUCCESS
+        ) {
+            Eternal::Logger::Error("Failed to create window surface");
+            return nullptr;
+        }
+        return surface;
+    }
+
+    vk::Extent2D VulkanPlatform::getExtent(Eternal::Window* window) {
+        ETERNAL_ASSERT(window != nullptr, "Window is null");
+        int width = 0, height = 0;
+        auto glfwWindow = static_cast<GLFWwindow*>(window->getNativeWindow());
+        glfwGetFramebufferSize(glfwWindow, &width, &height);
+        return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
     }
 }

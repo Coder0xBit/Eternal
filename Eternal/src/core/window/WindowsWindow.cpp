@@ -10,10 +10,17 @@ namespace Eternal {
         mData.title = builder->title;
         mData.height = builder->height;
         mData.width = builder->width;
+        mData.backend = builder->backend;
 
         glfwInit();
 
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        if (mData.backend == Backend::Vulkan) {
+            glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        } else {
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        }
 
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
@@ -62,7 +69,7 @@ namespace Eternal {
         });
 
         Logger::Info("Current Working Path {} , Accessing Window Icon", std::filesystem::current_path().string());
-        setWindowIcon(WINDOW_ICON_PATH, mWindow);
+        setWindowIcon(WINDOW_ICON_PATH);
 
         Eternal::Logger::Info("Window Created");
     }
@@ -97,34 +104,15 @@ namespace Eternal {
         Eternal::Logger::Info("Window Destroyed");
     }
 
-    vk::SurfaceKHR WindowsWindow::createWindowSurface(vk::Instance instance) const {
-        ETERNAL_ASSERT(mWindow != nullptr, "Window is null");
-
-        vk::SurfaceKHR surface = nullptr;
-        if (glfwCreateWindowSurface(instance, mWindow, nullptr, reinterpret_cast<VkSurfaceKHR*>(&surface)) !=
-            VK_SUCCESS) {
-            Eternal::Logger::Error("Failed to create window surface");
-            return nullptr;
-        }
-        return surface;
-    }
-
-    vk::Extent2D WindowsWindow::getExtent() const {
-        ETERNAL_ASSERT(mWindow != nullptr, "Window is null");
-        int width = 0, height = 0;
-        glfwGetFramebufferSize(mWindow, &width, &height);
-        return {static_cast<uint32_t>(width), static_cast<uint32_t>(height)};
-    }
-
-    void WindowsWindow::setWindowIcon(const std::filesystem::path& path, GLFWwindow* window) {
-        if (window == nullptr) {
-            Eternal::Logger::Error("Trying to set icon on null window (GLFW)");
+    void WindowsWindow::setWindowIcon(const std::filesystem::path& path) const {
+        if (mWindow == nullptr) {
+            Eternal::Logger::Error("Trying to set icon on null mWindow (GLFW)");
             return;
         }
 
         Image* image = ResourceManager::get().loadResource<Image>(path.string());
         GLFWimage icon = image->getGLFWImage();
-        glfwSetWindowIcon(window, 1, &icon);
+        glfwSetWindowIcon(mWindow, 1, &icon);
     }
 
     bool WindowsWindow::isKeyPressed(Eternal::KeyCode keycode) const {

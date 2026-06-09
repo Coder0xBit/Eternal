@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/graphics/vulkan/VulkanWindow.h"
+#include "core/window/Window.h"
 
 #include <vulkan/vulkan.hpp>
 #include <GLFW/glfw3.h>
@@ -9,7 +9,7 @@
 namespace Eternal {
     constexpr const char* WINDOW_ICON_PATH = "res/PNGs/eternal_logo.png";
 
-    class WindowsWindow : public VulkanWindow {
+    class WindowsWindow : public Window {
     public:
         WindowsWindow(const Builder& builder);
 
@@ -39,11 +39,7 @@ namespace Eternal {
             mData.eventCallback = callback;
         }
 
-        virtual vk::SurfaceKHR createWindowSurface(vk::Instance instance) const override;
-
-        virtual vk::Extent2D getExtent() const override;
-
-        void setWindowIcon(const std::filesystem::path& path, GLFWwindow* window);
+        void setWindowIcon(const std::filesystem::path& path) const;
 
         virtual bool isKeyPressed(Eternal::KeyCode keycode) const override;
 
@@ -54,6 +50,7 @@ namespace Eternal {
             std::string title;
             uint32_t height = 0;
             uint32_t width = 0;
+            Backend backend = Backend::Vulkan;
             bool VSync;
 
             EventCallback eventCallback;

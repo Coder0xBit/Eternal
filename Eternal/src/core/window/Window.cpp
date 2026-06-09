@@ -33,6 +33,11 @@ namespace Eternal {
         return *this;
     }
 
+    Window::Builder& Window::Builder::backend(Backend backend) noexcept {
+        mImpl->backend = backend;
+        return *this;
+    }
+
     Window::Builder& Window::Builder::width(uint32_t width) noexcept {
         mImpl->width = width;
         return *this;

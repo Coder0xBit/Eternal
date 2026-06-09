@@ -1,8 +1,9 @@
 #pragma once
 
+#include "core/graphics/BufferManager.h"
 #include "utils/Base.h"
 #include "core/graphics/Renderer.h"
-#include "core/graphics/vulkan/VulkanBufferManager.h"
+#include "core/graphics/vulkan/VulkanUBOManager.h"
 #include "core/graphics/vulkan/VulkanPlatform.h"
 #include "core/graphics/vulkan/VulkanDescriptorPool.h"
 #include "core/graphics/vulkan/VulkanTextureManager.h"
@@ -92,7 +93,8 @@ namespace Eternal {
 
         std::vector<vk::Framebuffer> mFrameBuffers;
 
-        Eternal::VulkanBufferManager* mVulkanBufferManager = nullptr;
+        Eternal::VulkanUBOManager* mVulkanUBOManager = nullptr;
+        Eternal::BufferManager* mBufferManager = nullptr;
         Eternal::VulkanTextureManager* mVulkanTextureManager = nullptr;
         Eternal::Window* mWindow = nullptr;
 

@@ -34,6 +34,7 @@ namespace Eternal {
             std::string title = "";
             uint32_t height = 0;
             uint32_t width = 0;
+            Backend backend = Backend::Vulkan;
         };
 
         class Builder : public utils::PrivateImplementation<BuilderDetails> {
@@ -50,6 +51,7 @@ namespace Eternal {
             Builder& title(const std::string& title) noexcept;
             Builder& width(uint32_t width) noexcept;
             Builder& height(uint32_t height) noexcept;
+            Builder& backend(Backend backend) noexcept;
             std::unique_ptr<Window> build() const noexcept;
         };
 

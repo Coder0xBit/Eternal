@@ -24,7 +24,7 @@ namespace Eternal {
         }
 
     public:
-        template<typename ResourceType, std::enable_if_t<std::is_base_of_v<Resource, ResourceType>, int>  = 0>
+        template<typename ResourceType, std::enable_if_t<std::is_base_of_v<Resource, ResourceType>, int> = 0>
         ResourceType* loadResource(const std::string& path) {
             auto it = mResources.find(path);
             if (it != mResources.end()) {
@@ -42,7 +42,7 @@ namespace Eternal {
             return resource;
         }
 
-        template<typename ResourceType, std::enable_if_t<std::is_base_of_v<Resource, ResourceType>, int>  = 0>
+        template<typename ResourceType, std::enable_if_t<std::is_base_of_v<Resource, ResourceType>, int> = 0>
         std::future<ResourceType*> loadResourceAsync(const std::string& path) {
             return std::async(std::launch::async,
                               [this, path]() -> ResourceType* {

@@ -3,8 +3,11 @@
 
 
 namespace Eternal {
-    OpenGLIndexBuffer::OpenGLIndexBuffer(const std::vector<uint32_t>& indices) {
+    OpenGLIndexBuffer::OpenGLIndexBuffer() {
         glGenBuffers(1, &mIndexBufferID);
+    }
+
+    void OpenGLIndexBuffer::setBuffer(const std::vector<uint32_t>& indices) {
         mIndexCount = indices.size();
         OpenGLIndexBuffer::bind();
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, mIndexCount, indices.data(), GL_STATIC_DRAW);
