@@ -7,12 +7,12 @@ Vortak is a simple and evolving 3D renderer built with Vulkan, aimed at learning
 - ✅ Basic Vulkan rendering pipeline setup.
 - ✅ Basic Diffuse lighting without material colors.
 - ✅ Entity-based scene structure (early ECS-like design).
-- ✅ Custom VulkanBuffer abstraction for vertex/index management.
 
 ## 🛠️ **In Progress**
-- 🎨 Per-object materials and textures
-- 🧱 Improved rendering abstraction (separate render passes, pipelines)
-- 🧠 Camera + input handling
-- 🧰 Editor integration (via ImGui)
+- OpenGL integration
+- Frame Graphs
+- Per-object materials and textures
+- Improved rendering abstraction (separate render passes, pipelines)
+- Editor integration (via ImGui)
 
 ---
