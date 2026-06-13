@@ -1,6 +1,6 @@
-# **Eternal Renderer** - A Lightweight Vulkan-Based Rendering Engine
+# **Vortak Renderer** - A Lightweight Vulkan-Based Rendering Engine
 
-Eternal is a simple and evolving 3D renderer built with Vulkan, aimed at learning modern graphics programming and building a flexible rendering architecture from scratch.
+Vortak is a simple and evolving 3D renderer built with Vulkan, aimed at learning modern graphics programming and building a flexible rendering architecture from scratch.
 
 ## ✨ **Current Features**
 - ✅ Loads and renders .obj 3D models.

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Eternal {
+namespace Vortak {
 	class Application
 	{
 	public:

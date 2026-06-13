@@ -13,7 +13,7 @@
 #include "core/graphics/Renderer.h"
 #include "core/graphics/Timer.h"
 
-namespace Eternal {
+namespace Vortak {
     class Viewer : public Application {
     public:
         Viewer();
@@ -25,7 +25,7 @@ namespace Eternal {
         void shutdown() override;
 
     private:
-        void onImGuiRender(Eternal::Timestep& ts) const;
+        void onImGuiRender(Vortak::Timestep& ts) const;
         void setupScene() const;
         bool onEvent(Event& event);
         bool onKeyPressed(KeyPressedEvent& event);
@@ -41,15 +41,15 @@ namespace Eternal {
             void acknowledge() { lastApplied = captured; }
         };
 
-        std::unique_ptr<Eternal::GraphicsPlatform> mGraphicsPlatform;
-        std::unique_ptr<Eternal::Renderer> mRenderer;
-        std::unique_ptr<Eternal::Window> mWindow;
-        std::unique_ptr<Eternal::InputDispatcher> mInputDispatcher;
-        std::unique_ptr<Eternal::Scene> mScene;
-        std::unique_ptr<Eternal::SwapChain> mSwapChain;
-        std::unique_ptr<Eternal::ImGuiOverlay> mImGuiOverlay;
-        std::unique_ptr<Eternal::Camera> mCamera;
-        std::unique_ptr<Eternal::Timer> mTimer;
+        std::unique_ptr<Vortak::GraphicsPlatform> mGraphicsPlatform;
+        std::unique_ptr<Vortak::Renderer> mRenderer;
+        std::unique_ptr<Vortak::Window> mWindow;
+        std::unique_ptr<Vortak::InputDispatcher> mInputDispatcher;
+        std::unique_ptr<Vortak::Scene> mScene;
+        std::unique_ptr<Vortak::SwapChain> mSwapChain;
+        std::unique_ptr<Vortak::ImGuiOverlay> mImGuiOverlay;
+        std::unique_ptr<Vortak::Camera> mCamera;
+        std::unique_ptr<Vortak::Timer> mTimer;
 
         InputCaptureState mInputCapture;
         Backend mBackend = Backend::Vulkan;

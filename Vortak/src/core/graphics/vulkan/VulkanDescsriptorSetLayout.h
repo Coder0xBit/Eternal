@@ -1,0 +1,49 @@
+#pragma once
+
+#include "utils/Base.h"
+#include "core/graphics/vulkan/VulkanUtils.h"
+
+namespace Vortak {
+    class VulkanDescriptorSetLayout {
+    public:
+        using VulkanDescriptorBinding = std::unordered_map<uint32_t, vk::DescriptorSetLayoutBinding>;
+
+        struct LayoutInfo {
+            uint32_t binding;
+            vk::DescriptorType type;
+            vk::ShaderStageFlags stageFlags;
+            uint32_t count = 1;
+        };
+
+        struct BuilderDetails {
+            vk::Device logicalDevice;
+            VulkanDescriptorBinding bindings;
+        };
+
+        class Builder : public utils::PrivateImplementation<BuilderDetails> {
+            friend class VulkanDescriptorSetLayout;
+
+        public:
+            Builder(vk::Device logicalDevice) noexcept;
+            Builder(Builder const& rhs) noexcept;
+            Builder(Builder&& rhs) noexcept;
+            ~Builder() noexcept;
+            Builder& operator=(Builder const& rhs) noexcept;
+            Builder& operator=(Builder&& rhs) noexcept;
+            Builder& addBinding(LayoutInfo layoutInfo);
+            VulkanDescriptorSetLayout* build() noexcept;
+        };
+
+        VulkanDescriptorSetLayout(const Builder& builder);
+        VulkanDescriptorSetLayout(const VulkanDescriptorSetLayout&) = delete;
+        VulkanDescriptorSetLayout& operator=(const VulkanDescriptorSetLayout&) = delete;
+        const vk::DescriptorSetLayout& getDescriptorSetLayout() const { return mDescriptorSetLayout; }
+        const VulkanDescriptorBinding& getBindings() const { return mBinding; }
+        ~VulkanDescriptorSetLayout();
+
+    private:
+        vk::Device mLogicalDevice;
+        VulkanDescriptorBinding mBinding;
+        vk::DescriptorSetLayout mDescriptorSetLayout;
+    };
+}

@@ -313,7 +313,7 @@ RECENT REVISION HISTORY:
 //
 // iPhone PNG support:
 //
-// We optionally support converting iPhone-formatted PNGs (which store
+// We optionally support converting iPhone-formatted logos (which store
 // premultiplied BGRA) back to RGB, even though they're internally encoded
 // differently. To enable this conversion, call
 // stbi_convert_iphone_png_to_rgb(1).
@@ -4719,7 +4719,7 @@ static int stbi__create_png_image_raw(stbi__png *a, stbi_uc *raw, stbi__uint32 r
    if (!stbi__mad2sizes_valid(img_width_bytes, y, img_width_bytes)) return stbi__err("too large", "Corrupt PNG");
    img_len = (img_width_bytes + 1) * y;
 
-   // we used to check for exact match between raw_len and img_len on non-interlaced PNGs,
+   // we used to check for exact match between raw_len and img_len on non-interlaced logos,
    // but issue #276 reported a PNG in the wild that had extra data at the end (all zeros),
    // so just check for raw_len < img_len always.
    if (raw_len < img_len) return stbi__err("not enough pixels","Corrupt PNG");
@@ -7789,7 +7789,7 @@ STBIDEF int stbi_is_16_bit_from_callbacks(stbi_io_callbacks const *c, void *user
                          fix reported channel count for PNG & BMP
                          re-enable SSE2 in non-gcc 64-bit
                          support RGB-formatted JPEG
-                         read 16-bit PNGs (only as 8-bit)
+                         read 16-bit logos (only as 8-bit)
       2.10  (2016-01-22) avoid warning introduced in 2.09 by STBI_REALLOC_SIZED
       2.09  (2016-01-16) allow comments in PNM files
                          16-bit-per-pixel TGA (not bit-per-component)

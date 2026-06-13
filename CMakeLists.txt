@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.29.2)
-project(Eternal LANGUAGES CXX)
+project(Vortak LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-add_subdirectory(Eternal)
+add_subdirectory(Vortak)
 add_subdirectory(SandBox)
 
 file(GLOB_RECURSE IMGUI_SOURCE

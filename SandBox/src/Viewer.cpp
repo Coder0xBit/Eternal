@@ -11,16 +11,16 @@
 #include <imgui/imgui.h>
 
 void SetEngineRootDirectory() {
-    std::filesystem::path path = std::filesystem::current_path() / "../Eternal";
+    std::filesystem::path path = std::filesystem::current_path() / "../Vortak";
     std::filesystem::current_path(path);
 }
 
-namespace Eternal {
+namespace Vortak {
     Viewer::Viewer() {
-        Eternal::Logger::Init();
+        Vortak::Logger::Init();
 
-        mWindow = Eternal::Window::Builder()
-                .title(std::string("Eternal Application"))
+        mWindow = Vortak::Window::Builder()
+                .title(std::string("Vortak Application"))
                 .height(800)
                 .width(1200)
                 .backend(mBackend)
@@ -28,29 +28,29 @@ namespace Eternal {
 
         mInputDispatcher = std::make_unique<InputDispatcher>(mWindow.get());
 
-        mGraphicsPlatform = Eternal::GraphicsPlatform::Builder()
-                .applicationName("Eternal Application")
+        mGraphicsPlatform = Vortak::GraphicsPlatform::Builder()
+                .applicationName("Vortak Application")
                 .backend(mBackend)
                 .build();
 
-        mScene = std::make_unique<Eternal::Scene>();
+        mScene = std::make_unique<Vortak::Scene>();
         setupScene();
 
-        mRenderer = Eternal::Renderer::Builder()
+        mRenderer = Vortak::Renderer::Builder()
                 .backend(mBackend)
                 .platform(mGraphicsPlatform.get())
                 .window(mWindow.get())
                 .scene(mScene.get())
                 .build();
 
-        mImGuiOverlay = Eternal::ImGuiOverlay::Builder()
+        mImGuiOverlay = Vortak::ImGuiOverlay::Builder()
                 .backend(mBackend)
                 .platform(mGraphicsPlatform.get())
                 .window(mWindow.get())
                 .renderer(mRenderer.get())
                 .build();
 
-        mTimer = std::make_unique<Eternal::Timer>();
+        mTimer = std::make_unique<Vortak::Timer>();
 
         mCamera = std::make_unique<Camera>(mInputDispatcher.get());
         float aspectRatio = mWindow->getAspectRatio();
@@ -61,7 +61,7 @@ namespace Eternal {
 
     bool Viewer::onEvent(Event& event) {
         EventDispatcher dispatcher(event);
-        dispatcher.dispatch<Eternal::KeyPressedEvent>(ETERNAL_BIND_EVENT_FN(Viewer::onKeyPressed));
+        dispatcher.dispatch<Vortak::KeyPressedEvent>(Vortak_BIND_EVENT_FN(Viewer::onKeyPressed));
         if (mInputCapture.captured) {
             mCamera->onEvent(event);
         }
@@ -96,17 +96,17 @@ namespace Eternal {
         mInputCapture.acknowledge();
     }
 
-    void Viewer::onImGuiRender(Eternal::Timestep& ts) const {
+    void Viewer::onImGuiRender(Vortak::Timestep& ts) const {
         ImGui::Begin("Debug Info");
         ImGui::Text("Time: %.6f", ts);
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-        for (auto e: mScene->getAllEntityWith<Eternal::TransformComponent>()) {
-            Eternal::Entity entity = Eternal::Entity(e, mScene.get());
+        for (auto e: mScene->getAllEntityWith<Vortak::TransformComponent>()) {
+            Vortak::Entity entity = Vortak::Entity(e, mScene.get());
 
-            auto& nameComponent = entity.getComponent<Eternal::NameComponent>();
+            auto& nameComponent = entity.getComponent<Vortak::NameComponent>();
             ImGui::Text("Entity Name: %s", nameComponent.getName());
 
-            auto& component = entity.getComponent<Eternal::TransformComponent>();
+            auto& component = entity.getComponent<Vortak::TransformComponent>();
             glm::vec3 translation = component.getTranslation();
             std::string posLabel = "Position " + std::string(nameComponent.getName());
             if (ImGui::DragFloat3(posLabel.c_str(), &translation.x, 0.01f)) {
@@ -144,7 +144,7 @@ namespace Eternal {
 
         mScene->addEntity(testEntity2);
 
-        std::vector<Eternal::Vertex> triVertices = {
+        std::vector<Vortak::Vertex> triVertices = {
             {{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}}, // 0: top (red)
             {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}}, // 1: bottom-left (green)
             {{0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}}, // 2: bottom-right (blue)
@@ -152,13 +152,13 @@ namespace Eternal {
 
         std::vector<uint32_t> triIndices = {0, 1, 2};
 
-        Eternal::Entity model = mScene->createEntity("triangle");
-        model.addComponent<Eternal::MeshComponent>(triVertices, triIndices);
-        model.addComponent<Eternal::TransformComponent>(glm::vec3(0.0f, 10.0f, 0.0f));
+        Vortak::Entity model = mScene->createEntity("triangle");
+        model.addComponent<Vortak::MeshComponent>(triVertices, triIndices);
+        model.addComponent<Vortak::TransformComponent>(glm::vec3(0.0f, 10.0f, 0.0f));
     }
 
     void Viewer::run() {
-        mWindow->setEventCallBack(ETERNAL_BIND_EVENT_FN(Viewer::onEvent));
+        mWindow->setEventCallBack(Vortak_BIND_EVENT_FN(Viewer::onEvent));
         mTimer->start();
         while (mIsRunning) {
             auto timeStep = mTimer->tick();

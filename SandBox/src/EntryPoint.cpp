@@ -1,7 +1,7 @@
 #include "Viewer.h"
 
 int main() {
-    const auto app = Eternal::Viewer::create();
+    const auto app = Vortak::Viewer::create();
     app->run();
     return 0;
 }
