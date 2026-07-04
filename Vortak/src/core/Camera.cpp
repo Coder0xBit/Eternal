@@ -17,7 +17,7 @@ namespace Vortak {
     }
 
     void Vortak::Camera::setPerspectiveProjection(float fovy, float aspect, float nearPlane, float farPlane) {
-        Vortak_ASSERT(glm::abs(aspect - std::numeric_limits<float>::epsilon()) > 0.0f,
+        VORTAK_ASSERT(glm::abs(aspect - std::numeric_limits<float>::epsilon()) > 0.0f,
                        "something wrong in setPerspectiveProjection(...)");
         glm::mat4 projection = glm::perspective(fovy, aspect, nearPlane, farPlane);
         projection[1][1] *= -1; // Invert Y axis Since Vulkan uses a different coordinate system
@@ -26,8 +26,8 @@ namespace Vortak {
 
     void Camera::onEvent(Event& event) {
         EventDispatcher dispatcher(event);
-        dispatcher.dispatch<Vortak::WindowResizeEvent>(Vortak_BIND_EVENT_FN(Camera::onWindowResize));
-        dispatcher.dispatch<Vortak::MouseMovedEvent>(Vortak_BIND_EVENT_FN(Camera::onMouseMove));
+        dispatcher.dispatch<Vortak::WindowResizeEvent>(VORTAK_BIND_EVENT_FN(Camera::onWindowResize));
+        dispatcher.dispatch<Vortak::MouseMovedEvent>(VORTAK_BIND_EVENT_FN(Camera::onMouseMove));
     }
 
     void Camera::resetMouseTracking() {

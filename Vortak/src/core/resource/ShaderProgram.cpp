@@ -1,33 +1,39 @@
 #include "core/resource/ShaderProgram.h"
 
 namespace Vortak {
-	ShaderProgram::ShaderProgram() = default;
+    ShaderProgram::ShaderProgram() = default;
 
-	bool ShaderProgram::load(const std::string& path) {
-		if (path.empty()) {
-			Vortak::Logger::Error("ShaderProgram::load() path is empty");
-			return false;
-		}
+    bool ShaderProgram::load(const std::string& shaderName) {
+        if (shaderName.empty()) {
+            Vortak::Logger::Error("ShaderProgram::load() shaderName is empty");
+            return false;
+        }
 
-		std::ifstream stream(path, std::ios::binary);
+        std::filesystem::path path =
+                std::filesystem::path("../Vortak/res")
+                / "shader"
+                / "bin"
+                / shaderName;
 
-		if (!stream) {
-			Vortak::Logger::Error("ShaderProgram::load() failed");
-			return false;
-		}
+        std::ifstream stream(path, std::ios::binary);
 
-		stream.seekg(0, std::ios_base::end);
-		std::streampos size = stream.tellg();
-		stream.seekg(0, std::ios_base::beg);
+        if (!stream) {
+            Vortak::Logger::Error("ShaderProgram::load() failed");
+            return false;
+        }
 
-		mBlob.resize(size);
-		stream.read(mBlob.data(), size);
-		stream.close();
+        stream.seekg(0, std::ios_base::end);
+        std::streampos size = stream.tellg();
+        stream.seekg(0, std::ios_base::beg);
 
-		return true;
-	}
+        mBlob.resize(size);
+        stream.read(mBlob.data(), size);
+        stream.close();
 
-	ShaderProgram::~ShaderProgram() {
-		mBlob.clear();
-	}
+        return true;
+    }
+
+    ShaderProgram::~ShaderProgram() {
+        mBlob.clear();
+    }
 }

@@ -5,7 +5,6 @@
 #include "core/graphics/VertexBuffer.h"
 #include "core/graphics/IndexBuffer.h"
 #include "core/scene/MeshComponent.h"
-#include "core/scene/RenderComponent.h"
 
 namespace Vortak {
     struct MeshBuffer {

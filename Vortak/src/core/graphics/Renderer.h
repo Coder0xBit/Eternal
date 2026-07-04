@@ -1,6 +1,8 @@
 #pragma once
 
 #include "utils/Base.h"
+#include "core/graphics/Command.h"
+#include "core/graphics/RenderQueue.h"
 #include "core/graphics/SwapChain.h"
 #include "core/graphics/FrameInfo.h"
 #include "core/graphics/Backend.h"
@@ -55,6 +57,7 @@ namespace Vortak {
             std::unique_ptr<Renderer> build() const noexcept;
         };
 
-        static std::unique_ptr<Renderer> create(Builder const& builder);
+    private :
+        Vortak::RenderQueue<Command> mRenderQueue;
     };
 }

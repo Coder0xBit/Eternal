@@ -23,7 +23,7 @@ namespace Vortak {
 
         uint32_t memoryTypeIndex = VulkanPlatform::getMemoryType(physicalDevice, properties,
                                                                  memRequirements.memoryTypeBits);
-        Vortak_ASSERT(memoryTypeIndex != 0xFFFFFFFF, "Failed to find suitable memory type");
+        VORTAK_ASSERT(memoryTypeIndex != 0xFFFFFFFF, "Failed to find suitable memory type");
 
         vk::MemoryAllocateInfo allocInfo = vk::MemoryAllocateInfo()
                 .setAllocationSize(memRequirements.size)
@@ -47,7 +47,7 @@ namespace Vortak {
     }
 
     void VulkanBuffer::write(void* data) {
-        Vortak_ASSERT(mMappedMemory != nullptr, "Memory should be mapped first, forgot call map(..) maybe ?");
+        VORTAK_ASSERT(mMappedMemory != nullptr, "Memory should be mapped first, forgot call map(..) maybe ?");
         memcpy(mMappedMemory, data, (size_t) mBufferSize);
     }
 

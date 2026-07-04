@@ -12,7 +12,7 @@ namespace Vortak {
         ShaderProgram();
         ShaderProgram(const ShaderProgram&) = delete;
         ShaderProgram& operator=(const ShaderProgram&) = delete;
-        bool load(const std::string& path) override;
+        bool load(const std::string& shaderName) override;
         Blob& getBlob() { return mBlob; }
         size_t getBlobSize() const { return mBlob.size(); }
         ~ShaderProgram() override;

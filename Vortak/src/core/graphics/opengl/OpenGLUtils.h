@@ -3,7 +3,8 @@
 #include "utils/Base.h"
 #include "core/log/Logger.h"
 
-#include <GLEW/glew.h>
+#include <glad/gl.h>
+#include <GLFW/glfw3.h>
 
 #include "core/graphics/ShaderType.h"
 

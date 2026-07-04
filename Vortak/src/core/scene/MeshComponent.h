@@ -4,6 +4,8 @@
 #include "core/graphics/Vertex.h"
 
 namespace Vortak {
+    using MeshHandle = uint32_t;
+
     struct MeshComponent {
     public:
         MeshComponent() = default;
@@ -14,11 +16,15 @@ namespace Vortak {
 
         ~MeshComponent() = default;
 
+        void setMeshHandle(MeshHandle meshHandle) { mMeshHandle = meshHandle; }
+        MeshHandle getMeshHandle() const { return mMeshHandle; }
+
         const std::vector<Vortak::Vertex>& getVertices() const { return mVertices; }
         const std::vector<uint32_t>& getIndices() const { return mIndices; }
 
     private:
-        std::vector<Vortak::Vertex> mVertices;
         std::vector<uint32_t> mIndices;
+        MeshHandle mMeshHandle = -1; std::vector<Vortak::Vertex> mVertices;
+
     };
 }

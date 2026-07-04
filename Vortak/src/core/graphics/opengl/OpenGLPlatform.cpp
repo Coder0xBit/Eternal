@@ -5,9 +5,8 @@
 
 namespace Vortak {
     OpenGLPlatform::OpenGLPlatform() {
-        GLenum err = glewInit();
-        if (err != GLEW_OK) {
-            std::cerr << glewGetErrorString(err) << '\n';
+        if (!gladLoadGL(glfwGetProcAddress)) {
+            throw std::runtime_error("Failed to initialize GLAD");
         }
     }
 

@@ -27,7 +27,7 @@ namespace Vortak {
         uint32_t getBufferSize() const { return mBufferSize; }
 
         vk::Buffer* getVkBuffer() {
-            Vortak_ASSERT_LOG(mBuffer, "Buffer is not created yet, call create() first");
+            VORTAK_ASSERT_LOG(mBuffer, "Buffer is not created yet, call create() first");
             return &mBuffer;
         }
 

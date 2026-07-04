@@ -187,7 +187,7 @@ namespace Vortak {
             sourceStage = vk::PipelineStageFlagBits::eTransfer;
             destinationStage = vk::PipelineStageFlagBits::eFragmentShader;
         } else {
-            Vortak_ASSERT(false, "We do not support more layout transitions");
+            VORTAK_ASSERT(false, "We do not support more layout transitions");
         }
 
         return {barrier, sourceStage, destinationStage};

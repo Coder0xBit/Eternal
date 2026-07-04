@@ -13,7 +13,7 @@ namespace Vortak {
 	VulkanDescriptorSetLayout::Builder& VulkanDescriptorSetLayout::Builder::operator=(Builder&& rhs) noexcept = default;
 
 	VulkanDescriptorSetLayout::Builder& VulkanDescriptorSetLayout::Builder::addBinding(LayoutInfo layoutInfo) {
-		Vortak_ASSERT(!mImpl->bindings.contains(layoutInfo.binding), "Binding is in use");
+		VORTAK_ASSERT(!mImpl->bindings.contains(layoutInfo.binding), "Binding is in use");
 		vk::DescriptorSetLayoutBinding binding = vk::DescriptorSetLayoutBinding()
 			.setBinding(layoutInfo.binding)
 			.setDescriptorType(layoutInfo.type)

@@ -12,9 +12,9 @@ namespace Vortak {
         mVulkanRenderer = dynamic_cast<VulkanRenderer*>(builder->renderer);
         mWindow = builder->window;
 
-        Vortak_ASSERT(mVulkanPlatform != nullptr, "VulkanImGuiLayer :: VulkanPlatform is null");
-        Vortak_ASSERT(mVulkanRenderer != nullptr, "VulkanImGuiLayer :: Renderer is null");
-        Vortak_ASSERT(mWindow != nullptr, "VulkanImGuiLayer :: Window is null");
+        VORTAK_ASSERT(mVulkanPlatform != nullptr, "VulkanImGuiLayer :: VulkanPlatform is null");
+        VORTAK_ASSERT(mVulkanRenderer != nullptr, "VulkanImGuiLayer :: Renderer is null");
+        VORTAK_ASSERT(mWindow != nullptr, "VulkanImGuiLayer :: Window is null");
 
         init();
     }

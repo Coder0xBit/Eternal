@@ -11,23 +11,24 @@
 #include "core/scene/MeshComponent.h"
 
 namespace Vortak {
-    VulkanRenderer::VulkanRenderer(const Builder& builder) {
+    VulkanRenderer::VulkanRenderer(const Builder& builder){
         mPlatform = dynamic_cast<VulkanPlatform*>(builder->platform);
         mWindow = builder->window;
         mScene = builder->scene;
 
-        Vortak_ASSERT(mScene != nullptr, "Scene is null");
-        Vortak_ASSERT(mPlatform != nullptr, "Platform is null");
-        Vortak_ASSERT(mWindow != nullptr, "Window is null");
+        VORTAK_ASSERT(mScene != nullptr, "Scene is null");
+        VORTAK_ASSERT(mPlatform != nullptr, "Platform is null");
+        VORTAK_ASSERT(mWindow != nullptr, "Window is null");
 
         initialize();
     }
 
-    VulkanRenderer::VulkanRenderer(VulkanPlatform* platform, Window* window, Scene* scene) : mScene(scene),
-        mPlatform(platform), mWindow(window) {
-        Vortak_ASSERT(mScene != nullptr, "Scene is null");
-        Vortak_ASSERT(mPlatform != nullptr, "Platform is null");
-        Vortak_ASSERT(mWindow != nullptr, "Window is null");
+    VulkanRenderer::VulkanRenderer(VulkanPlatform* platform, Window* window, Scene* scene)
+        : mScene(scene),
+          mPlatform(platform), mWindow(window) {
+        VORTAK_ASSERT(mScene != nullptr, "Scene is null");
+        VORTAK_ASSERT(mPlatform != nullptr, "Platform is null");
+        VORTAK_ASSERT(mWindow != nullptr, "Window is null");
 
         initialize();
     }
@@ -55,7 +56,7 @@ namespace Vortak {
         for (const auto& [e , meshComponent]: mScene->getAllEntityWith<Vortak::MeshComponent>().each()) {
             Vortak::Entity entity = Vortak::Entity(e, mScene);
             MeshHandle meshHandle = mBufferManager->addBuffer(meshComponent);
-            entity.addComponent<RenderComponent>(meshHandle);
+            meshComponent.setMeshHandle(meshHandle);
         }
 
         mVulkanTextureManager = Memory::Allocate<VulkanTextureManager>(mPlatform, mScene);
@@ -123,7 +124,7 @@ namespace Vortak {
         mScene->onComponentAdded<Vortak::MeshComponent>(
             [this](Vortak::Entity& entity, Vortak::MeshComponent& component) {
                 MeshHandle meshHandle = mBufferManager->addBuffer(component);
-                entity.addComponent<RenderComponent>(meshHandle);
+                component.setMeshHandle(meshHandle);
             });
 
         mScene->onComponentAdded<Vortak::TransformComponent>(
@@ -232,7 +233,7 @@ namespace Vortak {
             memRequirements.memoryTypeBits
         );
 
-        Vortak_ASSERT(memoryTypeIndex != 0xFFFFFFFF, "Failed to find suitable memory type for depth image");
+        VORTAK_ASSERT(memoryTypeIndex != 0xFFFFFFFF, "Failed to find suitable memory type for depth image");
 
         vk::MemoryAllocateInfo allocInfo = vk::MemoryAllocateInfo()
                 .setAllocationSize(memRequirements.size)
@@ -407,9 +408,9 @@ namespace Vortak {
                 .setExtent(swapChainDetails.extent);
 
         commandBuffer.setScissor(0, 1, &scissor);
-        auto view = mScene->getAllEntityWith<TransformComponent, RenderComponent>().each();
+        auto view = mScene->getAllEntityWith<TransformComponent, MeshComponent>().each();
 
-        for (const auto& [e, transformComponent , renderComponent]: view) {
+        for (const auto& [e, transformComponent , meshComponent]: view) {
             Vortak::Entity entity = Vortak::Entity(e, mScene);
 
             auto transform = entity.getComponent<Vortak::TransformComponent>();
@@ -453,14 +454,14 @@ namespace Vortak {
                                                  &materialDescriptorSet, 0, nullptr);
             }
 
-            VertexBuffer* vertexBuffer = mBufferManager->getVertexBuffer(renderComponent.getMeshHandle());
+            VertexBuffer* vertexBuffer = mBufferManager->getVertexBuffer(meshComponent.getMeshHandle());
             VulkanVertexBuffer* vulkanVertexBuffer = dynamic_cast<VulkanVertexBuffer*>(vertexBuffer);
             if (VulkanBuffer* vertexVulkanBuffer = vulkanVertexBuffer->getVulkanBuffer()) {
                 vk::DeviceSize offset = vk::DeviceSize(0);
                 commandBuffer.bindVertexBuffers(0, 1, vertexVulkanBuffer->getVkBuffer(), &offset);
             }
 
-            IndexBuffer* indexBuffer = mBufferManager->getIndexBuffer(renderComponent.getMeshHandle());
+            IndexBuffer* indexBuffer = mBufferManager->getIndexBuffer(meshComponent.getMeshHandle());
             VulkanIndexBuffer* vulkanIndexBuffer = dynamic_cast<VulkanIndexBuffer*>(indexBuffer);
             if (VulkanBuffer* indexVulkanBuffer = vulkanIndexBuffer->getVulkanBuffer()) {
                 commandBuffer.bindIndexBuffer(*(indexVulkanBuffer->getVkBuffer()), 0, vk::IndexType::eUint32);

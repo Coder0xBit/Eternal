@@ -16,7 +16,7 @@ namespace Vortak {
     VulkanDescriptorPool::Builder& VulkanDescriptorPool::Builder::operator=(Builder&& rhs) noexcept = default;
 
     VulkanDescriptorPool::Builder& VulkanDescriptorPool::Builder::addPoolSize(PoolSize poolSize) {
-        Vortak_ASSERT(mImpl->poolSizes.size() < MAX_DESCRIPTOR_POOL_SIZE, "Pool size limit reached, Seriosuly Brah!");
+        VORTAK_ASSERT(mImpl->poolSizes.size() < MAX_DESCRIPTOR_POOL_SIZE, "Pool size limit reached, Seriosuly Brah!");
         mImpl->poolSizes.push_back(poolSize);
         return *this;
     }
@@ -77,7 +77,7 @@ namespace Vortak {
     std::vector<vk::DescriptorSet> VulkanDescriptorPool::allocate(uint32_t descriptorSetCount,
                                                                   const VulkanDescriptorSetLayout&
                                                                   descriptorSetLayout) {
-        Vortak_ASSERT(descriptorSetCount <= mMaxSets, "Descriptor set count exceeds max sets");
+        VORTAK_ASSERT(descriptorSetCount <= mMaxSets, "Descriptor set count exceeds max sets");
 
         std::vector<vk::DescriptorSetLayout> descriptorLayouts(descriptorSetCount,
                                                                descriptorSetLayout.getDescriptorSetLayout());
@@ -89,7 +89,7 @@ namespace Vortak {
 
         auto descSets = mLogicalDevice.allocateDescriptorSets(descriptorSetAllocateInfo);
 
-        Vortak_ASSERT(descSets.size() == descriptorSetCount, "Failed to allocate descriptor sets");
+        VORTAK_ASSERT(descSets.size() == descriptorSetCount, "Failed to allocate descriptor sets");
         return descSets;
     }
 

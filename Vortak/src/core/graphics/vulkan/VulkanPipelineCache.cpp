@@ -24,9 +24,9 @@ namespace Vortak {
 
         std::string vertexShader = "common_vertex.spv";
 
-        vk::ShaderModule vertexShaderModule = mPlatform->loadShader("res/shader/bin/" + vertexShader);
+        vk::ShaderModule vertexShaderModule = mPlatform->loadShader(vertexShader);
 
-        vk::ShaderModule fragmentShaderModule = mPlatform->loadShader("res/shader/bin/" + fragShader);
+        vk::ShaderModule fragmentShaderModule = mPlatform->loadShader(fragShader);
 
         vk::PipelineLayout pipelineLayout = pipelineKey.pipelineLayout;
         vk::RenderPass renderPass = pipelineKey.renderPass;

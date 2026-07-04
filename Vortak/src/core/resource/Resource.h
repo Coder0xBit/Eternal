@@ -1,5 +1,6 @@
 #pragma once
 #include "utils/Base.h"
+#include "utils/UUID.h"
 
 namespace Vortak {
     class Resource {
@@ -7,14 +8,15 @@ namespace Vortak {
         Resource() = default;
         Resource(const Resource&) = delete;
         Resource& operator=(const Resource&) = delete;
-        const std::string& getName() const { return mName; }
-        const std::string& getPath() const { return mPath; }
+        const UUID& getId() const { return mId; }
+        void setId(const UUID id) { mId = id; }
         void setPath(const std::string& path) { mPath = path; }
+        const std::string& getPath() const { return mPath; }
         virtual bool load(const std::string& path) = 0;
         virtual ~Resource() = default;
 
     protected:
-        std::string mName;
+        UUID mId;
         std::string mPath;
     };
 }

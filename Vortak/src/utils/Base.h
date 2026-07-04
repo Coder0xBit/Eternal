@@ -5,8 +5,10 @@
 
 #include <iostream>
 #include <string>
+#include <queue>
 #include <vector>
 #include <filesystem>
+#include <condition_variable>
 #include <memory>
 #include <unordered_map>
 #include <sstream>
@@ -20,9 +22,9 @@
 #include <future>
 #include <mutex>
 
-#define Vortak_FLAG_ENABLED(flags) ((flags & 1) == 1)
+#define VORTAK_FLAG_ENABLED(flags) ((flags & 1) == 1)
 
-#define Vortak_ASSERT(condition, message) \
+#define VORTAK_ASSERT(condition, message) \
     do { \
         if(!(condition)) { \
             Vortak::Logger::Error("Assertion failed: {}. File: {}, Line: {}", message, __FILE__, __LINE__); \
@@ -30,14 +32,14 @@
         } \
     } while(0)
 
-#define Vortak_ASSERT_LOG(condition, message) \
+#define VORTAK_ASSERT_LOG(condition, message) \
     do { \
         if (!(condition)) { \
             Vortak::Logger::Error("Assertion failed: {}. File: {}, Line: {}", message, __FILE__, __LINE__); \
         } \
     } while (0)
 
-#define Vortak_BIND_EVENT_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
+#define VORTAK_BIND_EVENT_FN(fn) [this](auto&&... args) -> decltype(auto) { return this->fn(std::forward<decltype(args)>(args)...); }
 
 #define BIT(x) (1 << x)
 #define IS_BIT_SET(value, bit) (((value) & (bit)) == (bit))

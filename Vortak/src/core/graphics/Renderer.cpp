@@ -2,11 +2,6 @@
 #include "core/graphics/vulkan/VulkanRenderer.h"
 
 namespace Vortak {
-    std::unique_ptr<Renderer> Renderer::create(const Builder& builder) {
-        Vortak_ASSERT(builder->backend == Backend::Vulkan, "Currently Only supported Backend is Vulkan");
-        return std::make_unique<VulkanRenderer>(builder);
-    }
-
     Renderer::Builder::Builder() noexcept = default;
 
     Renderer::Builder::Builder(Builder const& rhs) noexcept = default;
@@ -40,6 +35,7 @@ namespace Vortak {
     }
 
     std::unique_ptr<Renderer> Renderer::Builder::build() const noexcept {
-        return create(*this);
+        return std::make_unique<VulkanRenderer>(*this);
     }
+
 }

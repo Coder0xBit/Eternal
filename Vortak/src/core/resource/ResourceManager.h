@@ -17,9 +17,6 @@ namespace Vortak {
         }
 
         ~ResourceManager() {
-            for (auto& resourcePtr: mResources | std::views::values) {
-                delete resourcePtr;
-            }
             mResources.clear();
         }
 

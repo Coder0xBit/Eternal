@@ -26,7 +26,7 @@ namespace Vortak {
 
 
         mWindow = glfwCreateWindow(mData.width, mData.height, mData.title.c_str(), nullptr, nullptr);
-        Vortak_ASSERT(mWindow != nullptr, "Failed to create GLFW window");
+        VORTAK_ASSERT(mWindow != nullptr, "Failed to create GLFW window");
 
         glfwMakeContextCurrent(mWindow);
 

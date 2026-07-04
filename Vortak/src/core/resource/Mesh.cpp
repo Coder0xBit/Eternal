@@ -29,7 +29,7 @@ namespace Vortak {
         std::string warn, err;
 
         if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, path.c_str())) {
-            Vortak_ASSERT_LOG(true, warn + err);
+            VORTAK_ASSERT_LOG(true, warn + err);
             return false;
         }
 

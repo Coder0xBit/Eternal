@@ -61,7 +61,7 @@ namespace Vortak {
 
     bool Viewer::onEvent(Event& event) {
         EventDispatcher dispatcher(event);
-        dispatcher.dispatch<Vortak::KeyPressedEvent>(Vortak_BIND_EVENT_FN(Viewer::onKeyPressed));
+        dispatcher.dispatch<Vortak::KeyPressedEvent>(VORTAK_BIND_EVENT_FN(Viewer::onKeyPressed));
         if (mInputCapture.captured) {
             mCamera->onEvent(event);
         }
@@ -158,7 +158,7 @@ namespace Vortak {
     }
 
     void Viewer::run() {
-        mWindow->setEventCallBack(Vortak_BIND_EVENT_FN(Viewer::onEvent));
+        mWindow->setEventCallBack(VORTAK_BIND_EVENT_FN(Viewer::onEvent));
         mTimer->start();
         while (mIsRunning) {
             auto timeStep = mTimer->tick();

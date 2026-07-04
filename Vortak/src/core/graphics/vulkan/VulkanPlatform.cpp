@@ -56,7 +56,7 @@ namespace Vortak {
             Vortak::Logger::Info("extension = {}", extensionName);
 
         VkStringArray layers;
-#if Vortak_FLAG_ENABLED(Vortak_VULKAN_DEBUG_VALIDATION)
+#if VORTAK_FLAG_ENABLED(Vortak_VULKAN_DEBUG_VALIDATION)
         layers.push_back("VK_LAYER_KHRONOS_validation");
 #endif
 
@@ -147,10 +147,10 @@ namespace Vortak {
         vk::Extent2D fallbackExtent = getExtent(window);
 
         mPresentQueueFamilyIndex = identifyPresentQueueFamilyIndex(mPhysicalDevice, mSurface);
-        Vortak_ASSERT(mPresentQueueFamilyIndex != INVALID_VK_INDEX, "Present Queue Family Index is Invalid");
+        VORTAK_ASSERT(mPresentQueueFamilyIndex != INVALID_VK_INDEX, "Present Queue Family Index is Invalid");
 
         mGraphicsQueueFamilyIndex = identifyGraphicsQueueFamilyIndex(mPhysicalDevice, vk::QueueFlagBits::eGraphics);
-        Vortak_ASSERT(mGraphicsQueueFamilyIndex != INVALID_VK_INDEX, "Graphics Queue Family Index is Invalid");
+        VORTAK_ASSERT(mGraphicsQueueFamilyIndex != INVALID_VK_INDEX, "Graphics Queue Family Index is Invalid");
 
         mLogicalDevice = createLogicalDevice(mPhysicalDevice, mGraphicsQueueFamilyIndex, mPresentQueueFamilyIndex);
 
@@ -164,7 +164,7 @@ namespace Vortak {
     }
 
     vk::ShaderModule VulkanPlatform::loadShader(const std::filesystem::path& path) const {
-        Vortak_ASSERT(mLogicalDevice, "Logical Device not created, call createSwapChain(...) function");
+        VORTAK_ASSERT(mLogicalDevice, "Logical Device not created, call createSwapChain(...) function");
         auto* shader = ResourceManager::get().loadResource<ShaderProgram>(path.string());
 
         const uint32_t* shaderCode = reinterpret_cast<uint32_t*>(shader->getBlob().data());
@@ -363,7 +363,7 @@ namespace Vortak {
     }
 
     vk::SurfaceKHR VulkanPlatform::createWindowSurface(Vortak::Window* window) const {
-        Vortak_ASSERT(window != nullptr, "Window is null");
+        VORTAK_ASSERT(window != nullptr, "Window is null");
         auto glfwWindow = static_cast<GLFWwindow*>(window->getNativeWindow());
 
         vk::SurfaceKHR surface = nullptr;
@@ -380,7 +380,7 @@ namespace Vortak {
     }
 
     vk::Extent2D VulkanPlatform::getExtent(Vortak::Window* window) {
-        Vortak_ASSERT(window != nullptr, "Window is null");
+        VORTAK_ASSERT(window != nullptr, "Window is null");
         int width = 0, height = 0;
         auto glfwWindow = static_cast<GLFWwindow*>(window->getNativeWindow());
         glfwGetFramebufferSize(glfwWindow, &width, &height);

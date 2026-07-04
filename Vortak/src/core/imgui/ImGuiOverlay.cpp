@@ -3,7 +3,7 @@
 
 namespace Vortak {
     std::unique_ptr<ImGuiOverlay> ImGuiOverlay::create(const Builder& builder) {
-        Vortak_ASSERT(builder->backend == Backend::Vulkan, "Currently Only supported Backend is Vulkan");
+        VORTAK_ASSERT(builder->backend == Backend::Vulkan, "Currently Only supported Backend is Vulkan");
         return std::make_unique<VulkanImGuiOverlay>(builder);
     }
 
