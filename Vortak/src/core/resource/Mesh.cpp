@@ -3,16 +3,17 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyobjloader/tiny_obj_loader.h>
 
+
 namespace std {
     template<>
     struct hash<Vortak::Vertex> {
         size_t operator()(Vortak::Vertex const& vertex) const noexcept {
             size_t seed = 0;
             Vortak::hashCombine(seed,
-                                 vertex.position.x, vertex.position.y, vertex.position.z,
-                                 vertex.color.x, vertex.color.y, vertex.color.z,
-                                 vertex.normal.x, vertex.normal.y, vertex.normal.z,
-                                 vertex.uv.x, vertex.uv.y);
+                                vertex.position.x, vertex.position.y, vertex.position.z,
+                                vertex.color.x, vertex.color.y, vertex.color.z,
+                                vertex.normal.x, vertex.normal.y, vertex.normal.z,
+                                vertex.uv.x, vertex.uv.y);
             return seed;
         }
     };
@@ -20,6 +21,10 @@ namespace std {
 
 namespace Vortak {
     Mesh::Mesh() {
+    }
+
+    Mesh::Mesh(std::vector<Vortak::Vertex> vertices, std::vector<uint32_t> indices)
+        : mVertices(std::move(vertices)), mIndices(std::move(indices)) {
     }
 
     bool Mesh::load(const std::string& path) {

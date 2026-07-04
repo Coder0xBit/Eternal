@@ -10,6 +10,9 @@
 
 #include <imgui/imgui.h>
 
+#include "core/resource/Model.h"
+#include "core/resource/ResourceManager.h"
+
 void SetEngineRootDirectory() {
     std::filesystem::path path = std::filesystem::current_path() / "../Vortak";
     std::filesystem::current_path(path);
@@ -128,8 +131,8 @@ namespace Vortak {
     void Viewer::setupScene() const {
         TestEntityDetails testEntity1 = {
             "watch_tower_1",
-            "res/models/wooden_watch_tower.obj",
-            "res/models/textures/Wood_Tower_Col.jpg",
+            "res/models/tower/wooden_watch_tower.obj",
+            "res/models/tower/Wood_Tower_Col.jpg",
             glm::vec3(0.0f, 0.0f, 0.0f)
         };
 
@@ -137,8 +140,8 @@ namespace Vortak {
 
         TestEntityDetails testEntity2 = {
             "watch_tower_2",
-            "res/models/wooden_watch_tower.obj",
-            "res/models/textures/Wood_Tower_Col.jpg",
+            "res/models/tower/wooden_watch_tower.obj",
+            "res/models/tower/Wood_Tower_Col.jpg",
             glm::vec3(0.0f, 0.0f, 10.0f)
         };
 
@@ -155,6 +158,14 @@ namespace Vortak {
         Vortak::Entity model = mScene->createEntity("triangle");
         model.addComponent<Vortak::MeshComponent>(triVertices, triIndices);
         model.addComponent<Vortak::TransformComponent>(glm::vec3(0.0f, 10.0f, 0.0f));
+
+        std::string filePath = "res/models/sponza/Sponza.gltf";
+
+        const Model* sponzaModel = ResourceManager::get().loadResource<Model>(filePath);
+        if (!sponzaModel) {
+            Vortak::Logger::Error("Failed to load model from path: {}", filePath);
+            return;
+        }
     }
 
     void Viewer::run() {
