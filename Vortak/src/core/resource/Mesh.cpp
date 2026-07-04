@@ -1,7 +1,7 @@
 #include "Mesh.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
-#include "utils/TinyObjLoader.h"
+#include <tinyobjloader/tiny_obj_loader.h>
 
 namespace std {
     template<>

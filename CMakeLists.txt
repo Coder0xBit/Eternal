@@ -14,5 +14,12 @@ add_subdirectory(Vendor/glfw)
 add_subdirectory(Vendor/glad)
 add_subdirectory(Vendor/imgui)
 
+
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
+set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+add_subdirectory(Vendor/assimp)
+
 add_subdirectory(Vortak)
 add_subdirectory(SandBox)

@@ -21,6 +21,7 @@ if (WIN32)
     )
     target_link_libraries(
             VortakCore PUBLIC
+            assimp
             Vulkan::Vulkan
             spdlog::spdlog
             EnTT::EnTT
