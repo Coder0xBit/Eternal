@@ -51,8 +51,8 @@ namespace Vortak {
             if (it == mResources.end())
                 return;
 
-            if (!it->second->path().empty()) {
-                mPathCache.erase(it->second->path());
+            if (!it->second->getPath().empty()) {
+                mPathCache.erase(it->second->getPath());
             }
 
             mResources.erase(it);
