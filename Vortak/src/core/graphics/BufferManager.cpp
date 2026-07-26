@@ -1,42 +1,53 @@
 #include "core/graphics/BufferManager.h"
 
+#include "core/resource/ResourceManager.h"
 #include "core/scene/Entity.h"
 
 namespace Vortak {
     BufferManager::BufferManager(GraphicsPlatform* graphicsPlatform, Backend backend)
-        : mGraphicsPlatform(graphicsPlatform), mBackend(backend) {
+        : mGraphicsPlatform(graphicsPlatform), mBackend(backend) {}
+
+    const MeshBuffer* BufferManager::getMesh(ResourceHandle<Mesh> handle) {
+        auto it = mMeshBuffers.find(handle);
+
+        if (it != mMeshBuffers.end()) {
+            return &it->second;
+        }
+
+        Mesh* mesh = ResourceManager::get().get<Mesh>(handle);
+
+        if (!mesh) {
+            return nullptr;
+        }
+
+        auto [iter, inserted] =
+            mMeshBuffers.emplace(handle, uploadMesh(*mesh));
+
+        return &iter->second;
     }
 
     BufferManager::~BufferManager() {
         mMeshBuffers.clear();
     }
 
-    MeshHandle BufferManager::addBuffer(const MeshComponent& meshComponent) {
+    MeshBuffer BufferManager::uploadMesh(const Mesh& mesh) const {
         MeshBuffer meshBuffer;
         meshBuffer.vertexBuffer = VertexBuffer::Builder()
-                .graphicsPlatform(mGraphicsPlatform)
-                .backend(mBackend)
-                .attribute({0, VertexAttribute::POSITON, ElementType::FLOAT3, sizeof(float) * 3, false})
-                .attribute({1, VertexAttribute::COLOR, ElementType::FLOAT3, sizeof(float) * 3, false})
-                .attribute({2, VertexAttribute::NORMAL, ElementType::FLOAT3, sizeof(float) * 3, false})
-                .attribute({3, VertexAttribute::UV, ElementType::FLOAT3, sizeof(float) * 2, false})
-                .build();
+                                 .graphicsPlatform(mGraphicsPlatform)
+                                 .backend(mBackend)
+                                 .layout(mesh.getVertexBufferLayout())
+                                 .build();
 
-        const std::vector<Vortak::Vertex>& vertices = meshComponent.getVertices();
+        const std::vector<Vortak::Vertex>& vertices = mesh.getVertices();
         meshBuffer.vertexBuffer->setBuffer(vertices);
 
-        std::vector<uint32_t> indices = meshComponent.getIndices();
+        std::vector<uint32_t> indices = mesh.getIndices();
         meshBuffer.indexBuffer = IndexBuffer::Builder()
-                .graphicsPlatform(mGraphicsPlatform)
-                .backend(mBackend)
-                .build();
+                                .graphicsPlatform(mGraphicsPlatform)
+                                .backend(mBackend)
+                                .build();
 
         meshBuffer.indexBuffer->setBuffer(indices);
-
-        const auto handle = static_cast<MeshHandle>(mMeshBuffers.size());
-
-        mMeshBuffers.push_back(std::move(meshBuffer));
-
-        return handle;
+        return meshBuffer;
     }
 }

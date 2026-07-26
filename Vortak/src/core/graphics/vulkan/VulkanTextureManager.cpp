@@ -12,7 +12,7 @@ namespace Vortak {
     void VulkanTextureManager::initialize() {
         for (auto& e: mScene->getAllEntityWith<Vortak::MeshComponent>()) {
             Vortak::Entity entity = Vortak::Entity(e, mScene);
-            EntityId entityUUID = entity.getUUID();
+            EntityId entityUUID = entity.getUUID().value();
 
             if (mTextures.contains(entityUUID) && mTextures[entityUUID] != nullptr)
                 continue;

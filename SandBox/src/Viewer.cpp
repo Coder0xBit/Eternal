@@ -10,6 +10,7 @@
 
 #include <imgui/imgui.h>
 
+#include "assimp/code/AssetLib/3MF/3MFXmlTags.h"
 #include "core/resource/Model.h"
 #include "core/resource/ResourceManager.h"
 
@@ -23,35 +24,34 @@ namespace Vortak {
         Vortak::Logger::Init();
 
         mWindow = Vortak::Window::Builder()
-                .title(std::string("Vortak Application"))
-                .height(800)
-                .width(1200)
-                .backend(mBackend)
-                .build();
+                 .title(std::string("Vortak Application"))
+                 .height(800)
+                 .width(1200)
+                 .backend(mBackend)
+                 .build();
 
         mInputDispatcher = std::make_unique<InputDispatcher>(mWindow.get());
 
         mGraphicsPlatform = Vortak::GraphicsPlatform::Builder()
-                .applicationName("Vortak Application")
-                .backend(mBackend)
-                .build();
+                           .applicationName("Vortak Application")
+                           .backend(mBackend)
+                           .build();
 
         mScene = std::make_unique<Vortak::Scene>();
         setupScene();
 
         mRenderer = Vortak::Renderer::Builder()
-                .backend(mBackend)
-                .platform(mGraphicsPlatform.get())
-                .window(mWindow.get())
-                .scene(mScene.get())
-                .build();
+                   .backend(mBackend)
+                   .platform(mGraphicsPlatform.get())
+                   .window(mWindow.get())
+                   .build();
 
-        mImGuiOverlay = Vortak::ImGuiOverlay::Builder()
-                .backend(mBackend)
-                .platform(mGraphicsPlatform.get())
-                .window(mWindow.get())
-                .renderer(mRenderer.get())
-                .build();
+        // mImGuiOverlay = Vortak::ImGuiOverlay::Builder()
+        //                .backend(mBackend)
+        //                .platform(mGraphicsPlatform.get())
+        //                .window(mWindow.get())
+        //                .renderer(mRenderer.get())
+        //                .build();
 
         mTimer = std::make_unique<Vortak::Timer>();
 
@@ -91,7 +91,8 @@ namespace Vortak {
 
         if (mInputCapture.captured) {
             mWindow->setCursorInputMode(CursorInputMode::LOCKED);
-        } else {
+        }
+        else {
             mWindow->setCursorInputMode(CursorInputMode::NORMAL);
         }
 
@@ -103,7 +104,7 @@ namespace Vortak {
         ImGui::Begin("Debug Info");
         ImGui::Text("Time: %.6f", ts);
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-        for (auto e: mScene->getAllEntityWith<Vortak::TransformComponent>()) {
+        for (auto e : mScene->getAllEntityWith<Vortak::TransformComponent>()) {
             Vortak::Entity entity = Vortak::Entity(e, mScene.get());
 
             auto& nameComponent = entity.getComponent<Vortak::NameComponent>();
@@ -147,25 +148,28 @@ namespace Vortak {
 
         mScene->addEntity(testEntity2);
 
-        std::vector<Vortak::Vertex> triVertices = {
-            {{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}}, // 0: top (red)
-            {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}}, // 1: bottom-left (green)
-            {{0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}}, // 2: bottom-right (blue)
-        };
-
-        std::vector<uint32_t> triIndices = {0, 1, 2};
-
-        Vortak::Entity model = mScene->createEntity("triangle");
-        model.addComponent<Vortak::MeshComponent>(triVertices, triIndices);
-        model.addComponent<Vortak::TransformComponent>(glm::vec3(0.0f, 10.0f, 0.0f));
+        // std::vector<Vortak::Vertex> triVertices = {
+        //     {{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}}, // 0: top (red)
+        //     {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}}, // 1: bottom-left (green)
+        //     {{0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}}, // 2: bottom-right (blue)
+        // };
+        //
+        // std::vector<uint32_t> triIndices = {0, 1, 2};
+        //
+        // Vortak::Entity model = mScene->createEntity("triangle");
+        // Mesh* mesh = Memory::Allocate<Mesh>(triVertices, triIndices);
+        // model.addComponent<Vortak::MeshComponent>(mesh);
+        // model.addComponent<Vortak::TransformComponent>(glm::vec3(0.0f, 10.0f, 0.0f));
 
         std::string filePath = "res/models/sponza/Sponza.gltf";
 
-        const Model* sponzaModel = ResourceManager::get().loadResource<Model>(filePath);
-        if (!sponzaModel) {
-            Vortak::Logger::Error("Failed to load model from path: {}", filePath);
-            return;
-        }
+        auto sponzaModel = ResourceManager::get().load<Model>(filePath);
+        // if (!sponzaModel) {
+        //     Vortak::Logger::Error("Failed to load model from path: {}", filePath);
+        //     return;
+        // }
+        //
+        // mScene->addModel(sponzaModel);
     }
 
     void Viewer::run() {
@@ -198,6 +202,5 @@ namespace Vortak {
         Viewer::shutdown();
     }
 
-    void Viewer::shutdown() {
-    }
+    void Viewer::shutdown() {}
 }

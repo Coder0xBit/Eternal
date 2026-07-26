@@ -23,6 +23,7 @@ namespace Vortak {
         class Builder : public utils::PrivateImplementation<BuilderDetails> {
             friend class GraphicsPlatform;
             friend class VulkanPlatform;
+            friend class OpenGLPlatform;
 
         public:
             Builder() noexcept;

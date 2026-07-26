@@ -1,5 +1,4 @@
 #include "core/graphics/Renderer.h"
-#include "core/graphics/vulkan/VulkanRenderer.h"
 
 namespace Vortak {
     Renderer::Builder::Builder() noexcept = default;
@@ -29,13 +28,23 @@ namespace Vortak {
         return *this;
     }
 
-    Renderer::Builder& Renderer::Builder::scene(Scene* scene) noexcept {
-        mImpl->scene = scene;
-        return *this;
-    }
-
     std::unique_ptr<Renderer> Renderer::Builder::build() const noexcept {
-        return std::make_unique<VulkanRenderer>(*this);
+        return std::make_unique<Renderer>(*this);
     }
 
+    Renderer::Renderer(const Builder& builder) noexcept {
+        mGraphicsPlatform = builder.mImpl->platform;
+        mWindow = builder.mImpl->window;
+        mBackend = builder.mImpl->backend;
+    }
+
+    FrameInfo* Renderer::beginFrame() { return nullptr; }
+
+    void Renderer::render(Vortak::Camera* camera) {}
+
+    void Renderer::endFrame() {}
+
+    SwapChain* Renderer::getSwapChain() const { return nullptr; }
+
+    Renderer::~Renderer() {}
 }

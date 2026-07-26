@@ -1,6 +1,5 @@
 #include "core/graphics/vulkan/VulkanImGuiOverlay.h"
 #include "core/graphics/vulkan/VulkanFrameInfo.h"
-#include "core/graphics/vulkan/VulkanRenderer.h"
 
 #include <imgui/backends/imgui_impl_vulkan.h>
 #include <imgui/backends/imgui_impl_glfw.h>
@@ -9,11 +8,9 @@
 namespace Vortak {
     VulkanImGuiOverlay::VulkanImGuiOverlay(const Builder& builder) {
         mVulkanPlatform = dynamic_cast<VulkanPlatform*>(builder->platform);
-        mVulkanRenderer = dynamic_cast<VulkanRenderer*>(builder->renderer);
         mWindow = builder->window;
 
         VORTAK_ASSERT(mVulkanPlatform != nullptr, "VulkanImGuiLayer :: VulkanPlatform is null");
-        VORTAK_ASSERT(mVulkanRenderer != nullptr, "VulkanImGuiLayer :: Renderer is null");
         VORTAK_ASSERT(mWindow != nullptr, "VulkanImGuiLayer :: Window is null");
 
         init();
@@ -29,7 +26,10 @@ namespace Vortak {
         initInfo.PhysicalDevice = mVulkanPlatform->getPhysicalDevice();
         initInfo.Device = mVulkanPlatform->getLogicalDevice();
         initInfo.Queue = mVulkanPlatform->getGraphicsQueue();
-        initInfo.RenderPass = mVulkanRenderer->getRenderPass();
+        /**
+         * Need to look into the handling this using the Render Target so probably this will be automatically managed by the Render Graph
+         */
+        // initInfo.RenderPass = mVulkanRenderer->getRenderPass();
         initInfo.DescriptorPoolSize = 2;
         initInfo.MinImageCount = 2;
         initInfo.ImageCount = 2;

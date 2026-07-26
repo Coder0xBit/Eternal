@@ -5,6 +5,8 @@
 
 #include <entt/entt.hpp>
 
+#include "core/resource/Model.h"
+
 namespace Vortak {
     class Entity;
 

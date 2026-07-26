@@ -14,27 +14,20 @@ namespace Vortak {
 
     class BufferManager {
     public:
-        using MeshBuffers = std::vector<MeshBuffer>;
+        using MeshBuffers = std::unordered_map<ResourceHandle<Mesh>, MeshBuffer>;
 
         BufferManager(GraphicsPlatform* graphicsPlatform, Backend backend);
-
-        VertexBuffer* getVertexBuffer(MeshHandle meshHandle) {
-            auto& vertexBuffer = mMeshBuffers[meshHandle].vertexBuffer;
-            return vertexBuffer.get();
-        }
-
-        IndexBuffer* getIndexBuffer(MeshHandle meshHandle) {
-            auto& indexBuffer = mMeshBuffers[meshHandle].indexBuffer;
-            return indexBuffer.get();
-        }
 
         uint32_t getMeshBuffersCount() const {
             return static_cast<uint32_t>(mMeshBuffers.size());
         }
 
-        MeshHandle addBuffer(const MeshComponent& meshComponent);
+        const MeshBuffer* getMesh(ResourceHandle<Mesh> handle);
 
         ~BufferManager();
+
+    private :
+        MeshBuffer uploadMesh(const Mesh& mesh) const;
 
     private:
         GraphicsPlatform* mGraphicsPlatform = nullptr;

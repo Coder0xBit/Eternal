@@ -16,27 +16,22 @@ namespace Vortak {
     }
 
     void Vortak::Scene::addEntity(TestEntityDetails entity) {
-        const Mesh* mesh = ResourceManager::get().loadResource<Mesh>(entity.filePath);
-        if (!mesh) {
-            Vortak::Logger::Error("Failed to load mesh from path: {}", entity.filePath);
-            return;
-        }
-
-        Vortak::Logger::Info("Obj Vertices: {}", mesh->getVertices().size());
+        auto loadedMesh = ResourceManager::get().load<Mesh>(entity.filePath);
 
         Vortak::Entity model = createEntity(entity.name);
-        model.addComponent<Vortak::MeshComponent>(mesh->getVertices(), mesh->getIndices());
+        model.addComponent<Vortak::MeshComponent>(loadedMesh.handle);
         model.addComponent<Vortak::TransformComponent>(entity.initialPosition);
 
-        if (entity.texturePath.empty()) return;
-        Image* texture = ResourceManager::get().loadResource<Image>(entity.texturePath);
+        if (entity.texturePath.empty())
+            return;
+        auto loadedTexture = ResourceManager::get().load<Image>(entity.texturePath);
 
-        if (!texture) {
+        if (!loadedTexture.resource) {
             Vortak::Logger::Error("Failed to load texture from path: {}", entity.texturePath);
-            model.addComponent<Vortak::MaterialComponent>(texture);
+            model.addComponent<Vortak::MaterialComponent>(loadedTexture.resource);
             return;
         }
 
-        model.addComponent<Vortak::MaterialComponent>(texture);
+        model.addComponent<Vortak::MaterialComponent>(loadedTexture.resource);
     }
 }

@@ -4,11 +4,23 @@
 
 #include "utils/Base.h"
 #include "core/resource/Resource.h"
+#include "core/resource/ResourceCache.h"
+#include "core/resource/Mesh.h"
+#include "core/resource/Model.h"
+#include "core/resource/Image.h"
+#include "core/resource/ShaderProgram.h"
 
 namespace Vortak {
+    template <typename T>
+    struct LoadedResource {
+        ResourceHandle<T> handle;
+        T* resource = nullptr;
+    };
+
     class ResourceManager {
     public:
         ResourceManager(const ResourceManager&) = delete;
+
         ResourceManager& operator=(const ResourceManager&) = delete;
 
         static ResourceManager& get() {
@@ -16,53 +28,66 @@ namespace Vortak {
             return instance;
         }
 
-        ~ResourceManager() {
-            mResources.clear();
-        }
-
     public:
-        template<typename ResourceType, std::enable_if_t<std::is_base_of_v<Resource, ResourceType>, int> = 0>
-        ResourceType* loadResource(const std::string& path) {
-            auto it = mResources.find(path);
-            if (it != mResources.end()) {
-                return dynamic_cast<ResourceType*>(it->second);
+        template <
+            typename ResourceType,
+            std::enable_if_t<std::is_base_of_v<Resource<ResourceType>, ResourceType>, int> = 0
+        >
+        LoadedResource<ResourceType> load(const std::string& path) {
+            auto& resourceCache = cache<ResourceType>();
+
+            if (auto handle = resourceCache.find(path); handle) {
+                return {handle, resourceCache.get(handle)};
             }
 
-            ResourceType* resource = Memory::Allocate<ResourceType>();
+            auto resource = std::make_unique<ResourceType>();
+
             if (!resource->load(path)) {
-                delete resource;
-                return nullptr;
+                return {};
             }
 
             resource->setPath(path);
-            mResources[path] = resource;
-            return resource;
+
+            auto handle = resourceCache.add(std::move(resource));
+
+            return {handle, resourceCache.get(handle)};
         }
 
-        template<typename ResourceType, std::enable_if_t<std::is_base_of_v<Resource, ResourceType>, int> = 0>
-        std::future<ResourceType*> loadResourceAsync(const std::string& path) {
-            return std::async(std::launch::async,
-                              [this, path]() -> ResourceType* {
-                                  std::lock_guard<std::mutex> lock(mMutex);
-                                  return this->loadResource<ResourceType>(path);
-                              }
-            );
+        template <
+            typename ResourceType,
+            std::enable_if_t<std::is_base_of_v<Resource<ResourceType>, ResourceType>, int> = 0
+        >
+        ResourceType* get(ResourceHandle<ResourceType> handle) {
+            return cache<ResourceType>().get(handle);
         }
 
-        void unloadResource(Resource* resource) {
-            if (resource) {
-                auto it = mResources.find(resource->getPath());
-                if (it != mResources.end()) {
-                    delete it->second;
-                    mResources.erase(it);
-                }
-            }
+        template <
+            typename ResourceType,
+            std::enable_if_t<std::is_base_of_v<Resource<ResourceType>, ResourceType>, int> = 0
+        >
+        void unload(ResourceHandle<ResourceType> handle) {
+            cache<ResourceType>().remove(handle);
+        }
+
+        template <
+            typename ResourceType,
+            std::enable_if_t<std::is_base_of_v<Resource<ResourceType>, ResourceType>, int> = 0
+        >
+        bool isLoaded(ResourceHandle<ResourceType> handle) const {
+            return cache<ResourceType>().contains(handle);
         }
 
     private:
         ResourceManager() = default;
 
-        std::unordered_map<std::string, Resource*> mResources;
+        template <typename T>
+        ResourceCache<T>& cache();
+
         std::mutex mMutex;
+
+        ResourceCache<Mesh> mMeshes;
+        ResourceCache<Model> mModels;
+        ResourceCache<Image> mImages;
+        ResourceCache<ShaderProgram> mShaders;
     };
 }

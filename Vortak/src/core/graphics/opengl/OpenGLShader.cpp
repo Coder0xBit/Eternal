@@ -1,4 +1,5 @@
 #include "core/graphics/opengl/OpenGLShader.h"
+#include "core/resource/ResourceManager.h"
 
 namespace Vortak {
     OpenGLShader::OpenGLShader(ShaderProgram* shaderProgram, ShaderType shaderType)

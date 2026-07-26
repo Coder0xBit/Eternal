@@ -1,4 +1,5 @@
 #pragma once
+#include "core/resource/ResourceHandle.h"
 #include "core/resource/ShaderProgram.h"
 
 namespace Vortak {

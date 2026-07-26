@@ -5,13 +5,12 @@
 namespace Vortak {
     struct IdComponent {
     public:
-        IdComponent() : mId(UUID()) {
-        }
+        IdComponent() : mId(UUID::generate()) {}
 
-        IdComponent(const UUID& id) : mId(id) {
-        }
+        IdComponent(const UUID& id) : mId(id) {}
 
         IdComponent(const IdComponent&) = default;
+
         UUID getId() { return mId; }
 
     private:

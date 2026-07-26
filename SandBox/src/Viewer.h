@@ -52,6 +52,6 @@ namespace Vortak {
         std::unique_ptr<Vortak::Timer> mTimer;
 
         InputCaptureState mInputCapture;
-        Backend mBackend = Backend::Vulkan;
+        Backend mBackend = Backend::OpenGL;
     };
 }

@@ -35,11 +35,11 @@ namespace Vortak {
         version = mVersion & ~(0xFFFU);
 
         vk::ApplicationInfo applicationInfo = vk::ApplicationInfo()
-                .setPApplicationName(applicationName.c_str())
-                .setPEngineName("Vortak")
-                .setApiVersion(version)
-                .setEngineVersion(version)
-                .setApplicationVersion(version);
+                                             .setPApplicationName(applicationName.c_str())
+                                             .setPEngineName("Vortak")
+                                             .setApiVersion(version)
+                                             .setEngineVersion(version)
+                                             .setApplicationVersion(version);
 
         uint32_t extensionCount = 0;
         VkStringArrayPtr glfwExtensions = glfwGetRequiredInstanceExtensions(&extensionCount);
@@ -52,7 +52,7 @@ namespace Vortak {
 
         VkStringArray extensions(glfwExtensions, glfwExtensions + extensionCount);
 
-        for (VkString extensionName: extensions)
+        for (VkString extensionName : extensions)
             Vortak::Logger::Info("extension = {}", extensionName);
 
         VkStringArray layers;
@@ -71,10 +71,10 @@ namespace Vortak {
         }
 
         vk::InstanceCreateInfo createInfo = vk::InstanceCreateInfo()
-                .setFlags(vk::InstanceCreateFlags())
-                .setPApplicationInfo(&applicationInfo)
-                .setPEnabledLayerNames(layers)
-                .setPEnabledExtensionNames(extensions);
+                                           .setFlags(vk::InstanceCreateFlags())
+                                           .setPApplicationInfo(&applicationInfo)
+                                           .setPEnabledLayerNames(layers)
+                                           .setPEnabledExtensionNames(extensions);
 
         return vk::createInstance(createInfo, nullptr);
     }
@@ -82,7 +82,7 @@ namespace Vortak {
     vk::PhysicalDevice VulkanPlatform::choosePhysicalDevice(const vk::Instance& instance) {
         std::vector<vk::PhysicalDevice> availableDevices = instance.enumeratePhysicalDevices();
 
-        for (vk::PhysicalDevice& device: availableDevices) {
+        for (vk::PhysicalDevice& device : availableDevices) {
             if (checkDeviceIsSuitable(device) && device.getProperties().deviceType ==
                 vk::PhysicalDeviceType::eDiscreteGpu) {
                 Vortak::Logger::Info("************ Supported Device Properties ************");
@@ -110,12 +110,12 @@ namespace Vortak {
         }
 
         std::vector<vk::DeviceQueueCreateInfo> queueCreateInfos;
-        for (uint32_t queueFamilyIndex: uniqueQueueFamilyIndices) {
+        for (uint32_t queueFamilyIndex : uniqueQueueFamilyIndices) {
             vk::DeviceQueueCreateInfo queueCreateInfo = vk::DeviceQueueCreateInfo()
-                    .setFlags(vk::DeviceQueueCreateFlags())
-                    .setQueueFamilyIndex(queueFamilyIndex)
-                    .setQueueCount(1)
-                    .setPQueuePriorities(&queuePriority);
+                                                       .setFlags(vk::DeviceQueueCreateFlags())
+                                                       .setQueueFamilyIndex(queueFamilyIndex)
+                                                       .setQueueCount(1)
+                                                       .setPQueuePriorities(&queuePriority);
 
             queueCreateInfos.push_back(queueCreateInfo);
         }
@@ -124,10 +124,10 @@ namespace Vortak {
         deviceFeature.setSamplerAnisotropy(true);
 
         vk::DeviceCreateInfo deviceCreateInfo = vk::DeviceCreateInfo()
-                .setFlags(vk::DeviceCreateFlags())
-                .setPEnabledExtensionNames(deviceExtensions)
-                .setQueueCreateInfos(queueCreateInfos)
-                .setPEnabledFeatures(&deviceFeature);
+                                               .setFlags(vk::DeviceCreateFlags())
+                                               .setPEnabledExtensionNames(deviceExtensions)
+                                               .setQueueCreateInfos(queueCreateInfos)
+                                               .setPEnabledFeatures(&deviceFeature);
 
         logicalDevice = device.createDevice(deviceCreateInfo);
 
@@ -165,13 +165,13 @@ namespace Vortak {
 
     vk::ShaderModule VulkanPlatform::loadShader(const std::filesystem::path& path) const {
         VORTAK_ASSERT(mLogicalDevice, "Logical Device not created, call createSwapChain(...) function");
-        auto* shader = ResourceManager::get().loadResource<ShaderProgram>(path.string());
-
+        auto loadedShader = ResourceManager::get().load<ShaderProgram>(path.string());
+        auto* shader = loadedShader.resource;
         const uint32_t* shaderCode = reinterpret_cast<uint32_t*>(shader->getBlob().data());
 
         vk::ShaderModuleCreateInfo shaderModuleCreateInfo = vk::ShaderModuleCreateInfo()
-                .setCodeSize(shader->getBlobSize())
-                .setPCode(shaderCode);
+                                                           .setCodeSize(shader->getBlobSize())
+                                                           .setPCode(shaderCode);
 
         vk::ShaderModule shaderModule = mLogicalDevice.createShaderModule(shaderModuleCreateInfo);
         return shaderModule;
@@ -214,7 +214,7 @@ namespace Vortak {
     bool VulkanPlatform::validateExtensions(VkStringArray extensions) {
         std::vector<vk::ExtensionProperties> supportedExtensions = vk::enumerateInstanceExtensionProperties();
 
-        for (VkString extension: extensions) {
+        for (VkString extension : extensions) {
             auto it = std::find_if(supportedExtensions.begin(), supportedExtensions.end(),
                                    [&](const vk::ExtensionProperties& supportedExtension) {
                                        return strcmp(extension, supportedExtension.extensionName) == 0;
@@ -222,7 +222,8 @@ namespace Vortak {
 
             if (it != supportedExtensions.end()) {
                 Vortak::Logger::Debug("{} Extension Supported", extension);
-            } else {
+            }
+            else {
                 Vortak::Logger::Error("{} Extension Not Supported", extension);
                 return false;
             }
@@ -234,7 +235,7 @@ namespace Vortak {
     bool VulkanPlatform::validateLayers(VkStringArray layers) {
         std::vector<vk::LayerProperties> supportedLayers = vk::enumerateInstanceLayerProperties();
 
-        for (VkString layer: layers) {
+        for (VkString layer : layers) {
             auto it = std::find_if(supportedLayers.begin(), supportedLayers.end(),
                                    [&](const vk::LayerProperties& supportedLayer) {
                                        return strcmp(layer, supportedLayer.layerName) == 0;
@@ -242,7 +243,8 @@ namespace Vortak {
 
             if (it != supportedLayers.end()) {
                 Vortak::Logger::Debug("{} Layer Supported", layer);
-            } else {
+            }
+            else {
                 Vortak::Logger::Error("{} Layer Not Supported", layer);
                 return false;
             }
@@ -255,7 +257,7 @@ namespace Vortak {
                                                      const VkStringArray requestedExtensions) {
         std::set<std::string> requiredExtesnions(requestedExtensions.begin(), requestedExtensions.end());
 
-        for (vk::ExtensionProperties& extensionProperty: device.enumerateDeviceExtensionProperties()) {
+        for (vk::ExtensionProperties& extensionProperty : device.enumerateDeviceExtensionProperties()) {
             requiredExtesnions.erase(extensionProperty.extensionName);
         }
 
@@ -303,8 +305,8 @@ namespace Vortak {
 
     vk::CommandPool VulkanPlatform::createCommandPool(vk::CommandPoolCreateFlags commandPoolCreateFlagBits) {
         vk::CommandPoolCreateInfo commandPoolCreateInfo = vk::CommandPoolCreateInfo()
-                .setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer)
-                .setQueueFamilyIndex(mGraphicsQueueIndex);
+                                                         .setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer)
+                                                         .setQueueFamilyIndex(mGraphicsQueueIndex);
 
         return mLogicalDevice.createCommandPool(commandPoolCreateInfo);
     }
@@ -312,9 +314,9 @@ namespace Vortak {
     std::vector<vk::CommandBuffer> VulkanPlatform::allocateCommandBuffers(
         vk::CommandPool commandPool, vk::CommandBufferLevel level, uint32_t count) {
         vk::CommandBufferAllocateInfo commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
-                .setCommandPool(commandPool)
-                .setLevel(level)
-                .setCommandBufferCount(count);
+                                                                 .setCommandPool(commandPool)
+                                                                 .setLevel(level)
+                                                                 .setCommandBufferCount(count);
 
         return mLogicalDevice.allocateCommandBuffers(commandBufferAllocateInfo);
     }
@@ -330,15 +332,15 @@ namespace Vortak {
 
     vk::CommandBuffer VulkanPlatform::beginSingleCommand(vk::CommandPool commandPool) {
         vk::CommandBufferAllocateInfo commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
-                .setCommandPool(commandPool)
-                .setLevel(vk::CommandBufferLevel::ePrimary)
-                .setCommandBufferCount(1);
+                                                                 .setCommandPool(commandPool)
+                                                                 .setLevel(vk::CommandBufferLevel::ePrimary)
+                                                                 .setCommandBufferCount(1);
 
         vk::CommandBuffer commandBuffer = mLogicalDevice.allocateCommandBuffers(commandBufferAllocateInfo)[0];
 
         vk::CommandBufferBeginInfo beginInfo = vk::CommandBufferBeginInfo()
-                .setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit)
-                .setPInheritanceInfo(nullptr);
+                                              .setFlags(vk::CommandBufferUsageFlagBits::eOneTimeSubmit)
+                                              .setPInheritanceInfo(nullptr);
 
         commandBuffer.begin(beginInfo);
         return commandBuffer;
@@ -348,7 +350,7 @@ namespace Vortak {
                                           vk::Queue queue) {
         commandBuffer.end();
         vk::SubmitInfo submitInfo = vk::SubmitInfo()
-                .setCommandBuffers(commandBuffer);
+           .setCommandBuffers(commandBuffer);
 
         queue.submit(submitInfo, nullptr);
         queue.waitIdle();

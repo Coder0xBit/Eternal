@@ -10,22 +10,19 @@ namespace Vortak {
         }
     }
 
-    void OpenGLPlatform::initialize() {
-    }
+    void OpenGLPlatform::initialize() {}
 
-    void OpenGLPlatform::shutDown() {
-    }
+    void OpenGLPlatform::shutDown() {}
 
     SwapChain* OpenGLPlatform::createSwapChain(Window* window) {
         return nullptr;
     }
 
     Shader* OpenGLPlatform::loadShader(const std::filesystem::path& path, ShaderType shaderType) {
-        auto* shaderProgram = ResourceManager::get().loadResource<ShaderProgram>(path.string());
-        OpenGLShader* shader = Memory::Allocate<OpenGLShader>(shaderProgram, shaderType);
+        auto loadedShader = ResourceManager::get().load<ShaderProgram>(path.string());
+        auto* shader = Memory::Allocate<OpenGLShader>(loadedShader.resource, shaderType);
         return shader;
     }
 
-    OpenGLPlatform::~OpenGLPlatform() {
-    }
+    OpenGLPlatform::~OpenGLPlatform() {}
 }

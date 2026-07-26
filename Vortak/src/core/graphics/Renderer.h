@@ -12,26 +12,14 @@
 namespace Vortak {
     class Renderer {
     public:
-        virtual FrameInfo* beginFrame() = 0;
-
-        virtual void render(Vortak::Camera* camera) = 0;
-
-        virtual void endFrame() = 0;
-
-        virtual ~Renderer() = default;
-
-        virtual SwapChain* getSwapChain() const = 0;
-
         struct BuilderDetails {
             Backend backend = Vulkan;
             GraphicsPlatform* platform = nullptr;
             Window* window = nullptr;
-            Scene* scene = nullptr;
         };
 
         class Builder : public utils::PrivateImplementation<BuilderDetails> {
             friend class Renderer;
-            friend class VulkanRenderer;
 
         public:
             Builder() noexcept;
@@ -52,12 +40,38 @@ namespace Vortak {
 
             Builder& window(Window* window) noexcept;
 
-            Builder& scene(Scene* scene) noexcept;
-
             std::unique_ptr<Renderer> build() const noexcept;
         };
 
+        Renderer() = delete;
+
+        Renderer(const Builder& builder) noexcept;
+
+        Renderer(Renderer&& rhs) = delete;
+
+        Renderer(Renderer& rhs) = delete;
+
+        auto& operator =(Renderer&& rhs) = delete;
+
+        auto& operator =(Renderer& rhs) = delete;
+
+        virtual FrameInfo* beginFrame();
+
+        virtual void render(Vortak::Camera* camera);
+
+        virtual void endFrame();
+
+        virtual ~Renderer();
+
+        virtual SwapChain* getSwapChain() const;
+
+    private:
+        friend class Builder;
+
     private :
         Vortak::RenderQueue<Command> mRenderQueue;
+        GraphicsPlatform* mGraphicsPlatform = nullptr;
+        Window* mWindow = nullptr;
+        Backend mBackend = Vulkan;
     };
 }

@@ -47,7 +47,7 @@ namespace Vortak {
 
             Builder& backend(Backend backend) noexcept;
 
-            Builder& attribute(Attribute attribute) noexcept;
+            Builder& layout(VertexBufferLayout layout) noexcept;
 
             std::unique_ptr<VertexBuffer> build() const noexcept;
         };

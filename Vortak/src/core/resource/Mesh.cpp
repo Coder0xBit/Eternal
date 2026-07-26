@@ -1,11 +1,11 @@
 #include "Mesh.h"
 
+#define TINYOBJLOADER_DISABLE_FAST_FLOAT
 #define TINYOBJLOADER_IMPLEMENTATION
 #include <tinyobjloader/tiny_obj_loader.h>
 
-
 namespace std {
-    template<>
+    template <>
     struct hash<Vortak::Vertex> {
         size_t operator()(Vortak::Vertex const& vertex) const noexcept {
             size_t seed = 0;
@@ -20,11 +20,14 @@ namespace std {
 }
 
 namespace Vortak {
-    Mesh::Mesh() {
-    }
+    Mesh::Mesh() {}
 
     Mesh::Mesh(std::vector<Vortak::Vertex> vertices, std::vector<uint32_t> indices)
         : mVertices(std::move(vertices)), mIndices(std::move(indices)) {
+        mBufferLayout.attribute({0, VertexAttribute::POSITON, ElementType::FLOAT3, sizeof(float) * 3, false});
+        mBufferLayout.attribute({1, VertexAttribute::COLOR, ElementType::FLOAT3, sizeof(float) * 3, false});
+        mBufferLayout.attribute({2, VertexAttribute::NORMAL, ElementType::FLOAT3, sizeof(float) * 3, false});
+        mBufferLayout.attribute({3, VertexAttribute::UV, ElementType::FLOAT3, sizeof(float) * 2, false});
     }
 
     bool Mesh::load(const std::string& path) {
@@ -39,8 +42,8 @@ namespace Vortak {
         }
 
         std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-        for (const auto& shape: shapes) {
-            for (const auto& index: shape.mesh.indices) {
+        for (const auto& shape : shapes) {
+            for (const auto& index : shape.mesh.indices) {
                 Vertex vertex{};
 
                 if (index.vertex_index >= 0) {
@@ -52,7 +55,8 @@ namespace Vortak {
 
                     if (attrib.colors.empty()) {
                         vertex.color = {1.0f, 1.0f, 1.0f};
-                    } else {
+                    }
+                    else {
                         vertex.color = {
                             attrib.colors[3 * index.vertex_index + 0],
                             attrib.colors[3 * index.vertex_index + 1],

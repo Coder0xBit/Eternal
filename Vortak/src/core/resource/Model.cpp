@@ -16,7 +16,6 @@ namespace Vortak {
 
         mModelDirectory = path.substr(0, path.find_last_of('/'));
 
-
         mMeshes.reserve(scene->mNumMeshes);
         for (uint32_t i = 0; i < scene->mNumMeshes; i++) {
             aiMesh* mesh = scene->mMeshes[i];

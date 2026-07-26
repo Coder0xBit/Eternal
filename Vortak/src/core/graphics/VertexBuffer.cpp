@@ -42,8 +42,8 @@ namespace Vortak {
         return *this;
     }
 
-    VertexBuffer::Builder& VertexBuffer::Builder::attribute(Attribute attribute) noexcept {
-        mImpl->bufferLayout.attribute(attribute);
+    VertexBuffer::Builder& VertexBuffer::Builder::layout(VertexBufferLayout layout) noexcept {
+        mImpl->bufferLayout = layout;
         return *this;
     }
 

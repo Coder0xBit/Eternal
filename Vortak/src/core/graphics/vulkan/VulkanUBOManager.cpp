@@ -15,9 +15,9 @@ namespace Vortak {
     }
 
     void VulkanUBOManager::initializeBuffers() {
-        for (auto& e: mScene->getAllEntityWith<Vortak::TransformComponent>()) {
+        for (auto& e : mScene->getAllEntityWith<Vortak::TransformComponent>()) {
             Vortak::Entity entity = Vortak::Entity(e, mScene);
-            EntityId entityUUID = entity.getUUID();
+            EntityId entityUUID = entity.getUUID().value();
 
             if (mUniformBuffers.contains(entityUUID))
                 continue;
