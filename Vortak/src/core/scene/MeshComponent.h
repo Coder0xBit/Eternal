@@ -6,14 +6,6 @@
 
 namespace Vortak {
     struct MeshComponent {
-    public:
-        MeshComponent(ResourceHandle<Mesh> resourceHandle) : mMeshHandle(resourceHandle) {};
-
-        ~MeshComponent() = default;
-
-        ResourceHandle<Mesh> getHandle() const { return mMeshHandle; }
-
-    private:
-        ResourceHandle<Mesh> mMeshHandle;
+        ResourceHandle<Mesh> meshHandle;
     };
 }

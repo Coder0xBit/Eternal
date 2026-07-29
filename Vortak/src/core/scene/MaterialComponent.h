@@ -13,23 +13,7 @@ namespace Vortak {
     constexpr uint32_t eDefaultPipelineLayoutBitMask = PipelineParams::UBO;
 
     struct MaterialComponent {
-    public:
-        MaterialComponent() = default;
-        ~MaterialComponent() = default;
-
-        MaterialComponent(Image* albedoTexture = nullptr) {
-            mAlbedoTexture = albedoTexture;
-            if (mAlbedoTexture) {
-                mPipelineLayoutBitMask = mPipelineLayoutBitMask |= PipelineParams::SAMPLER;
-            }
-        }
-
-        uint32_t getPipelineLayoutBitMask() const { return mPipelineLayoutBitMask; }
-
-        const Image* getAlbedoTexture() const { return mAlbedoTexture; }
-
-    private:
-        Image* mAlbedoTexture = nullptr;
-        uint32_t mPipelineLayoutBitMask = PipelineParams::UBO | PipelineParams::SAMPLER;
+        Image* albedoTexture = nullptr;
+        uint32_t pipelineLayoutBitMask = PipelineParams::UBO | PipelineParams::SAMPLER;
     };
 }

@@ -2,10 +2,10 @@
 
 #include "utils/Base.h"
 #include "core/scene/TransformComponent.h"
+#include "core/scene/HierarchyComponent.h"
+#include "core/resource/Model.h"
 
 #include <entt/entt.hpp>
-
-#include "core/resource/Model.h"
 
 namespace Vortak {
     class Entity;
@@ -27,12 +27,16 @@ namespace Vortak {
 
         void addEntity(TestEntityDetails testEntity);
 
-        template<typename... Components>
+        void setParent(Entity child, Entity parent);
+
+        HierarchyComponent& getOrAddHierarchy(Entity entity);
+
+        template <typename... Components>
         auto getAllEntityWith() {
             return mRegistry.view<Components...>();
         }
 
-        template<typename T>
+        template <typename T>
         void onComponentAdded(std::function<void(Entity&, T&)> callback) {
             auto typeIndex = std::type_index(typeid(T));
 
@@ -44,11 +48,11 @@ namespace Vortak {
         }
 
     private:
-        template<typename T>
+        template <typename T>
         void notifyObservers(Entity& entity, T& component) {
             auto it = mComponentAddedObservers.find(std::type_index(typeid(T)));
             if (it != mComponentAddedObservers.end()) {
-                for (const auto& observer: it->second) {
+                for (const auto& observer : it->second) {
                     observer(entity, &component);
                 }
             }
@@ -57,7 +61,7 @@ namespace Vortak {
         entt::registry mRegistry;
 
         using ObserverFunction = std::function<void(Entity&, void*)>;
-        std::unordered_map<std::type_index, std::vector<ObserverFunction> > mComponentAddedObservers;
+        std::unordered_map<std::type_index, std::vector<ObserverFunction>> mComponentAddedObservers;
 
         friend class Entity;
     };

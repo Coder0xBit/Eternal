@@ -91,8 +91,7 @@ namespace Vortak {
 
         if (mInputCapture.captured) {
             mWindow->setCursorInputMode(CursorInputMode::LOCKED);
-        }
-        else {
+        } else {
             mWindow->setCursorInputMode(CursorInputMode::NORMAL);
         }
 
@@ -108,20 +107,20 @@ namespace Vortak {
             Vortak::Entity entity = Vortak::Entity(e, mScene.get());
 
             auto& nameComponent = entity.getComponent<Vortak::NameComponent>();
-            ImGui::Text("Entity Name: %s", nameComponent.getName());
+            ImGui::Text("Entity Name: %s", nameComponent.name);
 
             auto& component = entity.getComponent<Vortak::TransformComponent>();
-            glm::vec3 translation = component.getTranslation();
-            std::string posLabel = "Position " + std::string(nameComponent.getName());
+            glm::vec3 translation = component.translation;
+            std::string posLabel = "Position " + std::string(nameComponent.name);
             if (ImGui::DragFloat3(posLabel.c_str(), &translation.x, 0.01f)) {
-                component.setTranslation(translation);
+                component.translation = translation;
             }
 
-            glm::vec3 rotationDegrees = glm::degrees(component.getRotation());
-            std::string rotationLabel = "Rotation " + std::string(nameComponent.getName());
+            glm::vec3 rotationDegrees = glm::degrees(component.rotation);
+            std::string rotationLabel = "Rotation " + std::string(nameComponent.name);
             if (ImGui::SliderFloat3(rotationLabel.c_str(), &rotationDegrees.x, 0.0f, 180.0f, "%.1f")) {
                 rotationDegrees = glm::clamp(rotationDegrees, 0.0f, 180.0f);
-                component.setRotation(glm::radians(rotationDegrees));
+                component.rotation = glm::radians(rotationDegrees);
             }
         }
 

@@ -28,7 +28,7 @@ namespace Vortak {
     }
 
     void VulkanTextureManager::addTexture(EntityId entityId, const MaterialComponent& materialComponent) {
-        const Vortak::Image* albedoTextureImage = materialComponent.getAlbedoTexture();
+        const Vortak::Image* albedoTextureImage = materialComponent.albedoTexture;
         if (albedoTextureImage == nullptr) {
             mTextures[entityId] = nullptr;
             return;
