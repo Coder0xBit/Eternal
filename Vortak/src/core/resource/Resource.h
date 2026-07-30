@@ -23,8 +23,6 @@ namespace Vortak {
 
         const std::string& getPath() const { return mPath; }
 
-        virtual bool load(const std::string& path) = 0;
-
         virtual ~Resource() = default;
 
     protected:

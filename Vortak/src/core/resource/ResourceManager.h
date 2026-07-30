@@ -4,11 +4,12 @@
 
 #include "utils/Base.h"
 #include "core/resource/Resource.h"
-#include "core/resource/ResourceCache.h"
+#include "ResourceCache.h"
 #include "core/resource/Mesh.h"
 #include "core/resource/Model.h"
 #include "core/resource/Image.h"
 #include "core/resource/ShaderProgram.h"
+#include "core/resource/importer/ImporterTraits.h"
 
 namespace Vortak {
     template <typename T>
@@ -40,7 +41,8 @@ namespace Vortak {
                 return {handle, resourceCache.get(handle)};
             }
 
-            auto resource = std::make_unique<ResourceType>();
+            typename ImporterTraits<ResourceType>::type importer;
+            auto resource = importer().import(path);
 
             if (!resource->load(path)) {
                 return {};

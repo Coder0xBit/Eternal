@@ -7,34 +7,19 @@
 namespace Vortak {
     constexpr uint32_t DESIRED_IMAGE_CHANNELS = 4; // RGBA
 
-    class Image : public Resource<Image> {
-    public:
-        Image();
+    struct Image : Resource<Image> {
+        int width = 0;
+        int height = 0;
+        int channels = 0;
+        unsigned char* data = nullptr;
 
-        Image(const Image&) = delete;
 
-        Image& operator=(const Image&) = delete;
-
-        bool load(const std::string& path) override;
-
-        unsigned char* getData() const { return mData; }
-
-        GLFWimage getGLFWImage();
-
-        int getWidth() const { return mWidth; }
-
-        int getHeight() const { return mHeight; }
-
-        int getPixelCount() const { return mWidth * mHeight; }
-
-        int getChannels() const { return mChannels; }
-
-        virtual ~Image();
-
-    private:
-        int mWidth = 0;
-        int mHeight = 0;
-        int mChannels = 0;
-        unsigned char* mData = nullptr;
+        GLFWimage getGLFWImage() {
+            GLFWimage glfwImage;
+            glfwImage.width = width;
+            glfwImage.height = height;
+            glfwImage.pixels = data;
+            return glfwImage;
+        }
     };
 }

@@ -35,13 +35,13 @@ namespace Vortak {
         meshBuffer.vertexBuffer = VertexBuffer::Builder()
                                  .graphicsPlatform(mGraphicsPlatform)
                                  .backend(mBackend)
-                                 .layout(mesh.getVertexBufferLayout())
+                                 // .layout(mesh.getVertexBufferLayout())
                                  .build();
 
-        const std::vector<Vortak::Vertex>& vertices = mesh.getVertices();
+        const std::vector<Vortak::Vertex>& vertices = mesh.vertices;
         meshBuffer.vertexBuffer->setBuffer(vertices);
 
-        std::vector<uint32_t> indices = mesh.getIndices();
+        std::vector<uint32_t> indices = mesh.indices;
         meshBuffer.indexBuffer = IndexBuffer::Builder()
                                 .graphicsPlatform(mGraphicsPlatform)
                                 .backend(mBackend)
