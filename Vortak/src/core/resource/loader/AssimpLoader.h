@@ -1,10 +1,12 @@
 #pragma once
 
-#include "core/resource/importer/AssetImporter.h"
+#include "core/resource/loader/AssetLoader.h"
 #include "core/resource/Model.h"
 
 #include <glm/gtc/type_ptr.hpp>
 #include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 namespace Vortak {
     namespace AssimpUtils {
@@ -13,11 +15,11 @@ namespace Vortak {
         }
     }
 
-    class AssimpImporter : public AssetImporter<Model> {
+    class AssimpLoader : public AssetLoader<Model> {
     public:
-        AssimpImporter() = default;
+        AssimpLoader() = default;
 
-        std::unique_ptr<Model> import(const std::filesystem::path& path) override;
+        std::unique_ptr<Model> load(const std::filesystem::path& path) override;
 
     private :
         static void processNode(aiNode* node, const aiScene* scene, ModelNode* modelNode);

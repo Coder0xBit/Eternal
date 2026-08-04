@@ -7,7 +7,7 @@ namespace Vortak {
           mShaderType(shaderType) {
         GLenum glShaderType = getGLShaderType(shaderType);
         mShaderID = glCreateShader(glShaderType);
-        const char* shaderSource = mShaderProgram->getBlob().data();
+        const char* shaderSource = mShaderProgram->blob.data();
         glShaderSource(mShaderID, 1, &shaderSource, nullptr);
     }
 

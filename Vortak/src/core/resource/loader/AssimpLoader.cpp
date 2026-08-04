@@ -1,11 +1,11 @@
-#include "core/resource/importer/AssimpImporter.h"
+#include "core/resource/loader/AssimpLoader.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
 namespace Vortak {
-    std::unique_ptr<Model> AssimpImporter::import(const std::filesystem::path& path) {
+    std::unique_ptr<Model> AssimpLoader::load(const std::filesystem::path& path) {
         Assimp::Importer importer;
 
         const aiScene* scene = importer.ReadFile(
@@ -17,8 +17,6 @@ namespace Vortak {
             Logger::Error("Failed to import model: {}", importer.GetErrorString());
             return nullptr;
         }
-
-        auto model = std::make_unique<Model>();
 
         std::vector<std::unique_ptr<Mesh>> meshes;
         meshes.reserve(scene->mNumMeshes);
@@ -92,13 +90,17 @@ namespace Vortak {
             meshes.emplace_back(std::move(mesh));
         }
 
-        // Build node hierarchy
-        processNode(scene->mRootNode, scene, model->root.get());
+        std::unique_ptr<ModelNode> rootNode = std::make_unique<ModelNode>();
+        processNode(scene->mRootNode, scene, rootNode.get());
+
+        auto model = std::make_unique<Model>();
+        model->root = std::move(rootNode);
+        model->meshes = std::move(meshes);
 
         return model;
     }
 
-    void AssimpImporter::processNode(aiNode* node, const aiScene* scene, ModelNode* modelNode) {
+    void AssimpLoader::processNode(aiNode* node, const aiScene* scene, ModelNode* modelNode) {
         modelNode->name = node->mName.C_Str();
         modelNode->localTransform = AssimpUtils::to_glm(node->mTransformation);
 

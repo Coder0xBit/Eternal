@@ -9,7 +9,7 @@
 #include "core/resource/Model.h"
 #include "core/resource/Image.h"
 #include "core/resource/ShaderProgram.h"
-#include "core/resource/importer/ImporterTraits.h"
+#include "core/resource/loader/LoaderTraits.h"
 
 namespace Vortak {
     template <typename T>
@@ -41,12 +41,10 @@ namespace Vortak {
                 return {handle, resourceCache.get(handle)};
             }
 
-            typename ImporterTraits<ResourceType>::type importer;
-            auto resource = importer().import(path);
+            typename LoaderTraits<ResourceType>::type loader;
+            auto resource = loader.load(path);
 
-            if (!resource->load(path)) {
-                return {};
-            }
+            if (!resource) { return {}; }
 
             resource->setPath(path);
 

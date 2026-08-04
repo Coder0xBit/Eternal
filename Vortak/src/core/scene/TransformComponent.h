@@ -12,6 +12,20 @@ namespace Vortak {
         glm::vec3 rotation = {0.0f, 0.0f, 0.0f};
         glm::vec3 scale = {1.0f, 1.0f, 1.0f};
 
+        static TransformComponent fromMatrix(const glm::mat4& matrix) {
+            TransformComponent transform;
+
+            glm::vec3 skew;
+            glm::vec4 perspective;
+            glm::quat orientation;
+
+            glm::decompose(matrix, transform.scale, orientation, transform.translation, skew, perspective);
+
+            transform.rotation = glm::eulerAngles(orientation);
+
+            return transform;
+        }
+
         glm::mat4 mat4() const {
             glm::mat4 translationMat = glm::translate(glm::mat4(1.0f), translation);
             glm::mat4 rotationMat = glm::yawPitchRoll(rotation.y, rotation.x, rotation.z);

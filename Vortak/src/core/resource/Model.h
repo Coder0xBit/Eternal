@@ -17,6 +17,5 @@ namespace Vortak {
         std::unique_ptr<ModelNode> root;
 
         std::vector<std::unique_ptr<Mesh>> meshes;
-        std::vector<std::unique_ptr<Image>> textures;
     };
 }

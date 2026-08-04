@@ -7,18 +7,16 @@ namespace Vortak {
     BufferManager::BufferManager(GraphicsPlatform* graphicsPlatform, Backend backend)
         : mGraphicsPlatform(graphicsPlatform), mBackend(backend) {}
 
-    const MeshBuffer* BufferManager::getMesh(ResourceHandle<Mesh> handle) {
-        auto it = mMeshBuffers.find(handle);
+    const MeshBuffer* BufferManager::getMesh(MeshKey meshKey) {
+        ResourceHandle<Model> handle = meshKey.modelHandle;
+        auto it = mMeshBuffers.find(meshKey);
 
-        if (it != mMeshBuffers.end()) {
-            return &it->second;
-        }
+        if (it != mMeshBuffers.end()) { return &it->second; }
 
-        Mesh* mesh = ResourceManager::get().get<Mesh>(handle);
+        auto* model = ResourceManager::get().get<Model>(handle);
+        auto* mesh = model->meshes[meshKey.meshIndex].get();
 
-        if (!mesh) {
-            return nullptr;
-        }
+        if (!model || !mesh) { return nullptr; }
 
         auto [iter, inserted] =
             mMeshBuffers.emplace(handle, uploadMesh(*mesh));
@@ -35,7 +33,7 @@ namespace Vortak {
         meshBuffer.vertexBuffer = VertexBuffer::Builder()
                                  .graphicsPlatform(mGraphicsPlatform)
                                  .backend(mBackend)
-                                 // .layout(mesh.getVertexBufferLayout())
+                                  // .layout(mesh.getVertexBufferLayout())
                                  .build();
 
         const std::vector<Vortak::Vertex>& vertices = mesh.vertices;

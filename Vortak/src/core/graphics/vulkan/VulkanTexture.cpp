@@ -8,8 +8,8 @@ namespace Vortak {
         mDevice = vulkanPlatform->getLogicalDevice();
         mPhysicalDevice = vulkanPlatform->getPhysicalDevice();
 
-        mWidth = imageResource->getWidth();
-        mHeight = imageResource->getHeight();
+        mWidth = imageResource->width;
+        mHeight = imageResource->height;
 
         create();
     }
@@ -31,31 +31,31 @@ namespace Vortak {
 
     vk::BufferImageCopy VulkanTexture::getRegionForCopy() const {
         vk::ImageSubresourceLayers subresourceRange = vk::ImageSubresourceLayers()
-                .setAspectMask(vk::ImageAspectFlagBits::eColor)
-                .setMipLevel(0)
-                .setBaseArrayLayer(0)
-                .setLayerCount(1);
+                                                     .setAspectMask(vk::ImageAspectFlagBits::eColor)
+                                                     .setMipLevel(0)
+                                                     .setBaseArrayLayer(0)
+                                                     .setLayerCount(1);
 
         vk::BufferImageCopy region = vk::BufferImageCopy()
-                .setBufferOffset(0)
-                .setBufferRowLength(0)
-                .setBufferImageHeight(0)
-                .setImageSubresource(subresourceRange)
-                .setImageOffset({0, 0, 0})
-                .setImageExtent({(uint32_t) mWidth, (uint32_t) mHeight, 1});
+                                    .setBufferOffset(0)
+                                    .setBufferRowLength(0)
+                                    .setBufferImageHeight(0)
+                                    .setImageSubresource(subresourceRange)
+                                    .setImageOffset({0, 0, 0})
+                                    .setImageExtent({(uint32_t)mWidth, (uint32_t)mHeight, 1});
 
         return region;
     }
 
     void VulkanTexture::prepareStagingBuffer() {
         int pixelCount = mImageResource->getPixelCount();
-        int channel = mImageResource->getChannels();
+        int channel = mImageResource->channels;
 
         mStagingBuffer = std::make_shared<VulkanBuffer>(mVulkanPlatform);
         mStagingBuffer->create(pixelCount, channel, vk::BufferUsageFlagBits::eTransferSrc);
         mStagingBuffer->allocate(mBufferProperties);
         mStagingBuffer->map();
-        mStagingBuffer->write(mImageResource->getData());
+        mStagingBuffer->write(mImageResource->data);
         mStagingBuffer->unMap();
     }
 
@@ -91,18 +91,18 @@ namespace Vortak {
 
     void VulkanTexture::createImageView() {
         vk::ImageSubresourceRange imageSubResourceRange = vk::ImageSubresourceRange()
-                .setAspectMask(vk::ImageAspectFlagBits::eColor)
-                .setBaseMipLevel(0)
-                .setLevelCount(1)
-                .setBaseArrayLayer(0)
-                .setLayerCount(1);
+                                                         .setAspectMask(vk::ImageAspectFlagBits::eColor)
+                                                         .setBaseMipLevel(0)
+                                                         .setLevelCount(1)
+                                                         .setBaseArrayLayer(0)
+                                                         .setLayerCount(1);
 
         vk::ImageViewCreateInfo imageViewCreateInfo = vk::ImageViewCreateInfo()
-                .setImage(mImage)
-                .setViewType(vk::ImageViewType::e2D)
-                .setFormat(mFormat)
-                .setComponents(vk::ComponentMapping())
-                .setSubresourceRange(imageSubResourceRange);
+                                                     .setImage(mImage)
+                                                     .setViewType(vk::ImageViewType::e2D)
+                                                     .setFormat(mFormat)
+                                                     .setComponents(vk::ComponentMapping())
+                                                     .setSubresourceRange(imageSubResourceRange);
 
         mImageView = mDevice.createImageView(imageViewCreateInfo);
     }
@@ -110,18 +110,18 @@ namespace Vortak {
     void VulkanTexture::createSampler() {
         vk::PhysicalDeviceProperties props = mPhysicalDevice.getProperties();
         vk::SamplerCreateInfo samplerInfo = vk::SamplerCreateInfo()
-                .setMagFilter(vk::Filter::eLinear)
-                .setMinFilter(vk::Filter::eLinear)
-                .setAddressModeU(vk::SamplerAddressMode::eRepeat)
-                .setAddressModeV(vk::SamplerAddressMode::eRepeat)
-                .setAddressModeW(vk::SamplerAddressMode::eRepeat)
-                .setAnisotropyEnable(VK_TRUE)
-                .setMaxAnisotropy(props.limits.maxSamplerAnisotropy)
-                .setBorderColor(vk::BorderColor::eIntOpaqueBlack)
-                .setUnnormalizedCoordinates(VK_FALSE)
-                .setCompareEnable(VK_FALSE)
-                .setCompareOp(vk::CompareOp::eAlways)
-                .setMipmapMode(vk::SamplerMipmapMode::eLinear);
+                                           .setMagFilter(vk::Filter::eLinear)
+                                           .setMinFilter(vk::Filter::eLinear)
+                                           .setAddressModeU(vk::SamplerAddressMode::eRepeat)
+                                           .setAddressModeV(vk::SamplerAddressMode::eRepeat)
+                                           .setAddressModeW(vk::SamplerAddressMode::eRepeat)
+                                           .setAnisotropyEnable(VK_TRUE)
+                                           .setMaxAnisotropy(props.limits.maxSamplerAnisotropy)
+                                           .setBorderColor(vk::BorderColor::eIntOpaqueBlack)
+                                           .setUnnormalizedCoordinates(VK_FALSE)
+                                           .setCompareEnable(VK_FALSE)
+                                           .setCompareOp(vk::CompareOp::eAlways)
+                                           .setMipmapMode(vk::SamplerMipmapMode::eLinear);
 
         mSampler = mDevice.createSampler(samplerInfo);
     }
@@ -134,20 +134,23 @@ namespace Vortak {
         createSampler();
     }
 
-    void VulkanTexture::recordUploadCommand(vk::CommandBuffer commandBuffer) const { {
+    void VulkanTexture::recordUploadCommand(vk::CommandBuffer commandBuffer) const {
+        {
             VulkanTexture::LayoutTransitionInfo layoutTransitionInfo =
-                    getLayoutTransitionInfo(mFormat, vk::ImageLayout::eUndefined,
-                                            vk::ImageLayout::eTransferDstOptimal);
+                getLayoutTransitionInfo(mFormat, vk::ImageLayout::eUndefined,
+                                        vk::ImageLayout::eTransferDstOptimal);
             commandBuffer.pipelineBarrier(layoutTransitionInfo.sourceStage, layoutTransitionInfo.destinationStage, {},
                                           {}, {}, {layoutTransitionInfo.imageMemoryBarrier});
-        } {
+        }
+        {
             vk::BufferImageCopy region = getRegionForCopy();
             auto stagingBuffer = mStagingBuffer->getVkBuffer();
             commandBuffer.copyBufferToImage(*stagingBuffer, mImage, vk::ImageLayout::eTransferDstOptimal, region);
-        } {
+        }
+        {
             VulkanTexture::LayoutTransitionInfo layoutTransitionInfo =
-                    getLayoutTransitionInfo(mFormat, vk::ImageLayout::eTransferDstOptimal,
-                                            vk::ImageLayout::eShaderReadOnlyOptimal);
+                getLayoutTransitionInfo(mFormat, vk::ImageLayout::eTransferDstOptimal,
+                                        vk::ImageLayout::eShaderReadOnlyOptimal);
             commandBuffer.pipelineBarrier(layoutTransitionInfo.sourceStage, layoutTransitionInfo.destinationStage, {},
                                           {}, {}, {layoutTransitionInfo.imageMemoryBarrier});
         }
@@ -156,33 +159,33 @@ namespace Vortak {
     VulkanTexture::LayoutTransitionInfo VulkanTexture::getLayoutTransitionInfo(
         vk::Format format, vk::ImageLayout oldLayout, vk::ImageLayout newLayout) const {
         vk::ImageSubresourceRange subresourceRange = vk::ImageSubresourceRange()
-                .setAspectMask(vk::ImageAspectFlagBits::eColor)
-                .setBaseMipLevel(0)
-                .setLevelCount(1)
-                .setBaseArrayLayer(0)
-                .setLayerCount(1);
+                                                    .setAspectMask(vk::ImageAspectFlagBits::eColor)
+                                                    .setBaseMipLevel(0)
+                                                    .setLevelCount(1)
+                                                    .setBaseArrayLayer(0)
+                                                    .setLayerCount(1);
 
         vk::ImageMemoryBarrier barrier = vk::ImageMemoryBarrier()
-                .setOldLayout(oldLayout)
-                .setNewLayout(newLayout)
-                .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-                .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
-                .setImage(mImage)
-                .setSubresourceRange(subresourceRange);
+                                        .setOldLayout(oldLayout)
+                                        .setNewLayout(newLayout)
+                                        .setSrcQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+                                        .setDstQueueFamilyIndex(VK_QUEUE_FAMILY_IGNORED)
+                                        .setImage(mImage)
+                                        .setSubresourceRange(subresourceRange);
 
         vk::PipelineStageFlags sourceStage;
         vk::PipelineStageFlags destinationStage;
 
         if (oldLayout == vk::ImageLayout::eUndefined && newLayout == vk::ImageLayout::eTransferDstOptimal) {
             barrier.setSrcAccessMask(vk::AccessFlagBits::eNone)
-                    .setDstAccessMask(vk::AccessFlagBits::eTransferWrite);
+                   .setDstAccessMask(vk::AccessFlagBits::eTransferWrite);
 
             sourceStage = vk::PipelineStageFlagBits::eTopOfPipe;
             destinationStage = vk::PipelineStageFlagBits::eTransfer;
         } else if (oldLayout == vk::ImageLayout::eTransferDstOptimal && newLayout ==
-                   vk::ImageLayout::eShaderReadOnlyOptimal) {
+            vk::ImageLayout::eShaderReadOnlyOptimal) {
             barrier.setSrcAccessMask(vk::AccessFlagBits::eTransferWrite)
-                    .setDstAccessMask(vk::AccessFlagBits::eShaderRead);
+                   .setDstAccessMask(vk::AccessFlagBits::eShaderRead);
 
             sourceStage = vk::PipelineStageFlagBits::eTransfer;
             destinationStage = vk::PipelineStageFlagBits::eFragmentShader;

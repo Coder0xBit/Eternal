@@ -1,11 +1,17 @@
 #pragma once
 
 #include "utils/Base.h"
-#include "core/graphics/Vertex.h"
-#include "core/resource/Mesh.h"
+#include "core/resource/Model.h"
 
 namespace Vortak {
+    struct SubMesh {
+        SubMesh(uint32_t index) : meshIndex(index) {}
+
+        uint32_t meshIndex = 0;
+    };
+
     struct MeshComponent {
-        ResourceHandle<Mesh> meshHandle;
+        ResourceHandle<Model> modelHandle;
+        std::vector<SubMesh> subMeshes;
     };
 }

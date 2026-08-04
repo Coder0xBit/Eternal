@@ -7,6 +7,23 @@
 #include "core/scene/MeshComponent.h"
 
 namespace Vortak {
+    struct MeshKey {
+        ResourceHandle<Model> modelHandle;
+        uint32_t meshIndex = 0;
+
+        bool operator==(const MeshKey& other) const = default;
+    };
+
+    struct MeshKeyHasher {
+        std::size_t operator()(const Vortak::MeshKey& key) const noexcept {
+            std::size_t seed = 0;
+            Vortak::hashCombine(seed, key.modelHandle);
+            Vortak::hashCombine(seed, key.meshIndex);
+            return seed;
+        }
+    };
+
+
     struct MeshBuffer {
         std::unique_ptr<VertexBuffer> vertexBuffer;
         std::unique_ptr<IndexBuffer> indexBuffer;
@@ -14,7 +31,7 @@ namespace Vortak {
 
     class BufferManager {
     public:
-        using MeshBuffers = std::unordered_map<ResourceHandle<Mesh>, MeshBuffer>;
+        using MeshBuffers = std::unordered_map<MeshKey, MeshBuffer, MeshKeyHasher>;
 
         BufferManager(GraphicsPlatform* graphicsPlatform, Backend backend);
 
@@ -22,7 +39,7 @@ namespace Vortak {
             return static_cast<uint32_t>(mMeshBuffers.size());
         }
 
-        const MeshBuffer* getMesh(ResourceHandle<Mesh> handle);
+        const MeshBuffer* getMesh(MeshKey meshKey);
 
         ~BufferManager();
 

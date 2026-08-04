@@ -13,6 +13,7 @@
 #include "assimp/code/AssetLib/3MF/3MFXmlTags.h"
 #include "core/resource/Model.h"
 #include "core/resource/ResourceManager.h"
+#include "core/scene/importer/ModelImporter.h"
 
 void SetEngineRootDirectory() {
     std::filesystem::path path = std::filesystem::current_path() / "../Vortak";
@@ -129,24 +130,19 @@ namespace Vortak {
     }
 
     void Viewer::setupScene() const {
-        TestEntityDetails testEntity1 = {
-            "watch_tower_1",
-            "res/models/tower/wooden_watch_tower.obj",
-            "res/models/tower/Wood_Tower_Col.jpg",
-            glm::vec3(0.0f, 0.0f, 0.0f)
-        };
-
-        mScene->addEntity(testEntity1);
-
-        TestEntityDetails testEntity2 = {
-            "watch_tower_2",
-            "res/models/tower/wooden_watch_tower.obj",
-            "res/models/tower/Wood_Tower_Col.jpg",
-            glm::vec3(0.0f, 0.0f, 10.0f)
-        };
-
-        mScene->addEntity(testEntity2);
-
+        // TestEntityDetails testEntity1 = {
+        //     "watch_tower_1",
+        //     "res/models/tower/wooden_watch_tower.obj",
+        //     "res/models/tower/Wood_Tower_Col.jpg",
+        //     glm::vec3(0.0f, 0.0f, 0.0f)
+        // };
+        //
+        // TestEntityDetails testEntity2 = {
+        //     "watch_tower_2",
+        //     "res/models/tower/wooden_watch_tower.obj",
+        //     "res/models/tower/Wood_Tower_Col.jpg",
+        //     glm::vec3(0.0f, 0.0f, 10.0f)
+        // };
         // std::vector<Vortak::Vertex> triVertices = {
         //     {{0.0f, 0.5f, 0.0f}, {1.0f, 0.0f, 0.0f}}, // 0: top (red)
         //     {{-0.5f, -0.5f, 0.0f}, {0.0f, 1.0f, 0.0f}}, // 1: bottom-left (green)
@@ -163,6 +159,7 @@ namespace Vortak {
         std::string filePath = "res/models/sponza/Sponza.gltf";
 
         auto sponzaModel = ResourceManager::get().load<Model>(filePath);
+        ModelImporter::import(sponzaModel.handle , mScene.get());
         // if (!sponzaModel) {
         //     Vortak::Logger::Error("Failed to load model from path: {}", filePath);
         //     return;

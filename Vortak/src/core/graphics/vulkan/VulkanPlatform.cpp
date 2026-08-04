@@ -167,10 +167,10 @@ namespace Vortak {
         VORTAK_ASSERT(mLogicalDevice, "Logical Device not created, call createSwapChain(...) function");
         auto loadedShader = ResourceManager::get().load<ShaderProgram>(path.string());
         auto* shader = loadedShader.resource;
-        const uint32_t* shaderCode = reinterpret_cast<uint32_t*>(shader->getBlob().data());
+        const uint32_t* shaderCode = reinterpret_cast<uint32_t*>(shader->blob.data());
 
         vk::ShaderModuleCreateInfo shaderModuleCreateInfo = vk::ShaderModuleCreateInfo()
-                                                           .setCodeSize(shader->getBlobSize())
+                                                           .setCodeSize(shader->blob.size())
                                                            .setPCode(shaderCode);
 
         vk::ShaderModule shaderModule = mLogicalDevice.createShaderModule(shaderModuleCreateInfo);

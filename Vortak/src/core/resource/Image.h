@@ -13,6 +13,7 @@ namespace Vortak {
         int channels = 0;
         unsigned char* data = nullptr;
 
+        int getPixelCount() const { return width * height; }
 
         GLFWimage getGLFWImage() {
             GLFWimage glfwImage;

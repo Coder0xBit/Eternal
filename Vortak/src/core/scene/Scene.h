@@ -25,8 +25,6 @@ namespace Vortak {
 
         Entity createEntity(std::string name);
 
-        void addEntity(TestEntityDetails testEntity);
-
         void setParent(Entity child, Entity parent);
 
         HierarchyComponent& getOrAddHierarchy(Entity entity);

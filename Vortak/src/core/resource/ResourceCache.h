@@ -26,8 +26,7 @@ namespace Vortak {
         T* get(ResourceHandleType handle) {
             auto it = mResources.find(handle);
 
-            if (it == mResources.end())
-                return nullptr;
+            if (it == mResources.end()) { return nullptr; }
 
             return it->second.get();
         }
@@ -35,8 +34,7 @@ namespace Vortak {
         const T* get(ResourceHandleType handle) const {
             auto it = mResources.find(handle);
 
-            if (it == mResources.end())
-                return nullptr;
+            if (it == mResources.end()) { return nullptr; }
 
             return it->second.get();
         }
@@ -47,9 +45,7 @@ namespace Vortak {
 
         void remove(ResourceHandleType handle) {
             auto it = mResources.find(handle);
-
-            if (it == mResources.end())
-                return;
+            if (it == mResources.end()) { return; }
 
             if (!it->second->getPath().empty()) {
                 mPathCache.erase(it->second->getPath());
@@ -61,8 +57,7 @@ namespace Vortak {
         ResourceHandleType find(const std::filesystem::path& path) const {
             auto it = mPathCache.find(path);
 
-            if (it == mPathCache.end())
-                return {};
+            if (it == mPathCache.end()) { return {}; }
 
             return it->second;
         }

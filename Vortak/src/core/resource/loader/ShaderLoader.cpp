@@ -1,9 +1,9 @@
-#include "core/resource/importer/ShaderImporter.h"
+#include "core/resource/loader/ShaderLoader.h"
 
 #include <fstream>
 
 namespace Vortak {
-    std::unique_ptr<ShaderProgram> ShaderImporter::import(
+    std::unique_ptr<ShaderProgram> ShaderLoader::load(
         const std::filesystem::path& path) {
         auto shader = std::make_unique<ShaderProgram>();
 

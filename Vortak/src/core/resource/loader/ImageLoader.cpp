@@ -1,9 +1,9 @@
-#include "core/resource/importer/ImageImporter.h"
+#include "core/resource/loader/ImageLoader.h"
 
 #include <stb_image.h>
 
 namespace Vortak {
-    std::unique_ptr<Image> ImageImporter::import(const std::filesystem::path& path) {
+    std::unique_ptr<Image> ImageLoader::load(const std::filesystem::path& path) {
         auto image = std::make_unique<Image>();
 
         stbi_set_flip_vertically_on_load(true);
