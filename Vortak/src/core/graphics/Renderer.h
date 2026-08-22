@@ -4,9 +4,10 @@
 #include "core/graphics/Command.h"
 #include "core/graphics/RenderQueue.h"
 #include "core/graphics/SwapChain.h"
-#include "core/graphics/FrameInfo.h"
 #include "core/graphics/Backend.h"
+#include "core/Camera.h "
 #include "core/graphics/GraphicsPlatform.h"
+#include "core/graphics/BufferManager.h"
 #include "core/scene/Scene.h"
 
 namespace Vortak {
@@ -55,9 +56,9 @@ namespace Vortak {
 
         auto& operator =(Renderer& rhs) = delete;
 
-        virtual FrameInfo* beginFrame();
+        virtual bool beginFrame();
 
-        virtual void render(Vortak::Camera* camera);
+        virtual void render(Vortak::Camera* camera, Vortak::Scene* scene);
 
         virtual void endFrame();
 
@@ -71,6 +72,7 @@ namespace Vortak {
     private :
         Vortak::RenderQueue<Command> mRenderQueue;
         GraphicsPlatform* mGraphicsPlatform = nullptr;
+        std::unique_ptr<BufferManager> mBufferManager = nullptr;
         Window* mWindow = nullptr;
         Backend mBackend = Vulkan;
     };

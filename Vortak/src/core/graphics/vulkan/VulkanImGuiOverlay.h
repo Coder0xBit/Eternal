@@ -8,10 +8,12 @@ namespace Vortak {
     class VulkanImGuiOverlay : public ImGuiOverlay {
     public:
         VulkanImGuiOverlay(const Builder& builder);
+
         ~VulkanImGuiOverlay() override;
 
         void beginFrame() override;
-        void render(FrameInfo* frameInfo) override;
+
+        void render() override;
 
     private:
         VulkanPlatform* mVulkanPlatform = nullptr;

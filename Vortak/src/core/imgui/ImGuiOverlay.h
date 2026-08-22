@@ -1,6 +1,5 @@
 #pragma once
 
-#include "core/graphics/FrameInfo.h"
 #include "core/graphics/Backend.h"
 #include "core/graphics/GraphicsPlatform.h"
 #include "core/graphics/Renderer.h"
@@ -11,7 +10,7 @@ namespace Vortak {
     public:
         virtual void beginFrame() = 0;
 
-        virtual void render(FrameInfo* frameInfo) = 0;
+        virtual void render() = 0;
 
         virtual ~ImGuiOverlay() = default;
 
@@ -21,7 +20,6 @@ namespace Vortak {
             Window* window = nullptr;
             Renderer* renderer = nullptr;
         };
-
 
         class Builder : public utils::PrivateImplementation<BuilderDetails> {
             friend class ImGuiOverlay;

@@ -16,8 +16,7 @@ namespace Vortak {
 
         if (mData.backend == Backend::Vulkan) {
             glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        }
-        else {
+        } else {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
             glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -84,8 +83,7 @@ namespace Vortak {
         int cursorInputMode;
         if (inputMode == CursorInputMode::LOCKED) {
             cursorInputMode = GLFW_CURSOR_DISABLED;
-        }
-        else {
+        } else {
             cursorInputMode = GLFW_CURSOR_NORMAL;
         }
         glfwSetInputMode(mWindow, GLFW_CURSOR, cursorInputMode);
@@ -98,8 +96,7 @@ namespace Vortak {
     void WindowsWindow::shutDown() const {
         if (mWindow != nullptr) {
             glfwDestroyWindow(mWindow);
-        }
-        else {
+        } else {
             Vortak::Logger::Error("mWindow Pointer is null");
         }
 
@@ -114,8 +111,7 @@ namespace Vortak {
             return;
         }
 
-        LoadedResource<Image> loadedImage = ResourceManager::get().load<Image>(path.string());
-        auto* image = loadedImage.resource;
+        auto* image = ResourceManager::get().load<Image>(path.string());
         GLFWimage icon = image->getGLFWImage();
         glfwSetWindowIcon(mWindow, 1, &icon);
     }

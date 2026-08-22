@@ -19,7 +19,7 @@ namespace Vortak {
         if (!model || !mesh) { return nullptr; }
 
         auto [iter, inserted] =
-            mMeshBuffers.emplace(handle, uploadMesh(*mesh));
+            mMeshBuffers.emplace(meshKey, uploadMesh(*mesh));
 
         return &iter->second;
     }

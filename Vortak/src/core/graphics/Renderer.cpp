@@ -1,5 +1,7 @@
 #include "core/graphics/Renderer.h"
 
+#include "core/scene/Entity.h"
+
 namespace Vortak {
     Renderer::Builder::Builder() noexcept = default;
 
@@ -36,11 +38,24 @@ namespace Vortak {
         mGraphicsPlatform = builder.mImpl->platform;
         mWindow = builder.mImpl->window;
         mBackend = builder.mImpl->backend;
+
+        mBufferManager = std::make_unique<BufferManager>(mGraphicsPlatform, mBackend);
     }
 
-    FrameInfo* Renderer::beginFrame() { return nullptr; }
+    bool Renderer::beginFrame() { return true; }
 
-    void Renderer::render(Vortak::Camera* camera) {}
+    void Renderer::render(Vortak::Camera* camera, Vortak::Scene* scene) {
+        auto view = scene->getAllEntityWith<Vortak::MeshComponent>();
+        for (auto& handle : view) {
+            Entity e = Entity(handle, scene);
+            auto mesh = e.getComponent<Vortak::MeshComponent>();
+
+            for (auto& subMeshes : mesh.subMeshes) {
+                auto meshKey = MeshKey(mesh.modelHandle, subMeshes.meshIndex);
+                auto meshBuffer = mBufferManager->getMesh(meshKey);
+            }
+        }
+    }
 
     void Renderer::endFrame() {}
 

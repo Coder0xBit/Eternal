@@ -2,9 +2,8 @@
 #include "core/resource/ResourceManager.h"
 
 namespace Vortak {
-    OpenGLShader::OpenGLShader(ShaderProgram* shaderProgram, ShaderType shaderType)
-        : Shader(shaderProgram),
-          mShaderType(shaderType) {
+    OpenGLShader::OpenGLShader(GraphicsPlatform* graphicsPlatform, ShaderProgram* shaderProgram, ShaderType shaderType)
+        : Shader(graphicsPlatform, shaderProgram, shaderType) {
         GLenum glShaderType = getGLShaderType(shaderType);
         mShaderID = glCreateShader(glShaderType);
         const char* shaderSource = mShaderProgram->blob.data();

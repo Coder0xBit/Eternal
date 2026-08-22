@@ -5,11 +5,11 @@ namespace Vortak {
     OpenGLVertexBuffer::OpenGLVertexBuffer(
         VertexBufferLayout bufferLayout
     ) : VertexBuffer(std::move(bufferLayout)) {
-        glGenBuffers(1, &mVertexBufferID);
+        glGenBuffers(1, &mVertexBufferId);
     }
 
     void OpenGLVertexBuffer::bind() {
-        glBindBuffer(GL_ARRAY_BUFFER, mVertexBufferID);
+        glBindBuffer(GL_ARRAY_BUFFER, mVertexBufferId);
     }
 
     void OpenGLVertexBuffer::unBind() {

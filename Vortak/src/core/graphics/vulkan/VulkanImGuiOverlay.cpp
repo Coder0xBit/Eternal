@@ -1,5 +1,4 @@
 #include "core/graphics/vulkan/VulkanImGuiOverlay.h"
-#include "core/graphics/vulkan/VulkanFrameInfo.h"
 
 #include <imgui/backends/imgui_impl_vulkan.h>
 #include <imgui/backends/imgui_impl_glfw.h>
@@ -56,9 +55,8 @@ namespace Vortak {
         ImGui::NewFrame();
     }
 
-    void VulkanImGuiOverlay::render(FrameInfo* frameInfo) {
-        ImGui::Render();
-        auto commandBuffer = static_cast<VulkanFrameInfo*>(frameInfo)->commandBuffer;
-        ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
+    void VulkanImGuiOverlay::render() {
+        // ImGui::Render();
+        // ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffer);
     }
 }

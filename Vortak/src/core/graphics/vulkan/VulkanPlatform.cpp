@@ -163,19 +163,6 @@ namespace Vortak {
                                                  mPresentQueueFamilyIndex);
     }
 
-    vk::ShaderModule VulkanPlatform::loadShader(const std::filesystem::path& path) const {
-        VORTAK_ASSERT(mLogicalDevice, "Logical Device not created, call createSwapChain(...) function");
-        auto loadedShader = ResourceManager::get().load<ShaderProgram>(path.string());
-        auto* shader = loadedShader.resource;
-        const uint32_t* shaderCode = reinterpret_cast<uint32_t*>(shader->blob.data());
-
-        vk::ShaderModuleCreateInfo shaderModuleCreateInfo = vk::ShaderModuleCreateInfo()
-                                                           .setCodeSize(shader->blob.size())
-                                                           .setPCode(shaderCode);
-
-        vk::ShaderModule shaderModule = mLogicalDevice.createShaderModule(shaderModuleCreateInfo);
-        return shaderModule;
-    }
 
     uint32_t VulkanPlatform::identifyGraphicsQueueFamilyIndex(vk::PhysicalDevice& device, vk::QueueFlags flags) {
         uint32_t graphicsQueueFamilyIndex = INVALID_VK_INDEX;
@@ -222,8 +209,7 @@ namespace Vortak {
 
             if (it != supportedExtensions.end()) {
                 Vortak::Logger::Debug("{} Extension Supported", extension);
-            }
-            else {
+            } else {
                 Vortak::Logger::Error("{} Extension Not Supported", extension);
                 return false;
             }
@@ -243,8 +229,7 @@ namespace Vortak {
 
             if (it != supportedLayers.end()) {
                 Vortak::Logger::Debug("{} Layer Supported", layer);
-            }
-            else {
+            } else {
                 Vortak::Logger::Error("{} Layer Not Supported", layer);
                 return false;
             }

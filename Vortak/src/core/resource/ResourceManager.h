@@ -12,12 +12,6 @@
 #include "core/resource/loader/LoaderTraits.h"
 
 namespace Vortak {
-    template <typename T>
-    struct LoadedResource {
-        ResourceHandle<T> handle;
-        T* resource = nullptr;
-    };
-
     class ResourceManager {
     public:
         ResourceManager(const ResourceManager&) = delete;
@@ -34,11 +28,11 @@ namespace Vortak {
             typename ResourceType,
             std::enable_if_t<std::is_base_of_v<Resource<ResourceType>, ResourceType>, int> = 0
         >
-        LoadedResource<ResourceType> load(const std::string& path) {
+        ResourceType* load(const std::string& path) {
             auto& resourceCache = cache<ResourceType>();
 
             if (auto handle = resourceCache.find(path); handle) {
-                return {handle, resourceCache.get(handle)};
+                return resourceCache.get(handle);
             }
 
             typename LoaderTraits<ResourceType>::type loader;
@@ -50,7 +44,7 @@ namespace Vortak {
 
             auto handle = resourceCache.add(std::move(resource));
 
-            return {handle, resourceCache.get(handle)};
+            return resourceCache.get(handle);
         }
 
         template <

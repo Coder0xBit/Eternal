@@ -159,7 +159,7 @@ namespace Vortak {
         std::string filePath = "res/models/sponza/Sponza.gltf";
 
         auto sponzaModel = ResourceManager::get().load<Model>(filePath);
-        ModelImporter::import(sponzaModel.handle , mScene.get());
+        ModelImporter::import(sponzaModel->getHandle(), mScene.get());
         // if (!sponzaModel) {
         //     Vortak::Logger::Error("Failed to load model from path: {}", filePath);
         //     return;
@@ -177,13 +177,9 @@ namespace Vortak {
             handleInputCaptureState();
             mCamera->onUpdate(timeStep);
 
-            if (FrameInfo* frameInfo = mRenderer->beginFrame()) {
-                mImGuiOverlay->beginFrame();
-                onImGuiRender(timeStep);
-                mRenderer->render(mCamera.get());
-                mImGuiOverlay->render(frameInfo);
+            if (mRenderer->beginFrame()) {
+                mRenderer->render(mCamera.get(), mScene.get());
                 mRenderer->endFrame();
-                Memory::Deallocate(frameInfo);
             }
 
             mIsRunning = !mWindow->shouldClose();

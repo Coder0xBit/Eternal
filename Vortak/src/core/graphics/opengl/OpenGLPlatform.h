@@ -10,7 +10,6 @@ namespace Vortak {
         void initialize() override;
         void shutDown() override;
         SwapChain* createSwapChain(Window* window) override;
-        Shader* loadShader(const std::filesystem::path& path, ShaderType shaderType);
         ~OpenGLPlatform() override;
     };
 }
