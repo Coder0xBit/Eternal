@@ -5,7 +5,7 @@
 namespace Vortak {
     class OpenGLShader : public Shader {
     public:
-        OpenGLShader(GraphicsPlatform* graphicsPlatform, ShaderProgram* shaderProgram, ShaderType shaderType);
+        OpenGLShader(GraphicsDevice* graphicsDevice, ShaderProgram* shaderProgram, ShaderType shaderType);
 
         ~OpenGLShader() override;
 

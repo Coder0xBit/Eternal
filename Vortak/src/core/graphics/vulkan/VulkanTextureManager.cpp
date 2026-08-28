@@ -3,7 +3,7 @@
 #include "core/scene/Entity.h"
 
 namespace Vortak {
-    VulkanTextureManager::VulkanTextureManager(Vortak::VulkanPlatform* vulkanPlatform, Scene* scene)
+    VulkanTextureManager::VulkanTextureManager(Vortak::VulkanDevice* vulkanPlatform, Scene* scene)
         : mVulkanPlatform(vulkanPlatform), mScene(scene) {
         createCommandPool();
         initialize();

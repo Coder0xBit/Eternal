@@ -4,7 +4,7 @@
 #include <ranges>
 
 namespace Vortak {
-    VulkanPipelineLayoutCache::VulkanPipelineLayoutCache(VulkanDescriptorPool* descriptorPool, VulkanPlatform* platform)
+    VulkanPipelineLayoutCache::VulkanPipelineLayoutCache(VulkanDescriptorPool* descriptorPool, VulkanDevice* platform)
         : mPlatform(platform), mDescriptorPool(descriptorPool) {
         mLogicalDevice = mPlatform->getLogicalDevice();
         mUniformBufferDescriptorSetLayout = VulkanDescriptorSetLayout::Builder(mLogicalDevice)

@@ -4,15 +4,9 @@ find_package(Vulkan REQUIRED)
 
 add_library(VortakCore STATIC ${VORTAK_SOURCE})
 
-target_include_directories(VortakCore
-        PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
-        ${CMAKE_CURRENT_SOURCE_DIR}/../Vendor/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/../Vendor
-)
+target_include_directories(VortakCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 if (WIN32)
-    target_link_directories(VortakCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../Vendor/lib)
     target_compile_definitions(VortakCore PUBLIC
             NOMINMAX
             WIN32_LEAN_AND_MEAN

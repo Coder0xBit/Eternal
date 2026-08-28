@@ -7,7 +7,7 @@
 namespace Vortak {
     class VulkanShader : public Shader {
     public:
-        VulkanShader(GraphicsPlatform* graphicsPlatform, ShaderProgram* shaderProgram, ShaderType shaderType);
+        VulkanShader(GraphicsDevice* graphicsDevice, ShaderProgram* shaderProgram, ShaderType shaderType);
 
         ~VulkanShader() override;
 

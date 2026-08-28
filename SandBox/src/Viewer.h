@@ -2,7 +2,7 @@
 
 #include "Application.h"
 
-#include "core/graphics/opengl/OpenGLPlatform.h"
+#include "core/graphics/opengl/OpenGLDevice.h"
 #include "core/graphics/opengl/OpenGLShader.h"
 
 #include "core/imgui/ImGuiOverlay.h"
@@ -41,7 +41,7 @@ namespace Vortak {
             void acknowledge() { lastApplied = captured; }
         };
 
-        std::unique_ptr<Vortak::GraphicsPlatform> mGraphicsPlatform;
+        std::unique_ptr<Vortak::GraphicsDevice> mGraphicsDevice;
         std::unique_ptr<Vortak::Renderer> mRenderer;
         std::unique_ptr<Vortak::Window> mWindow;
         std::unique_ptr<Vortak::InputDispatcher> mInputDispatcher;

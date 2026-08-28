@@ -1,22 +1,22 @@
-#include "core/graphics/opengl/OpenGLPlatform.h"
+#include "core/graphics/opengl/OpenGLDevice.h"
 #include "core/graphics/opengl/OpenGLShader.h"
 
 #include "core/resource/ResourceManager.h"
 
 namespace Vortak {
-    OpenGLPlatform::OpenGLPlatform() {
+    OpenGLDevice::OpenGLDevice() {
         if (!gladLoadGL(glfwGetProcAddress)) {
             throw std::runtime_error("Failed to initialize GLAD");
         }
     }
 
-    void OpenGLPlatform::initialize() {}
+    void OpenGLDevice::initialize() {}
 
-    void OpenGLPlatform::shutDown() {}
+    void OpenGLDevice::shutDown() {}
 
-    SwapChain* OpenGLPlatform::createSwapChain(Window* window) {
+    SwapChain* OpenGLDevice::createSwapChain(Window* window) {
         return nullptr;
     }
 
-    OpenGLPlatform::~OpenGLPlatform() {}
+    OpenGLDevice::~OpenGLDevice() {}
 }

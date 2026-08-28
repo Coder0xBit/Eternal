@@ -2,12 +2,12 @@
 #include "core/graphics/IndexBuffer.h"
 #include "core/graphics/vulkan/VulkanBuffer.h"
 #include "core/graphics/Vertex.h"
-#include "core/graphics/vulkan/VulkanPlatform.h"
+#include "core/graphics/vulkan/VulkanDevice.h"
 
 namespace Vortak {
     class VulkanIndexBuffer : public IndexBuffer {
     public:
-        VulkanIndexBuffer(GraphicsPlatform* graphicsPlatform);
+        VulkanIndexBuffer(GraphicsDevice* graphicsDevice);
         ~VulkanIndexBuffer() override;
         void bind() override;
         void unBind() override;
@@ -21,6 +21,6 @@ namespace Vortak {
         std::unique_ptr<VulkanBuffer> mBuffer;
         vk::MemoryPropertyFlags mBufferProperties =
         vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-        VulkanPlatform* mVulkanPlatform;
+        VulkanDevice* mVulkanPlatform;
     };
 }

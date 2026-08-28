@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/graphics/vulkan/VulkanPlatform.h"
+#include "core/graphics/vulkan/VulkanDevice.h"
 #include "core/imgui/ImGuiOverlay.h"
 #include "core/window/Window.h"
 
@@ -16,7 +16,7 @@ namespace Vortak {
         void render() override;
 
     private:
-        VulkanPlatform* mVulkanPlatform = nullptr;
+        VulkanDevice* mVulkanPlatform = nullptr;
         Window* mWindow = nullptr;
 
         void init();

@@ -5,9 +5,9 @@
 #include "core/graphics/Backend.h"
 
 namespace Vortak {
-    class GraphicsPlatform {
+    class GraphicsDevice {
     public:
-        virtual ~GraphicsPlatform() = default;
+        virtual ~GraphicsDevice() = default;
 
         virtual void initialize() = 0;
 
@@ -21,9 +21,9 @@ namespace Vortak {
         };
 
         class Builder : public utils::PrivateImplementation<BuilderDetails> {
-            friend class GraphicsPlatform;
-            friend class VulkanPlatform;
-            friend class OpenGLPlatform;
+            friend class GraphicsDevice;
+            friend class VulkanDevice;
+            friend class OpenGLDevice;
 
         public:
             Builder() noexcept;
@@ -42,9 +42,9 @@ namespace Vortak {
 
             Builder& backend(Backend backend) noexcept;
 
-            std::unique_ptr<GraphicsPlatform> build() const noexcept;
+            std::unique_ptr<GraphicsDevice> build() const noexcept;
         };
 
-        static std::unique_ptr<GraphicsPlatform> create(const Builder& builder);
+        static std::unique_ptr<GraphicsDevice> create(const Builder& builder);
     };
 }

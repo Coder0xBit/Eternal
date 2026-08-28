@@ -1,28 +1,29 @@
-#include "core/graphics/vulkan/VulkanPlatform.h"
+#include "core/graphics/vulkan/VulkanDevice.h"
 #include "core/graphics/vulkan/VulkanConstants.h"
 #include "core/resource/ResourceManager.h"
+#include "core/graphics/vulkan/VulkanSwapChain.h"
 #include "core/resource/ShaderProgram.h"
 
 #include <set>
 #include <GLFW/glfw3.h>
 
 namespace Vortak {
-    VulkanPlatform::VulkanPlatform(const Builder& builder) {
+    VulkanDevice::VulkanDevice(const Builder& builder) {
         mApplicationName = builder->applicationName;
 
-        VulkanPlatform::initialize();
+        VulkanDevice::initialize();
     }
 
-    VulkanPlatform::~VulkanPlatform() {
-        VulkanPlatform::shutDown();
+    VulkanDevice::~VulkanDevice() {
+        VulkanDevice::shutDown();
     }
 
-    void VulkanPlatform::initialize() {
+    void VulkanDevice::initialize() {
         mVkInstance = createInstance(mApplicationName);
         mPhysicalDevice = choosePhysicalDevice(mVkInstance);
     }
 
-    vk::Instance VulkanPlatform::createInstance(const std::string& applicationName) {
+    vk::Instance VulkanDevice::createInstance(const std::string& applicationName) {
         uint32_t version = 0;
         vkEnumerateInstanceVersion(&mVersion);
 
@@ -79,7 +80,7 @@ namespace Vortak {
         return vk::createInstance(createInfo, nullptr);
     }
 
-    vk::PhysicalDevice VulkanPlatform::choosePhysicalDevice(const vk::Instance& instance) {
+    vk::PhysicalDevice VulkanDevice::choosePhysicalDevice(const vk::Instance& instance) {
         std::vector<vk::PhysicalDevice> availableDevices = instance.enumeratePhysicalDevices();
 
         for (vk::PhysicalDevice& device : availableDevices) {
@@ -94,7 +95,7 @@ namespace Vortak {
         return nullptr;
     }
 
-    vk::Device VulkanPlatform::createLogicalDevice(vk::PhysicalDevice& device, uint32_t graphicsQueueFamilyIndex,
+    vk::Device VulkanDevice::createLogicalDevice(vk::PhysicalDevice& device, uint32_t graphicsQueueFamilyIndex,
                                                    uint32_t presentQueueFamilyIndex) {
         vk::Device logicalDevice;
         float queuePriority = 1.0f;
@@ -134,7 +135,7 @@ namespace Vortak {
         return logicalDevice;
     }
 
-    void VulkanPlatform::shutDown() {
+    void VulkanDevice::shutDown() {
         if (mSurface) {
             mVkInstance.destroySurfaceKHR(mSurface);
         }
@@ -142,7 +143,7 @@ namespace Vortak {
         mVkInstance.destroy();
     }
 
-    SwapChain* VulkanPlatform::createSwapChain(Window* window) {
+    SwapChain* VulkanDevice::createSwapChain(Window* window) {
         mSurface = createWindowSurface(window);
         vk::Extent2D fallbackExtent = getExtent(window);
 
@@ -164,7 +165,7 @@ namespace Vortak {
     }
 
 
-    uint32_t VulkanPlatform::identifyGraphicsQueueFamilyIndex(vk::PhysicalDevice& device, vk::QueueFlags flags) {
+    uint32_t VulkanDevice::identifyGraphicsQueueFamilyIndex(vk::PhysicalDevice& device, vk::QueueFlags flags) {
         uint32_t graphicsQueueFamilyIndex = INVALID_VK_INDEX;
         std::vector<vk::QueueFamilyProperties> queueFamiliesProperties = device.getQueueFamilyProperties();
         for (uint32_t i = 0; i < queueFamiliesProperties.size(); i++) {
@@ -177,7 +178,7 @@ namespace Vortak {
         return graphicsQueueFamilyIndex;
     }
 
-    uint32_t VulkanPlatform::identifyPresentQueueFamilyIndex(vk::PhysicalDevice& device, vk::SurfaceKHR& surface) {
+    uint32_t VulkanDevice::identifyPresentQueueFamilyIndex(vk::PhysicalDevice& device, vk::SurfaceKHR& surface) {
         uint32_t presentQueueFamilyIndex = INVALID_VK_INDEX;
         std::vector<vk::QueueFamilyProperties> queueFamiliesProperties = device.getQueueFamilyProperties();
         for (uint32_t i = 0; i < queueFamiliesProperties.size(); i++) {
@@ -189,7 +190,7 @@ namespace Vortak {
         return presentQueueFamilyIndex;
     }
 
-    uint32_t VulkanPlatform::getMemoryType(vk::PhysicalDevice physicalDevice, vk::MemoryPropertyFlags properties,
+    uint32_t VulkanDevice::getMemoryType(vk::PhysicalDevice physicalDevice, vk::MemoryPropertyFlags properties,
                                            uint32_t typeBits) {
         vk::PhysicalDeviceMemoryProperties prop = physicalDevice.getMemoryProperties();
         for (uint32_t i = 0; i < prop.memoryTypeCount; i++)
@@ -198,7 +199,7 @@ namespace Vortak {
         return 0xFFFFFFFF;
     }
 
-    bool VulkanPlatform::validateExtensions(VkStringArray extensions) {
+    bool VulkanDevice::validateExtensions(VkStringArray extensions) {
         std::vector<vk::ExtensionProperties> supportedExtensions = vk::enumerateInstanceExtensionProperties();
 
         for (VkString extension : extensions) {
@@ -218,7 +219,7 @@ namespace Vortak {
         return true;
     }
 
-    bool VulkanPlatform::validateLayers(VkStringArray layers) {
+    bool VulkanDevice::validateLayers(VkStringArray layers) {
         std::vector<vk::LayerProperties> supportedLayers = vk::enumerateInstanceLayerProperties();
 
         for (VkString layer : layers) {
@@ -238,18 +239,18 @@ namespace Vortak {
         return true;
     }
 
-    bool VulkanPlatform::checkDeviceExtensionSupport(const vk::PhysicalDevice& device,
-                                                     const VkStringArray requestedExtensions) {
-        std::set<std::string> requiredExtesnions(requestedExtensions.begin(), requestedExtensions.end());
+    bool VulkanDevice::checkDeviceExtensionSupport(const vk::PhysicalDevice& device,
+                                                     const VkStringArray& requestedExtensions) {
+        std::set<std::string> requiredExtensionsSet(requestedExtensions.begin(), requestedExtensions.end());
 
         for (vk::ExtensionProperties& extensionProperty : device.enumerateDeviceExtensionProperties()) {
-            requiredExtesnions.erase(extensionProperty.extensionName);
+            requiredExtensionsSet.erase(extensionProperty.extensionName);
         }
 
-        return requiredExtesnions.empty();
+        return requiredExtensionsSet.empty();
     }
 
-    bool VulkanPlatform::checkDeviceIsSuitable(const vk::PhysicalDevice& device) {
+    bool VulkanDevice::checkDeviceIsSuitable(const vk::PhysicalDevice& device) {
         VkStringArray requestedExtensions = {
             VK_KHR_SWAPCHAIN_EXTENSION_NAME
         };
@@ -258,7 +259,7 @@ namespace Vortak {
         return isExtensionsSupported;
     }
 
-    void VulkanPlatform::logDeviceProps(const vk::PhysicalDevice& device) {
+    void VulkanDevice::logDeviceProps(const vk::PhysicalDevice& device) {
         vk::PhysicalDeviceProperties properties = device.getProperties();
 
         Vortak::Logger::Debug("Device Name : {}", properties.deviceName.data());
@@ -288,7 +289,7 @@ namespace Vortak {
         Vortak::Logger::Debug("Device Type : {}", deviceType);
     }
 
-    vk::CommandPool VulkanPlatform::createCommandPool(vk::CommandPoolCreateFlags commandPoolCreateFlagBits) {
+    vk::CommandPool VulkanDevice::createCommandPool(vk::CommandPoolCreateFlags commandPoolCreateFlagBits) {
         vk::CommandPoolCreateInfo commandPoolCreateInfo = vk::CommandPoolCreateInfo()
                                                          .setFlags(vk::CommandPoolCreateFlagBits::eResetCommandBuffer)
                                                          .setQueueFamilyIndex(mGraphicsQueueIndex);
@@ -296,7 +297,7 @@ namespace Vortak {
         return mLogicalDevice.createCommandPool(commandPoolCreateInfo);
     }
 
-    std::vector<vk::CommandBuffer> VulkanPlatform::allocateCommandBuffers(
+    std::vector<vk::CommandBuffer> VulkanDevice::allocateCommandBuffers(
         vk::CommandPool commandPool, vk::CommandBufferLevel level, uint32_t count) {
         vk::CommandBufferAllocateInfo commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
                                                                  .setCommandPool(commandPool)
@@ -306,16 +307,16 @@ namespace Vortak {
         return mLogicalDevice.allocateCommandBuffers(commandBufferAllocateInfo);
     }
 
-    vk::CommandBuffer VulkanPlatform::allocateCommandBuffer(vk::CommandPool commandPool, vk::CommandBufferLevel level) {
+    vk::CommandBuffer VulkanDevice::allocateCommandBuffer(vk::CommandPool commandPool, vk::CommandBufferLevel level) {
         auto commandBuffer = allocateCommandBuffers(commandPool, level, 1);
         return commandBuffer.front();
     }
 
-    void VulkanPlatform::destroyCommandPool(vk::CommandPool commandPool) {
+    void VulkanDevice::destroyCommandPool(vk::CommandPool commandPool) {
         mLogicalDevice.destroyCommandPool(commandPool);
     }
 
-    vk::CommandBuffer VulkanPlatform::beginSingleCommand(vk::CommandPool commandPool) {
+    vk::CommandBuffer VulkanDevice::beginSingleCommand(vk::CommandPool commandPool) {
         vk::CommandBufferAllocateInfo commandBufferAllocateInfo = vk::CommandBufferAllocateInfo()
                                                                  .setCommandPool(commandPool)
                                                                  .setLevel(vk::CommandBufferLevel::ePrimary)
@@ -331,7 +332,7 @@ namespace Vortak {
         return commandBuffer;
     }
 
-    void VulkanPlatform::endSingleCommand(vk::CommandPool commandPool, vk::CommandBuffer commandBuffer,
+    void VulkanDevice::endSingleCommand(vk::CommandPool commandPool, vk::CommandBuffer commandBuffer,
                                           vk::Queue queue) {
         commandBuffer.end();
         vk::SubmitInfo submitInfo = vk::SubmitInfo()
@@ -342,14 +343,14 @@ namespace Vortak {
         mLogicalDevice.freeCommandBuffers(commandPool, commandBuffer);
     }
 
-    void VulkanPlatform::executeOneCommand(vk::CommandPool commandPool, vk::Queue queue,
+    void VulkanDevice::executeOneCommand(vk::CommandPool commandPool, vk::Queue queue,
                                            const std::function<void(vk::CommandBuffer)>& function) {
         vk::CommandBuffer commandBuffer = beginSingleCommand(commandPool);
         function(commandBuffer);
         endSingleCommand(commandPool, commandBuffer, queue);
     }
 
-    vk::SurfaceKHR VulkanPlatform::createWindowSurface(Vortak::Window* window) const {
+    vk::SurfaceKHR VulkanDevice::createWindowSurface(Vortak::Window* window) const {
         VORTAK_ASSERT(window != nullptr, "Window is null");
         auto glfwWindow = static_cast<GLFWwindow*>(window->getNativeWindow());
 
@@ -366,7 +367,7 @@ namespace Vortak {
         return surface;
     }
 
-    vk::Extent2D VulkanPlatform::getExtent(Vortak::Window* window) {
+    vk::Extent2D VulkanDevice::getExtent(Vortak::Window* window) {
         VORTAK_ASSERT(window != nullptr, "Window is null");
         int width = 0, height = 0;
         auto glfwWindow = static_cast<GLFWwindow*>(window->getNativeWindow());

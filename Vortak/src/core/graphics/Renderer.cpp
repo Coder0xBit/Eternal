@@ -1,5 +1,6 @@
 #include "core/graphics/Renderer.h"
 
+#include "core/Camera.h"
 #include "core/scene/Entity.h"
 
 namespace Vortak {
@@ -20,7 +21,7 @@ namespace Vortak {
         return *this;
     }
 
-    Renderer::Builder& Renderer::Builder::platform(GraphicsPlatform* platform) noexcept {
+    Renderer::Builder& Renderer::Builder::platform(GraphicsDevice* platform) noexcept {
         mImpl->platform = platform;
         return *this;
     }
@@ -35,11 +36,11 @@ namespace Vortak {
     }
 
     Renderer::Renderer(const Builder& builder) noexcept {
-        mGraphicsPlatform = builder.mImpl->platform;
+        mGraphicsDevice = builder.mImpl->platform;
         mWindow = builder.mImpl->window;
         mBackend = builder.mImpl->backend;
 
-        mBufferManager = std::make_unique<BufferManager>(mGraphicsPlatform, mBackend);
+        mBufferManager = std::make_unique<BufferManager>(mGraphicsDevice, mBackend);
     }
 
     bool Renderer::beginFrame() { return true; }

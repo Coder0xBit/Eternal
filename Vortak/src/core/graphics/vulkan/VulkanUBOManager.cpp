@@ -1,10 +1,10 @@
 #include "core/graphics/vulkan/VulkanUBOManager.h"
-#include "core/graphics/vulkan/VulkanPlatform.h"
+#include "core/graphics/vulkan/VulkanDevice.h"
 #include "core/scene/MeshComponent.h"
 #include "core/scene/Entity.h"
 
 namespace Vortak {
-    VulkanUBOManager::VulkanUBOManager(VulkanPlatform* vulkanPlatform, Scene* scene) : mVulkanPlatform(
+    VulkanUBOManager::VulkanUBOManager(VulkanDevice* vulkanPlatform, Scene* scene) : mVulkanPlatform(
         vulkanPlatform) {
         mScene = scene;
         initializeBuffers();

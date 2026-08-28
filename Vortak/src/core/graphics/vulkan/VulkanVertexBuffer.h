@@ -3,12 +3,12 @@
 #include "core/graphics/VertexBufferLayout.h"
 #include "core/graphics/Vertex.h"
 #include "core/graphics/VertexBuffer.h"
-#include "core/graphics/vulkan/VulkanPlatform.h"
+#include "core/graphics/vulkan/VulkanDevice.h"
 
 namespace Vortak {
     class VulkanVertexBuffer : public VertexBuffer {
     public:
-        VulkanVertexBuffer(GraphicsPlatform* graphicsPlatform, VertexBufferLayout bufferLayout);
+        VulkanVertexBuffer(GraphicsDevice* graphicsDevice, VertexBufferLayout bufferLayout);
         ~VulkanVertexBuffer() override;
         void bind() override;
         void unBind() override;
@@ -22,6 +22,6 @@ namespace Vortak {
         std::unique_ptr<VulkanBuffer> mBuffer;
         vk::MemoryPropertyFlags mBufferProperties =
         vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
-        VulkanPlatform* mVulkanPlatform;
+        VulkanDevice* mVulkanPlatform;
     };
 }

@@ -4,8 +4,8 @@
 #include "core/scene/Entity.h"
 
 namespace Vortak {
-    BufferManager::BufferManager(GraphicsPlatform* graphicsPlatform, Backend backend)
-        : mGraphicsPlatform(graphicsPlatform), mBackend(backend) {}
+    BufferManager::BufferManager(GraphicsDevice* graphicsDevice, Backend backend)
+        : mGraphicsDevice(graphicsDevice), mBackend(backend) {}
 
     const MeshBuffer* BufferManager::getMesh(MeshKey meshKey) {
         ResourceHandle<Model> handle = meshKey.modelHandle;
@@ -31,7 +31,7 @@ namespace Vortak {
     MeshBuffer BufferManager::uploadMesh(const Mesh& mesh) const {
         MeshBuffer meshBuffer;
         meshBuffer.vertexBuffer = VertexBuffer::Builder()
-                                 .graphicsPlatform(mGraphicsPlatform)
+                                 .graphicsDevice(mGraphicsDevice)
                                  .backend(mBackend)
                                   // .layout(mesh.getVertexBufferLayout())
                                  .build();
@@ -41,7 +41,7 @@ namespace Vortak {
 
         std::vector<uint32_t> indices = mesh.indices;
         meshBuffer.indexBuffer = IndexBuffer::Builder()
-                                .graphicsPlatform(mGraphicsPlatform)
+                                .graphicsDevice(mGraphicsDevice)
                                 .backend(mBackend)
                                 .build();
 

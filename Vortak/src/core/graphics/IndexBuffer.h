@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/graphics/GraphicsPlatform.h"
+#include "core/graphics/GraphicsDevice.h"
 #include "core/graphics/Backend.h"
 #include "utils/Base.h"
 
@@ -14,7 +14,7 @@ namespace Vortak {
         virtual void setBuffer(const std::vector<uint32_t>& indices) = 0;
 
         struct BuilderDetails {
-            GraphicsPlatform* graphicsPlatform = nullptr;
+            GraphicsDevice* graphicsDevice = nullptr;
             Backend backend = Backend::Vulkan;
         };
 
@@ -34,7 +34,7 @@ namespace Vortak {
 
             Builder& operator=(Builder&& rhs) noexcept;
 
-            Builder& graphicsPlatform(GraphicsPlatform* graphicsPlatform) noexcept;
+            Builder& graphicsDevice(GraphicsDevice* graphicsDevice) noexcept;
 
             Builder& backend(Backend backend) noexcept;
 

@@ -3,8 +3,7 @@
 #define GLM_ENABLE_EXPERIMENTAL
 
 #include "utils/Base.h"
-#include "core/graphics/vulkan/VulkanGraphicsContext.h"
-#include "core/graphics/GraphicsPlatform.h"
+#include "core/graphics/GraphicsDevice.h"
 #include "core/Camera.h"
 #include "core/window/Window.h"
 
@@ -17,15 +16,15 @@ namespace Vortak {
     using VkString = const char*;
     using VkStringArrayPtr = const char**;
 
-    class VulkanPlatform : public GraphicsPlatform, public VulkanGraphicsContext {
+    class VulkanDevice : public GraphicsDevice {
     public:
         struct PushConstants {
             glm::mat4 transform{1.f};
         };
 
-        VulkanPlatform(const Builder& builder);
+        VulkanDevice(const Builder& builder);
 
-        ~VulkanPlatform() override;
+        ~VulkanDevice() override;
 
         void initialize() override;
 
@@ -48,7 +47,7 @@ namespace Vortak {
 
         bool validateLayers(VkStringArray layers);
 
-        bool checkDeviceExtensionSupport(const vk::PhysicalDevice& device, const VkStringArray requestedExtensions);
+        bool checkDeviceExtensionSupport(const vk::PhysicalDevice& device, const VkStringArray& requestedExtensions);
 
         bool checkDeviceIsSuitable(const vk::PhysicalDevice& device);
 
@@ -77,8 +76,37 @@ namespace Vortak {
         static uint32_t getMemoryType(vk::PhysicalDevice physicalDevice, vk::MemoryPropertyFlags properties,
                                       uint32_t typeBits);
 
+        vk::Instance getVkInstance() const { return mVkInstance; }
+
+        vk::PhysicalDevice getPhysicalDevice() const { return mPhysicalDevice; }
+
+        vk::Device getLogicalDevice() const { return mLogicalDevice; }
+
+        vk::Queue getGraphicsQueue() const { return mGraphicsQueue; }
+
+        uint32_t getGraphicsQueueFamilyIndex() const { return mGraphicsQueueFamilyIndex; }
+
+        uint32_t getGraphicsQueueIndex() const { return mGraphicsQueueIndex; }
+
+        vk::Queue getPresentQueue() const { return mPresentQueue; }
+
+        uint32_t getPresentQueueFamilyIndex() const { return mPresentQueueFamilyIndex; }
+
+        uint32_t getPresentQueueIndex() const { return mPresentQueueIndex; }
+
     private:
         std::string mApplicationName;
         uint32_t mVersion = 0;
+
+        vk::Instance mVkInstance = nullptr;
+        vk::PhysicalDevice mPhysicalDevice = nullptr;
+        vk::Device mLogicalDevice = nullptr;
+        vk::SurfaceKHR mSurface = nullptr;
+        vk::Queue mGraphicsQueue = nullptr;
+        uint32_t mGraphicsQueueFamilyIndex = INVALID_VK_INDEX;
+        uint32_t mGraphicsQueueIndex = 0;
+        vk::Queue mPresentQueue = nullptr;
+        uint32_t mPresentQueueFamilyIndex = INVALID_VK_INDEX;
+        uint32_t mPresentQueueIndex = 0;
     };
 }

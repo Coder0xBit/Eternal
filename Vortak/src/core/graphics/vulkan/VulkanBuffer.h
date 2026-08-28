@@ -2,14 +2,14 @@
 
 #include <vulkan/vulkan.hpp>
 
-#include "core/graphics/vulkan/VulkanPlatform.h"
+#include "core/graphics/vulkan/VulkanDevice.h"
 #include "utils/Base.h"
 #include "core/log/Logger.h"
 
 namespace Vortak {
     class VulkanBuffer {
     public:
-        VulkanBuffer(VulkanPlatform* vulkanPlatform) : mVulkanPlatform(vulkanPlatform) {
+        VulkanBuffer(VulkanDevice* vulkanPlatform) : mVulkanPlatform(vulkanPlatform) {
         }
 
         VulkanBuffer(const VulkanBuffer&) = delete;
@@ -33,7 +33,7 @@ namespace Vortak {
 
     private:
         vk::Buffer mBuffer = nullptr;
-        VulkanPlatform* mVulkanPlatform = nullptr;
+        VulkanDevice* mVulkanPlatform = nullptr;
         vk::DeviceMemory mMemory = nullptr;
         void* mMappedMemory = nullptr;
         uint32_t mElementCount = 0;

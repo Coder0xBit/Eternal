@@ -1,10 +1,10 @@
 #include "core/graphics/vulkan/VulkanShader.h"
-#include "core/graphics/vulkan/VulkanPlatform.h"
+#include "core/graphics/vulkan/VulkanDevice.h"
 
 namespace Vortak {
-    VulkanShader::VulkanShader(GraphicsPlatform* graphicsPlatform, ShaderProgram* shaderProgram, ShaderType shaderType)
-        : Shader(graphicsPlatform, shaderProgram, shaderType) {
-        auto* vulkanPlatform = dynamic_cast<VulkanPlatform*>(graphicsPlatform);
+    VulkanShader::VulkanShader(GraphicsDevice* graphicsDevice, ShaderProgram* shaderProgram, ShaderType shaderType)
+        : Shader(graphicsDevice, shaderProgram, shaderType) {
+        auto* vulkanPlatform = dynamic_cast<VulkanDevice*>(graphicsDevice);
         mLogicalDevice = vulkanPlatform->getLogicalDevice();
 
         const uint32_t* shaderCode = reinterpret_cast<uint32_t*>(shaderProgram->blob.data());

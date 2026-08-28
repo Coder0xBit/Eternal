@@ -24,7 +24,7 @@ namespace Vortak {
         return *this;
     }
 
-    ImGuiOverlay::Builder& ImGuiOverlay::Builder::platform(GraphicsPlatform* platform) noexcept {
+    ImGuiOverlay::Builder& ImGuiOverlay::Builder::platform(GraphicsDevice* platform) noexcept {
         mImpl->platform = platform;
         return *this;
     }

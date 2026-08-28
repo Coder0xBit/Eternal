@@ -1,15 +1,19 @@
 #pragma once
-#include "core/graphics/GraphicsPlatform.h"
+#include "core/graphics/GraphicsDevice.h"
 #include "core/graphics/Shader.h"
 #include "core/graphics/ShaderType.h"
 
 namespace Vortak {
-    class OpenGLPlatform : public GraphicsPlatform {
+    class OpenGLDevice : public GraphicsDevice {
     public:
-        OpenGLPlatform();
+        OpenGLDevice();
+
         void initialize() override;
+
         void shutDown() override;
+
         SwapChain* createSwapChain(Window* window) override;
-        ~OpenGLPlatform() override;
+
+        ~OpenGLDevice() override;
     };
 }

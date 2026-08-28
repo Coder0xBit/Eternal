@@ -1,8 +1,8 @@
 #include "core/graphics/vulkan/VulkanTexture.h"
-#include "core/graphics/vulkan/VulkanPlatform.h"
+#include "core/graphics/vulkan/VulkanDevice.h"
 
 namespace Vortak {
-    VulkanTexture::VulkanTexture(Vortak::VulkanPlatform* vulkanPlatform, const Vortak::Image* imageResource) {
+    VulkanTexture::VulkanTexture(Vortak::VulkanDevice* vulkanPlatform, const Vortak::Image* imageResource) {
         mVulkanPlatform = vulkanPlatform;
         mImageResource = imageResource;
         mDevice = vulkanPlatform->getLogicalDevice();
@@ -82,7 +82,7 @@ namespace Vortak {
 
         vk::MemoryAllocateInfo memoryAllocateInfo;
         memoryAllocateInfo.allocationSize = memoryRequirements.size;
-        memoryAllocateInfo.memoryTypeIndex = VulkanPlatform::getMemoryType(
+        memoryAllocateInfo.memoryTypeIndex = VulkanDevice::getMemoryType(
             mPhysicalDevice, vk::MemoryPropertyFlagBits::eDeviceLocal, memoryRequirements.memoryTypeBits);
 
         mMemory = mDevice.allocateMemory(memoryAllocateInfo);

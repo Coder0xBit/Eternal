@@ -18,31 +18,31 @@ namespace Vortak {
     public:
         static void Init();
 
-        template<typename... Args>
+        template <typename... Args>
         static void Warn(fmt::format_string<Args...> format, Args&&... args) {
             if (s_Logger != nullptr) {
-                s_Logger->warn(fmt::runtime(format), std::forward<Args>(args)...);
+                s_Logger->warn(format, std::forward<Args>(args)...);
             }
         }
 
-        template<typename... Args>
+        template <typename... Args>
         static void Debug(fmt::format_string<Args...> format, Args&&... args) {
             if (s_Logger != nullptr) {
-                s_Logger->debug(fmt::runtime(format), std::forward<Args>(args)...);
+                s_Logger->debug(format, std::forward<Args>(args)...);
             }
         }
 
-        template<typename... Args>
+        template <typename... Args>
         static void Info(fmt::format_string<Args...> format, Args&&... args) {
             if (s_Logger != nullptr) {
-                s_Logger->info(fmt::runtime(format), std::forward<Args>(args)...);
+                s_Logger->info(format, std::forward<Args>(args)...);
             }
         }
 
-        template<typename... Args>
+        template <typename... Args>
         static void Error(fmt::format_string<Args...> format, Args&&... args) {
             if (s_Logger != nullptr) {
-                s_Logger->error(fmt::runtime(format), std::forward<Args>(args)...);
+                s_Logger->error(format, std::forward<Args>(args)...);
             }
         }
 

@@ -1,5 +1,5 @@
 #include "core/graphics/vulkan/VulkanSwapChain.h"
-#include "core/graphics/vulkan/VulkanPlatform.h"
+#include "core/graphics/vulkan/VulkanDevice.h"
 
 namespace Vortak {
     VulkanSwapChain::VulkanSwapChain(

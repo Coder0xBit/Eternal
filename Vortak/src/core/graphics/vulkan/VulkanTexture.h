@@ -13,7 +13,7 @@ namespace Vortak {
             vk::PipelineStageFlags destinationStage;
         };
 
-        VulkanTexture(Vortak::VulkanPlatform* vulkanPlatform, const Vortak::Image* imageResource);
+        VulkanTexture(Vortak::VulkanDevice* vulkanPlatform, const Vortak::Image* imageResource);
         ~VulkanTexture();
 
         std::shared_ptr<VulkanBuffer> getStagingBuffer() { return mStagingBuffer; }
@@ -46,7 +46,7 @@ namespace Vortak {
         vk::Device mDevice;
         vk::PhysicalDevice mPhysicalDevice;
 
-        Vortak::VulkanPlatform* mVulkanPlatform;
+        Vortak::VulkanDevice* mVulkanPlatform;
 
         vk::Image mImage;
         vk::DeviceSize mImageSize = 0;

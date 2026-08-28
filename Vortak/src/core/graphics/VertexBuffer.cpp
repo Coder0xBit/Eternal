@@ -8,7 +8,7 @@ namespace Vortak {
     std::unique_ptr<VertexBuffer> VertexBuffer::create(const Builder& builder) {
         switch (builder->backend) {
             case Backend::Vulkan:
-                return std::make_unique<VulkanVertexBuffer>(builder->graphicsPlatform, builder->bufferLayout);
+                return std::make_unique<VulkanVertexBuffer>(builder->graphicsDevice, builder->bufferLayout);
                 break;
             case Backend::OpenGL:
                 return std::make_unique<OpenGLVertexBuffer>(builder->bufferLayout);
@@ -32,8 +32,8 @@ namespace Vortak {
 
     VertexBuffer::Builder& VertexBuffer::Builder::operator=(Builder&& rhs) noexcept = default;
 
-    VertexBuffer::Builder& VertexBuffer::Builder::graphicsPlatform(GraphicsPlatform* graphicsPlatform) noexcept {
-        mImpl->graphicsPlatform = graphicsPlatform;
+    VertexBuffer::Builder& VertexBuffer::Builder::graphicsDevice(GraphicsDevice* graphicsDevice) noexcept {
+        mImpl->graphicsDevice = graphicsDevice;
         return *this;
     }
 

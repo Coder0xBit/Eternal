@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/graphics/vulkan/VulkanDescriptorPool.h"
-#include "core/graphics/vulkan/VulkanPlatform.h"
+#include "core/graphics/vulkan/VulkanDevice.h"
 
 namespace Vortak {
     struct PipelineLayoutCacheKey {
@@ -21,7 +21,7 @@ namespace Vortak {
     public:
         using PipelineLayoutContainer = std::unordered_map<PipelineLayoutCacheKey, vk::PipelineLayout,
             PipelineLayoutCacheKeyHasher>;
-        VulkanPipelineLayoutCache(VulkanDescriptorPool* descriptorPool, VulkanPlatform* platform);
+        VulkanPipelineLayoutCache(VulkanDescriptorPool* descriptorPool, VulkanDevice* platform);
 
         ~VulkanPipelineLayoutCache();
 
@@ -31,7 +31,7 @@ namespace Vortak {
         VulkanDescriptorSetLayout* getMaterialDescriptorSetLayout() const { return mMaterialDescriptorSetLayout; }
 
     private :
-        VulkanPlatform* mPlatform = nullptr;
+        VulkanDevice* mPlatform = nullptr;
         vk::Device mLogicalDevice;
         VulkanDescriptorPool* mDescriptorPool = nullptr;
         PipelineLayoutContainer mPipelineLayoutCache;

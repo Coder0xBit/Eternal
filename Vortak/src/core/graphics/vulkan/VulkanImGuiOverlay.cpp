@@ -6,7 +6,7 @@
 
 namespace Vortak {
     VulkanImGuiOverlay::VulkanImGuiOverlay(const Builder& builder) {
-        mVulkanPlatform = dynamic_cast<VulkanPlatform*>(builder->platform);
+        mVulkanPlatform = dynamic_cast<VulkanDevice*>(builder->platform);
         mWindow = builder->window;
 
         VORTAK_ASSERT(mVulkanPlatform != nullptr, "VulkanImGuiLayer :: VulkanPlatform is null");

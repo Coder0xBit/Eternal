@@ -1,5 +1,5 @@
 #include "core/graphics/vulkan/VulkanBuffer.h"
-#include "core/graphics/vulkan/VulkanPlatform.h"
+#include "core/graphics/vulkan/VulkanDevice.h"
 
 namespace Vortak {
     void VulkanBuffer::create(uint32_t elementCount, uint32_t elementSize, vk::BufferUsageFlagBits usage) {
@@ -21,7 +21,7 @@ namespace Vortak {
 
         vk::MemoryRequirements memRequirements = logicalDevice.getBufferMemoryRequirements(mBuffer);
 
-        uint32_t memoryTypeIndex = VulkanPlatform::getMemoryType(physicalDevice, properties,
+        uint32_t memoryTypeIndex = VulkanDevice::getMemoryType(physicalDevice, properties,
                                                                  memRequirements.memoryTypeBits);
         VORTAK_ASSERT(memoryTypeIndex != 0xFFFFFFFF, "Failed to find suitable memory type");
 

@@ -33,7 +33,7 @@ namespace Vortak {
     public:
         using MeshBuffers = std::unordered_map<MeshKey, MeshBuffer, MeshKeyHasher>;
 
-        BufferManager(GraphicsPlatform* graphicsPlatform, Backend backend);
+        BufferManager(GraphicsDevice* graphicsDevice, Backend backend);
 
         uint32_t getMeshBuffersCount() const {
             return static_cast<uint32_t>(mMeshBuffers.size());
@@ -47,7 +47,7 @@ namespace Vortak {
         MeshBuffer uploadMesh(const Mesh& mesh) const;
 
     private:
-        GraphicsPlatform* mGraphicsPlatform = nullptr;
+        GraphicsDevice* mGraphicsDevice = nullptr;
         Backend mBackend = Backend::Vulkan;
 
         MeshBuffers mMeshBuffers;

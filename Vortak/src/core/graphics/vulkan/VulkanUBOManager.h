@@ -1,7 +1,7 @@
 #pragma once
 
 #include "utils/Base.h"
-#include "core/graphics/vulkan/VulkanPlatform.h"
+#include "core/graphics/vulkan/VulkanDevice.h"
 #include "core/graphics/vulkan/VulkanBuffer.h"
 #include "core/scene/Scene.h"
 #include "core/scene/MeshComponent.h"
@@ -9,7 +9,7 @@
 #include "core/graphics/vulkan/VulkanIndexBuffer.h"
 
 namespace Vortak {
-    class VulkanPlatform;
+    class VulkanDevice;
 
     class VulkanUBOManager {
     public:
@@ -24,7 +24,7 @@ namespace Vortak {
             alignas(16) glm::mat4 model{1.0f};
         };
 
-        VulkanUBOManager(VulkanPlatform* vulkanPlatform, Scene* scene);
+        VulkanUBOManager(VulkanDevice* vulkanPlatform, Scene* scene);
 
         std::shared_ptr<VulkanBuffer> getUniformBuffer(EntityId entityId) {
             auto it = mUniformBuffers.find(entityId);
@@ -52,7 +52,7 @@ namespace Vortak {
         vk::MemoryPropertyFlags mUniformBufferProperties =
                 vk::MemoryPropertyFlagBits::eHostVisible | vk::MemoryPropertyFlagBits::eHostCoherent;
 
-        VulkanPlatform* mVulkanPlatform;
+        VulkanDevice* mVulkanPlatform;
         VulkanEntityData mUniformBuffers;
     };
 }

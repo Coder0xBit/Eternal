@@ -6,7 +6,7 @@ namespace Vortak {
     std::unique_ptr<IndexBuffer> IndexBuffer::create(const Builder& builder) {
         switch (builder->backend) {
             case Backend::Vulkan:
-                return std::make_unique<VulkanIndexBuffer>(builder->graphicsPlatform);
+                return std::make_unique<VulkanIndexBuffer>(builder->graphicsDevice);
                 break;
             case Backend::OpenGL:
                 return std::make_unique<OpenGLIndexBuffer>();
@@ -30,8 +30,8 @@ namespace Vortak {
 
     IndexBuffer::Builder& IndexBuffer::Builder::operator=(Builder&& rhs) noexcept = default;
 
-    IndexBuffer::Builder& IndexBuffer::Builder::graphicsPlatform(GraphicsPlatform* graphicsPlatform) noexcept {
-        mImpl->graphicsPlatform = graphicsPlatform;
+    IndexBuffer::Builder& IndexBuffer::Builder::graphicsDevice(GraphicsDevice* graphicsDevice) noexcept {
+        mImpl->graphicsDevice = graphicsDevice;
         return *this;
     }
 

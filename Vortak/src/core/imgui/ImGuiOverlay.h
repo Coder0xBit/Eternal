@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/graphics/Backend.h"
-#include "core/graphics/GraphicsPlatform.h"
+#include "core/graphics/GraphicsDevice.h"
 #include "core/graphics/Renderer.h"
 #include "core/window/Window.h"
 
@@ -16,7 +16,7 @@ namespace Vortak {
 
         struct BuilderDetails {
             Backend backend = Vulkan;
-            GraphicsPlatform* platform = nullptr;
+            GraphicsDevice* platform = nullptr;
             Window* window = nullptr;
             Renderer* renderer = nullptr;
         };
@@ -40,7 +40,7 @@ namespace Vortak {
 
             Builder& backend(Backend backend) noexcept;
 
-            Builder& platform(GraphicsPlatform* platform) noexcept;
+            Builder& platform(GraphicsDevice* platform) noexcept;
 
             Builder& window(Window* window) noexcept;
 

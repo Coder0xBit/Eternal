@@ -1,8 +1,8 @@
 #include "core/graphics/vulkan/VulkanIndexBuffer.h"
 
 namespace Vortak {
-    VulkanIndexBuffer::VulkanIndexBuffer(GraphicsPlatform* graphicsPlatform) {
-        mVulkanPlatform = static_cast<VulkanPlatform*>(graphicsPlatform);
+    VulkanIndexBuffer::VulkanIndexBuffer(GraphicsDevice* graphicsDevice) {
+        mVulkanPlatform = static_cast<VulkanDevice*>(graphicsDevice);
         mBuffer = std::make_unique<VulkanBuffer>(mVulkanPlatform);
     }
 

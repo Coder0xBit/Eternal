@@ -33,7 +33,7 @@ namespace Vortak {
 
         mInputDispatcher = std::make_unique<InputDispatcher>(mWindow.get());
 
-        mGraphicsPlatform = Vortak::GraphicsPlatform::Builder()
+        mGraphicsDevice = Vortak::GraphicsDevice::Builder()
                            .applicationName("Vortak Application")
                            .backend(mBackend)
                            .build();
@@ -43,13 +43,13 @@ namespace Vortak {
 
         mRenderer = Vortak::Renderer::Builder()
                    .backend(mBackend)
-                   .platform(mGraphicsPlatform.get())
+                   .platform(mGraphicsDevice.get())
                    .window(mWindow.get())
                    .build();
 
         // mImGuiOverlay = Vortak::ImGuiOverlay::Builder()
         //                .backend(mBackend)
-        //                .platform(mGraphicsPlatform.get())
+        //                .platform(mGraphicsDevice.get())
         //                .window(mWindow.get())
         //                .renderer(mRenderer.get())
         //                .build();

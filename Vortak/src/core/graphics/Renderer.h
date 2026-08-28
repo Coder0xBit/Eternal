@@ -6,7 +6,7 @@
 #include "core/graphics/SwapChain.h"
 #include "core/graphics/Backend.h"
 #include "core/Camera.h "
-#include "core/graphics/GraphicsPlatform.h"
+#include "core/graphics/GraphicsDevice.h"
 #include "core/graphics/BufferManager.h"
 #include "core/scene/Scene.h"
 
@@ -15,7 +15,7 @@ namespace Vortak {
     public:
         struct BuilderDetails {
             Backend backend = Vulkan;
-            GraphicsPlatform* platform = nullptr;
+            GraphicsDevice* platform = nullptr;
             Window* window = nullptr;
         };
 
@@ -37,7 +37,7 @@ namespace Vortak {
 
             Builder& backend(Backend backend) noexcept;
 
-            Builder& platform(GraphicsPlatform* platform) noexcept;
+            Builder& platform(GraphicsDevice* platform) noexcept;
 
             Builder& window(Window* window) noexcept;
 
@@ -71,7 +71,7 @@ namespace Vortak {
 
     private :
         Vortak::RenderQueue<Command> mRenderQueue;
-        GraphicsPlatform* mGraphicsPlatform = nullptr;
+        GraphicsDevice* mGraphicsDevice = nullptr;
         std::unique_ptr<BufferManager> mBufferManager = nullptr;
         Window* mWindow = nullptr;
         Backend mBackend = Vulkan;

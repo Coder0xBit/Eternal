@@ -1,7 +1,7 @@
 #pragma once
 #include <utility>
 
-#include "core/graphics/GraphicsPlatform.h"
+#include "core/graphics/GraphicsDevice.h"
 #include "core/graphics/Vertex.h"
 #include "core/graphics/Backend.h"
 #include "core/graphics/VertexBufferLayout.h"
@@ -23,7 +23,7 @@ namespace Vortak {
 
         struct BuilderDetails {
             VertexBufferLayout bufferLayout;
-            GraphicsPlatform* graphicsPlatform = nullptr;
+            GraphicsDevice* graphicsDevice = nullptr;
             Backend backend = Backend::Vulkan;
         };
 
@@ -43,7 +43,7 @@ namespace Vortak {
 
             Builder& operator=(Builder&& rhs) noexcept;
 
-            Builder& graphicsPlatform(GraphicsPlatform* graphicsPlatform) noexcept;
+            Builder& graphicsDevice(GraphicsDevice* graphicsDevice) noexcept;
 
             Builder& backend(Backend backend) noexcept;
 
