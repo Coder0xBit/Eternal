@@ -32,6 +32,8 @@ namespace Vortak {
 
         SwapChain* createSwapChain(Window* window) override;
 
+        Shader* createShader(const std::filesystem::path& path, ShaderType shaderType) override;
+
         vk::Instance createInstance(const std::string& applicationName);
 
         vk::PhysicalDevice choosePhysicalDevice(const vk::Instance& instance);

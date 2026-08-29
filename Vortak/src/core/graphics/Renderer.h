@@ -5,7 +5,7 @@
 #include "core/graphics/RenderQueue.h"
 #include "core/graphics/SwapChain.h"
 #include "core/graphics/Backend.h"
-#include "core/Camera.h "
+#include "core/Camera.h"
 #include "core/graphics/GraphicsDevice.h"
 #include "core/graphics/BufferManager.h"
 #include "core/scene/Scene.h"
@@ -75,5 +75,8 @@ namespace Vortak {
         std::unique_ptr<BufferManager> mBufferManager = nullptr;
         Window* mWindow = nullptr;
         Backend mBackend = Vulkan;
+
+        Shader* mVertexShader = nullptr;
+        Shader* mFragmentShader = nullptr;
     };
 }

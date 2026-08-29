@@ -14,6 +14,8 @@ namespace Vortak {
 
         SwapChain* createSwapChain(Window* window) override;
 
+        Shader* createShader(const std::filesystem::path& path, ShaderType shaderType) override;
+
         ~OpenGLDevice() override;
     };
 }

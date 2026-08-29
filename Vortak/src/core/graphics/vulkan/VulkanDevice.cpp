@@ -7,6 +7,8 @@
 #include <set>
 #include <GLFW/glfw3.h>
 
+#include "VulkanShader.h"
+
 namespace Vortak {
     VulkanDevice::VulkanDevice(const Builder& builder) {
         mApplicationName = builder->applicationName;
@@ -96,7 +98,7 @@ namespace Vortak {
     }
 
     vk::Device VulkanDevice::createLogicalDevice(vk::PhysicalDevice& device, uint32_t graphicsQueueFamilyIndex,
-                                                   uint32_t presentQueueFamilyIndex) {
+                                                 uint32_t presentQueueFamilyIndex) {
         vk::Device logicalDevice;
         float queuePriority = 1.0f;
 
@@ -164,6 +166,11 @@ namespace Vortak {
                                                  mPresentQueueFamilyIndex);
     }
 
+    Shader* VulkanDevice::createShader(const std::filesystem::path& path, ShaderType shaderType) {
+        auto shaderProgram = ResourceManager::get().load<ShaderProgram>(path.string());
+        auto* shader = Memory::Allocate<VulkanShader>(this, shaderProgram, shaderType);
+        return shader;
+    }
 
     uint32_t VulkanDevice::identifyGraphicsQueueFamilyIndex(vk::PhysicalDevice& device, vk::QueueFlags flags) {
         uint32_t graphicsQueueFamilyIndex = INVALID_VK_INDEX;
@@ -191,7 +198,7 @@ namespace Vortak {
     }
 
     uint32_t VulkanDevice::getMemoryType(vk::PhysicalDevice physicalDevice, vk::MemoryPropertyFlags properties,
-                                           uint32_t typeBits) {
+                                         uint32_t typeBits) {
         vk::PhysicalDeviceMemoryProperties prop = physicalDevice.getMemoryProperties();
         for (uint32_t i = 0; i < prop.memoryTypeCount; i++)
             if ((prop.memoryTypes[i].propertyFlags & properties) == properties && typeBits & (1 << i))
@@ -240,7 +247,7 @@ namespace Vortak {
     }
 
     bool VulkanDevice::checkDeviceExtensionSupport(const vk::PhysicalDevice& device,
-                                                     const VkStringArray& requestedExtensions) {
+                                                   const VkStringArray& requestedExtensions) {
         std::set<std::string> requiredExtensionsSet(requestedExtensions.begin(), requestedExtensions.end());
 
         for (vk::ExtensionProperties& extensionProperty : device.enumerateDeviceExtensionProperties()) {
@@ -333,7 +340,7 @@ namespace Vortak {
     }
 
     void VulkanDevice::endSingleCommand(vk::CommandPool commandPool, vk::CommandBuffer commandBuffer,
-                                          vk::Queue queue) {
+                                        vk::Queue queue) {
         commandBuffer.end();
         vk::SubmitInfo submitInfo = vk::SubmitInfo()
            .setCommandBuffers(commandBuffer);
@@ -344,7 +351,7 @@ namespace Vortak {
     }
 
     void VulkanDevice::executeOneCommand(vk::CommandPool commandPool, vk::Queue queue,
-                                           const std::function<void(vk::CommandBuffer)>& function) {
+                                         const std::function<void(vk::CommandBuffer)>& function) {
         vk::CommandBuffer commandBuffer = beginSingleCommand(commandPool);
         function(commandBuffer);
         endSingleCommand(commandPool, commandBuffer, queue);

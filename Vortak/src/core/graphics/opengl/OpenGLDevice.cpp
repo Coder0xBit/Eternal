@@ -18,5 +18,11 @@ namespace Vortak {
         return nullptr;
     }
 
+    Shader* OpenGLDevice::createShader(const std::filesystem::path& path, ShaderType shaderType) {
+        auto shaderProgram = ResourceManager::get().load<ShaderProgram>(path.string());
+        auto* shader = Memory::Allocate<OpenGLShader>(this, shaderProgram, shaderType);
+        return shader;
+    }
+
     OpenGLDevice::~OpenGLDevice() {}
 }

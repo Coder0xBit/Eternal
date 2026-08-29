@@ -45,6 +45,7 @@ namespace Vortak {
 
     bool Renderer::beginFrame() { return true; }
 
+
     void Renderer::render(Vortak::Camera* camera, Vortak::Scene* scene) {
         auto view = scene->getAllEntityWith<Vortak::MeshComponent>();
         for (auto& handle : view) {

@@ -51,8 +51,7 @@ namespace Vortak {
         bool depthTest = true;
         bool depthWrite = true;
 
-        CompareOperation depthCompare =
-            CompareOperation::Less;
+        CompareOperation depthCompare = CompareOperation::Less;
     };
 
     struct BlendState {

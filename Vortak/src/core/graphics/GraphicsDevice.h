@@ -3,8 +3,11 @@
 #include "core/window/Window.h"
 #include "core/graphics/SwapChain.h"
 #include "core/graphics/Backend.h"
+#include "core/graphics/ShaderType.h"
 
 namespace Vortak {
+    class Shader;
+
     class GraphicsDevice {
     public:
         virtual ~GraphicsDevice() = default;
@@ -14,6 +17,8 @@ namespace Vortak {
         virtual void shutDown() = 0;
 
         virtual SwapChain* createSwapChain(Window* window) = 0;
+
+        virtual Shader* createShader(const std::filesystem::path& path, ShaderType shaderType) = 0;
 
         struct BuilderDetails {
             std::string applicationName;
